@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="4dp" >
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rectangle_stroke_grey"
+        android:padding="1dp" >
+
+        <ImageView
+            android:id="@+id/photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="72dp"
+            android:minWidth="72dp"
+            android:scaleType="centerCrop" />
+
+        <ImageButton
+            android:id="@+id/editButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/oval_view_transparent_dark"
+            android:clickable="false"
+            android:scaleType="center"
+            android:src="@drawable/ic_create_white_24dp"/>
+        
+        <ProgressBar android:id="@+id/uploadProgres"
+            android:layout_height="36dp"
+            android:layout_width="36dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone"/>
+        
+        
+        <ImageButton
+            android:id="@+id/retryButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/oval_view_transparent_dark"
+            android:clickable="false"
+            android:scaleType="center"
+            android:src="@drawable/ic_error_red_24dp"
+            android:visibility="gone"/>
+        
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="Photo title"
+        android:textColor="@color/text_color_dark"
+        android:textSize="16sp" />
+
+</LinearLayout>

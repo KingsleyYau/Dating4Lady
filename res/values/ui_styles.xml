@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Material Buttons -->
+    
+    <style name="Button">
+       	<item name="android:layout_height">42dp</item>
+	    <item name="android:layout_width">128dp</item>
+	    <item name="android:clickable">true</item>
+    </style>
+    
+    <style name="Button.WhiteButton">
+	    <item name="elevation">1dp</item>
+	    <item name="android:background">@color/white</item>
+	    <item name="android:textColor">@color/text_color_dark</item>
+	    <item name="touch_feedback">@drawable/touch_feedback_round_border_white</item>
+	</style>
+    
+   	<style name="Button.WhiteButton.Flat">
+	    <item name="elevation">0dp</item>
+	</style>
+    
+	<style name="Button.BlueButton">
+	    <item name="elevation">1dp</item>
+	    <item name="android:background">@color/blue</item>
+	    <item name="android:textColor">@color/white</item>
+	    <item name="touch_feedback">@drawable/touch_feedback_holo_dark</item>
+	</style>
+	
+	<style name="Button.BlueButton.Flat">
+	    <item name="elevation">0dp</item>
+	</style>
+	
+	<!-- Material Button end -->
+
+
+	<!-- Avatar -->
+	<style name="Avatar">
+	</style>
+	
+	<style name="Avatar.Man">
+	    <item name="android:src">@drawable/default_photo_64dp</item>
+	</style>
+	
+	<style name="Avatar.Man.40dp">
+	    <item name="android:layout_height">40dp</item>
+	    <item name="android:layout_width">40dp</item>
+	</style>
+	
+	<style name="Avatar.Man.64dp">
+	    <item name="android:layout_height">64dp</item>
+	    <item name="android:layout_width">64dp</item>
+	</style>
+	
+	<style name="Avatar.Lady">
+	</style>
+	
+	<style name="Avatar.Lady.40dp">
+	    <item name="android:src">@drawable/female_default_profile_photo_40dp</item>
+		<item name="android:layout_width">40dp</item>
+		<item name="android:layout_height">40dp</item>	    
+	</style>
+	
+		<style name="Avatar.Lady.64dp">
+	    <item name="android:src">@drawable/female_default_profile_photo_128dp</item>
+		<item name="android:layout_width">64dp</item>
+		<item name="android:layout_height">64dp</item>	    
+	</style>
+    
+</resources>

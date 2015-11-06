@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" >
+    
+    <item android:id="@+id/deleteAlbum"
+        android:title="@string/delete_album"
+        app:showAsAction="never"
+        android:orderInCategory="100"/>
+    
+     <item android:id="@+id/editAlbum"
+        android:title="@string/edit_album"
+        app:showAsAction="never"
+        android:orderInCategory="100"/>
+
+</menu>

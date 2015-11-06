@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+    
+    <android.support.design.widget.CoordinatorLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent">
+    
+	    <RelativeLayout android:layout_height="match_parent"
+	        android:layout_width="match_parent"
+	        android:id="@+id/fragmentReplacement"/>
+    
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        app:elevation="4dp"
+        app:fabSize="normal"
+        android:src="@drawable/ic_camera_alt_white_24dp"
+        android:layout_margin="24dp"
+        app:layout_anchor="@id/fragmentReplacement"
+        app:layout_anchorGravity="bottom|right|end"/>
+        
+        
+    </android.support.design.widget.CoordinatorLayout>
+
+</RelativeLayout>

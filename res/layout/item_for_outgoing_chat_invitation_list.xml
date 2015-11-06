@@ -1,0 +1,77 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:circleimage="http://schemas.android.com/apk/res/com.qpidnetwork.ladydating"
+    android:id="@+id/flBody"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="72dp" >
+
+    <LinearLayout android:id="@+id/masterView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="72dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:gravity="left|center" >
+
+        <RelativeLayout
+            android:layout_width="56dp"
+            android:layout_height="match_parent" >
+
+            <com.qpidnetwork.ladydating.customized.view.CircleImageView
+                android:id="@+id/avatar"
+                style="@style/Avatar.Man.40dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true" />
+
+            <ImageView
+                android:id="@+id/onlineFlag"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="16dp"
+                android:src="@drawable/circle_green_with_white_stroke_bg" />
+
+            
+        </RelativeLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/firstName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/text_color_dark"
+                    android:textSize="16sp" />
+
+                
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:textColor="@color/text_color_light"
+                android:textSize="14sp" />
+        </FrameLayout>
+    </LinearLayout>
+
+</FrameLayout>

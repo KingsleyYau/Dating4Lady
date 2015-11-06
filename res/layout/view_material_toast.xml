@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:wheel="http://schemas.android.com/apk/res-auto" >
+    
+    <LinearLayout android:layout_width="104dp"
+        android:layout_height="120dp"
+        android:orientation="vertical"
+        android:background="@drawable/rectangle_rounded_angle_transclucent_bg">
+        
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/progressing"
+            android:gravity="center"
+            android:visibility="visible">
+            
+            <ProgressBar
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:id="@+id/progress"/>
+            
+            
+            <TextView android:id="@+id/text1"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:text="Updating..."
+                android:singleLine="true"
+                android:ellipsize="end"/>
+            
+        </LinearLayout>
+        
+                <LinearLayout android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/done"
+            android:gravity="center">
+            
+            <ImageView android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:src="@drawable/ic_done_white_24dp"
+                android:layout_marginBottom="16dp"/>
+            
+            
+            <TextView android:id="@+id/text2"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:text="Done!"
+                android:singleLine="true"
+                android:ellipsize="end"/>
+            
+        </LinearLayout>
+        
+                                <LinearLayout android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/failed"
+            android:gravity="center">
+            
+            <ImageView android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:src="@drawable/ic_warning_white_24dp"
+                android:layout_marginBottom="16dp"/>
+            
+            
+            <TextView android:id="@+id/text3"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:text="Failed!"
+                android:singleLine="true"
+                android:ellipsize="end"/>
+            
+        </LinearLayout>
+        
+        
+    </LinearLayout>
+    
+
+</LinearLayout>

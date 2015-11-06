@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <declare-styleable name="RaisedButton">
+   		<attr name="android:src"/>
+        <attr name="android:text" />
+        <attr name="android:textColor"/>
+        <attr name="android:background" />
+        <attr name="touch_feedback" format="reference"/>
+        <attr name="elevation"/>
+        <attr name="radius" format="dimension"/>
+    </declare-styleable>
+    
+        
+        <!-- circleImageView -->
+    <declare-styleable name="CircleImageView">
+        <attr name="border_width" format="dimension" />
+        <attr name="border_color" format="color" />
+    </declare-styleable>
+</resources>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" 
+    android:id="@+id/masterView">
+    
+    <android.support.design.widget.CoordinatorLayout 
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+        <RelativeLayout android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:id="@+id/fragmentReplacement"/>
+        
+        <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        app:elevation="4dp"
+        app:fabSize="normal"
+        android:src="@drawable/ic_add_white_48dp"
+        android:layout_margin="24dp"
+        app:layout_anchor="@id/fragmentReplacement"
+        app:layout_anchorGravity="bottom|right|end"/>
+        
+        
+    </android.support.design.widget.CoordinatorLayout>
+    
+    
+    
+
+    
+
+        
+    
+
+</LinearLayout>

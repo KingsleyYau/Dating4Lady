@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <item name="list_view_footer" type="id"/>
+    <item name="list_view_header" type="id"/>
+    <item name="button_icon" type="id"/>
+    <item name="overflow" type="id" />
+    <item name="search" type="id"/>
+    <item name="expand" type="id"/>
+    
+    <!-- more -->
+    <item name="more_user_profile" type="id"/>
+    <item name="more_change_pwd" type="id"/>
+    <item name="more_change_language" type="id"/>
+    <item name="more_notif_setting" type="id"/>
+    <item name="more_clean_cache" type="id"/>
+    <item name="more_check_update" type="id"/>
+    <item name="more_contact_agency" type="id"/>
+    
+    
+</resources>
