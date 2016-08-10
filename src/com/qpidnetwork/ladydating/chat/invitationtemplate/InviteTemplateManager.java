@@ -54,13 +54,13 @@ public class InviteTemplateManager implements IAuthorizationCallBack{
 	}
 	
 	/**
-	 * 获取个人模板，如本地有且更新开关未打开，不更新直接返回本地
+	 * 获取个人模板，如本地有且更新开关未打开，不更新直接返回本地(2015.11.30修改为每次获取，因为后台修改模板状态，在未登录情况下可能刷新不到状态)
 	 * @param callback
 	 */
 	public void getCustomTemplate(final OnLCCustomTemplateCallback callback){
-		if((customTempList!=null) && (customTempList.length >0) && (!isNeedUpdate)){
-			callback.onCustomTemplate(true, "", "", customTempList);
-		}else{
+//		if((customTempList!=null) && (customTempList.length >0) && (!isNeedUpdate)){
+//			callback.onCustomTemplate(true, "", "", customTempList);
+//		}else{
 			RequestJniLivechat.GetMyCustomTemplate(new OnLCCustomTemplateCallback() {
 				
 				@Override
@@ -75,7 +75,7 @@ public class InviteTemplateManager implements IAuthorizationCallBack{
 					callback.onCustomTemplate(isSuccess, errno, errmsg, tempList);
 				}
 			});
-		}
+//		}
 	}
 	
 	/**

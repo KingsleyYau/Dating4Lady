@@ -1,7 +1,6 @@
 package com.qpidnetwork.ladydating.chat.invitationtemplate;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import android.os.Bundle;
@@ -16,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.qpidnetwork.framework.util.StringUtil;
 import com.qpidnetwork.ladydating.R;
 import com.qpidnetwork.ladydating.base.BaseListViewFragment;
 import com.qpidnetwork.ladydating.bean.RequestBaseResponse;
@@ -48,6 +48,14 @@ public class PersonalTemplateFragment extends BaseListViewFragment implements
 	private int mCurrLongClickPos = -1;
 	
 	private InviteTemplateMode mTemplateMode = InviteTemplateMode.EDIT_MODE;//定义模板的使用场景
+	
+	public static PersonalTemplateFragment getInstance(InviteTemplateMode mode){
+		PersonalTemplateFragment fragment = new PersonalTemplateFragment();
+		Bundle bundle = new Bundle();
+		bundle.putInt(ChatInvitationTemplateActivity.TEMPLATE_MODE, mode.ordinal());
+		fragment.setArguments(bundle);
+		return fragment;
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -70,8 +78,9 @@ public class PersonalTemplateFragment extends BaseListViewFragment implements
 	protected void setupListView(ExtendableListView listView) {
 
 		invitationList = new ArrayList<LiveChatInviteTemplateListItem>();
-		adpater = new CustomTemplateAdapter(homeActivity, invitationList);
-
+		adpater = new CustomTemplateAdapter(homeActivity, invitationList, mTemplateMode);
+		adpater.setOnCustomTemplateStatusClickListener(this);
+		
 		listView.setAdapter(adpater);
 		listView.setOnItemClickListener(this);
 		if(mTemplateMode == InviteTemplateMode.EDIT_MODE){
@@ -80,7 +89,7 @@ public class PersonalTemplateFragment extends BaseListViewFragment implements
 
 		// 关闭下拉刷新
 		getRefreshLayout().setCanPullUp(false);
-		setEmptyText("No custom Templates now.");
+		setEmptyText(getResources().getString(R.string.personal_template_list_null));
 		getPersonalTemplates();
 	}
 
@@ -92,16 +101,16 @@ public class PersonalTemplateFragment extends BaseListViewFragment implements
 		TemplateStatus reviewStatus = invitationList.get(position).tempStatus;
 		switch (reviewStatus) {
 		case Pending:
-			reviewMessage = "under review";
+			reviewMessage = getString(R.string.this_message_template_is_under_review);
 			break;
 		case Audited:
-			reviewMessage = "past";
+			reviewMessage = getString(R.string.this_message_template_is_approved);
 			break;
 		case Rejected:
-			reviewMessage = "reject";
+			reviewMessage = getString(R.string.this_message_template_is_rejected);
 			break;
 		default:
-			reviewMessage = "under review";
+			reviewMessage = getString(R.string.this_message_template_is_under_review);
 			break;
 		}
 
@@ -138,6 +147,10 @@ public class PersonalTemplateFragment extends BaseListViewFragment implements
 	@Override
 	public void handleUiMessage(Message msg) {
 		RequestBaseResponse response = (RequestBaseResponse)msg.obj;
+		String errMsg = response.errmsg;
+		if(getActivity() != null){
+			errMsg = StringUtil.getErrorMsg(getActivity(), response.errno, response.errmsg);
+		}
 		switch (msg.what) {
 		case GET_CUSTOM_TEMPLATES_CALLBACK:{
 			getProgressBar().setVisibility(View.GONE);
@@ -145,11 +158,21 @@ public class PersonalTemplateFragment extends BaseListViewFragment implements
 				LiveChatInviteTemplateListItem[] templates = (LiveChatInviteTemplateListItem[])response.body;
 				if(templates != null && templates.length > 0){
 					invitationList.clear();
-					invitationList.addAll(Arrays.asList(templates));
+					for(int i=0; i<templates.length; i++){
+						if(mTemplateMode == InviteTemplateMode.CHOOSE_MODE){
+							if((templates[i] != null) && (templates[i].tempStatus == TemplateStatus.Audited)){
+								invitationList.add(templates[i]);
+							}
+						}else{
+							if((templates[i] != null)){
+								invitationList.add(templates[i]);
+							}
+						}
+					}
 					adpater.notifyDataSetChanged();
 				}
 			}else{
-				Toast.makeText(homeActivity, response.errmsg, Toast.LENGTH_LONG).show();
+				Toast.makeText(homeActivity, errMsg, Toast.LENGTH_LONG).show();
 			}
 			onRefreshComplete();
 		}break;
@@ -160,7 +183,7 @@ public class PersonalTemplateFragment extends BaseListViewFragment implements
 				showDoneToast(getResources().getString(R.string.done));
 				getPersonalTemplates();
 			}else{
-				Toast.makeText(homeActivity, response.errmsg, Toast.LENGTH_LONG).show();
+				Toast.makeText(homeActivity, errMsg, Toast.LENGTH_LONG).show();
 			}
 		}break;
 
@@ -220,6 +243,10 @@ public class PersonalTemplateFragment extends BaseListViewFragment implements
 	}
 
 	public void getPersonalTemplates() {
+		//解决空指针异常
+		if(mInviteTemplateManager == null){
+			mInviteTemplateManager = InviteTemplateManager.newInstance();
+		}
 		mInviteTemplateManager.getCustomTemplate(new OnLCCustomTemplateCallback() {
 
 			@Override

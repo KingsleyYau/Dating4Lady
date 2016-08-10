@@ -61,10 +61,10 @@ void LoginManager::RemoveCallback(LoginManagerCallback* pCallback) {
 	for(LoginManagerCallbackList::iterator itr = mLoginManagerCallbackList.begin(); itr != mLoginManagerCallbackList.end(); itr++) {
 		if( *itr == pCallback ) {
 			mLoginManagerCallbackList.erase(itr);
+			break;
 		}
-		break;
 	}
-	mLoginManagerCallbackList.pop_front();
+//	mLoginManagerCallbackList.pop_front();
 	mCallbackListLock.unlock();
 }
 
@@ -88,6 +88,9 @@ void LoginManager::Login(
 			model.c_str(),
 			manufacturer.c_str()
 			);
+
+	// 强制注销
+	Logout(NORMAL);
 
 	mStatusLock.lock();
 	if( mLoginStatus != LOGINSTATUS_NONE ) {

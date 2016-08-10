@@ -1,0 +1,234 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/actionbar_height"
+            android:background="@drawable/touch_feedback_holo_light"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" >
+
+            <LinearLayout
+                android:id="@+id/llBack"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingRight="8dp" >
+
+                <ImageView
+                    android:id="@+id/back_button_icon"
+                    android:layout_width="@dimen/actionbar_height"
+                    android:layout_height="@dimen/actionbar_height"
+                    android:background="@drawable/touch_feedback_holo_light_circle"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_arrow_back_grey600_24dp" />
+
+                <TextView
+                    android:id="@+id/tvUnread"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_color_dark"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <com.qpidnetwork.ladydating.customized.view.CircleImageView
+                android:id="@+id/ivPhoto"
+                style="@style/Avatar.Man.40dp" />
+
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:textColor="@color/text_color_dark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btnMore"
+                android:layout_width="@dimen/actionbar_height"
+                android:layout_height="@dimen/actionbar_height"
+                android:layout_marginRight="-12dp"
+                android:background="@drawable/touch_feedback_holo_light_circle"
+                android:src="@drawable/ic_more_vert_grey600_24dp"
+                android:visibility="visible" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:background="#F2F2F2" >
+
+            <com.qpidnetwork.ladydating.chat.MessageListView
+                android:id="@+id/msgList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbarStyle="insideOverlay" >
+            </com.qpidnetwork.ladydating.chat.MessageListView>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:background="@drawable/rectangle_grey_shawdow" />
+        </FrameLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/listview_divider_grey" />
+        <!-- 消息编辑框 -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="8dp"
+            android:paddingTop="8dp" >
+
+            <EditText
+                android:id="@+id/etMessage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="@string/livechat_type_message_here"
+                android:maxLines="4"
+                android:scrollbars="vertical"
+                android:singleLine="false"
+                android:textColor="@color/text_color_dark"
+                android:textCursorDrawable="@drawable/material_text_field_cursor"
+                android:textSize="16sp"/>
+
+            <ImageButton
+                android:id="@+id/btnExpression"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginLeft="4dp"
+                android:background="@drawable/touch_feedback_holo_light_circle"
+                android:src="@drawable/ic_tag_faces_grey600_24dp"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/btnSend"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginLeft="4dp"
+                android:background="@drawable/touch_feedback_holo_light_circle"
+                android:src="@drawable/ic_send_grey600_24dp" />
+        </LinearLayout>
+
+        <!-- functional area -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="4dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp" >
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left" >
+
+                <ImageButton
+                    android:id="@+id/btnTakePhoto"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/touch_feedback_holo_light_circle"
+                    android:src="@drawable/ic_photo_grey600_24dp" />
+            </LinearLayout>
+            
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left|center" >
+
+                <ImageButton
+                    android:id="@+id/btnVideo"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/touch_feedback_holo_light_circle"
+                    android:src="@drawable/ic_video_grey600_24dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left|center" >
+
+                <ImageButton
+                    android:id="@+id/btnSelectPhoto"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/touch_feedback_holo_light_circle"
+                    android:src="@drawable/ic_tag_faces_grey600_24dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left|center" >
+
+                <ImageButton
+                    android:id="@+id/btnVoice"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/touch_feedback_holo_light_circle"
+                    android:src="@drawable/ic_mic_grey600_24dp" />
+            </LinearLayout>
+            
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right|center" >
+
+                <ImageButton
+                    android:id="@+id/btnEmotion"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/touch_feedback_holo_light_circle"
+                    android:src="@drawable/ic_premium_emotion_24dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/flBottom"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:minWidth="200dp"
+            android:visibility="visible" >
+
+            <FrameLayout
+                android:id="@+id/flPane"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" />
+        </FrameLayout>
+    </LinearLayout>
+
+</LinearLayout>

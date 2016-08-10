@@ -43,10 +43,18 @@ JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetWebSite
 
 /*
  * Class:     com_qpidnetwork_request_RequestJni
- * Method:    SetPublicWebSite
+ * Method:    SetTransSite
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetPublicWebSite
+JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetTransSite
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     com_qpidnetwork_request_RequestJni
+ * Method:    SetVideoUploadSite
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetVideoUploadSite
   (JNIEnv *, jclass, jstring);
 
 /*

@@ -3,7 +3,7 @@
  *
  *  Created on: 2015-10-12
  *      Author: Samson
- * Description: 查询男士聊天历史
+ * Description: 查询图片（私密照）列表
  */
 
 #ifndef REQUESTLCPHOTOLISTTASK_H_
@@ -31,6 +31,9 @@ class RequestLCPhotoListTask : public RequestBaseTask {
 public:
 	RequestLCPhotoListTask();
 	virtual ~RequestLCPhotoListTask();
+
+	// set request param
+	void SetParam(const string& sid, const string& userId);
 
 	// Implement RequestBaseTask
 	bool HandleCallback(const string& url, bool requestRet, const char* buf, int size);

@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="left|center"
-            android:text="album name"
+            android:text="@string/album_name"
             android:textColor="@color/text_color_dark"
             android:textSize="16sp" />
 
@@ -44,11 +44,12 @@
             android:layout_marginTop="16dp"
             android:orientation="horizontal" >
 
-            <LinearLayout android:id="@+id/videoViewContainer"
+            <LinearLayout
+                android:id="@+id/videoViewContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginRight="16dp" >
+                android:layout_marginRight="16dp"
+                android:orientation="vertical" >
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -58,7 +59,6 @@
                     android:textColor="@color/text_color_dark"
                     android:textSize="14sp" />
 
-                
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -70,19 +70,34 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/touch_feedback_holo_light"
+                        android:clickable="true"
                         android:scaleType="center"
-                        android:src="@drawable/ic_add_grey600_48dp"
-                        android:clickable="true" />
-                    
-                    <TextView android:id="@+id/durationView"
-                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_add_grey600_48dp" />
+
+<!--                     <TextView -->
+<!--                         android:id="@+id/videoTag" -->
+<!--                         android:layout_width="wrap_content" -->
+<!--                         android:layout_height="wrap_content" -->
+<!--                         android:layout_below="@+id/video" -->
+<!--                         android:layout_centerHorizontal="true" -->
+<!--                         android:text="@string/video" -->
+<!--                         android:textColor="@color/blue" -->
+<!--                         android:visibility="visible" -->
+<!--                         android:textSize="14sp" /> -->
+
+                    <TextView
+                        android:id="@+id/durationView"
                         android:layout_width="wrap_content"
-                        android:background="#86000000"
-                        android:textSize="14sp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignBottom="@+id/video"
+                        android:layout_alignParentLeft="true"
+                        android:background="@color/black"
+                        android:padding="4dp"
                         android:textColor="@color/white"
-                        android:padding="4dp"/>
+                        android:textSize="14sp"
+                        android:visibility="gone" />
                 </RelativeLayout>
-                
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -90,11 +105,10 @@
                     android:text="@string/required"
                     android:textColor="@color/text_color_light"
                     android:textSize="14sp" />
-                
-                
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/thumbViewContainer"
+            <LinearLayout
+                android:id="@+id/thumbViewContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" >
@@ -118,12 +132,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/touch_feedback_holo_light"
+                        android:clickable="true"
                         android:scaleType="center"
-                        android:src="@drawable/ic_add_grey600_48dp"
-                        android:clickable="true" />
+                        android:src="@drawable/ic_add_grey600_48dp" />
                 </RelativeLayout>
 
-                <TextView android:id="@+id/thumbRequirementDeclare"
+                <TextView
+                    android:id="@+id/thumbRequirementDeclare"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingTop="8dp"

@@ -17,7 +17,7 @@ class RequestLCCheckSendPhotoTask;
 class IRequestLCCheckSendPhotoCallback {
 public:
 	virtual ~IRequestLCCheckSendPhotoCallback(){};
-	virtual void OnCheckSendPhoto(bool success
+	virtual void OnCheckSendPhoto(LC_CHECKPHOTO_TYPE result
 								, const string& errnum
 								, const string& errmsg
 								, RequestLCCheckSendPhotoTask* task) = 0;
@@ -29,7 +29,7 @@ public:
 	virtual ~RequestLCCheckSendPhotoTask();
 
 	// set request param
-	void SetParam(const string& targetId, const string& inviteId, const string& photoId);
+	void SetParam(const string& targetId, const string& inviteId, const string& photoId, const string& sid, const string& userId);
 
 	// Implement RequestBaseTask
 	bool HandleCallback(const string& url, bool requestRet, const char* buf, int size);

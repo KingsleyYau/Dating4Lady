@@ -1,0 +1,21 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fitsSystemWindows="true"
+    tools:context="${relativePackage}.${activityClass}" >
+
+    <com.qpidnetwork.ladydating.customized.view.ViewPagerFixed
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageButton
+        android:id="@+id/buttonCancel"
+        android:layout_width="@dimen/actionbar_height"
+        android:layout_height="@dimen/actionbar_height"
+        android:background="@drawable/touch_feedback_holo_dark_circle"
+        android:gravity="center_vertical|center_horizontal"
+        android:src="@drawable/ic_close_white_24dp" />
+
+</RelativeLayout>

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -15,6 +16,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.http.util.CharArrayBuffer;
+
+import com.qpidnetwork.ladydating.R;
+
+import android.content.Context;
 
 @SuppressWarnings("deprecation")
 public class StringUtil {
@@ -357,6 +362,43 @@ public class StringUtil {
 			sb.append(hex);
 		}
 		return sb.toString();
+	}
+	
+	/**
+	 * 获取错误信息, PHP返回编码，如"1001"， 调用些方法获对应的配置在strings.xml中的错误消息
+	 * @param context
+	 * @param errno
+	 * @param errMsg
+	 * @return
+	 */
+	public static String getErrorMsg(Context context, String errno, String errMsg) {
+		String errDesc = errMsg;
+		try {
+			Field f = R.string.class.getField("err" + errno);
+			Integer sid = f.getInt(null);
+			errDesc = context.getResources().getString(sid);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return errDesc;
+	}
+	
+	/**
+	 * 根据国家码获取国家名称
+	 * @param context
+	 * @param countryCode
+	 * @return
+	 */
+	public static String getCountryNameByCode(Context context, String countryCode){
+		String errDesc = "";
+		try {
+			Field f = R.string.class.getField(countryCode);
+			Integer sid = f.getInt(null);
+			errDesc = context.getResources().getString(sid);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return errDesc;
 	}
 
 }

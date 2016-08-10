@@ -78,7 +78,6 @@
             android:layout_marginLeft="8dp"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="16 videos"
             android:textColor="@color/text_color_light"
             android:textSize="14sp" />
     </LinearLayout>

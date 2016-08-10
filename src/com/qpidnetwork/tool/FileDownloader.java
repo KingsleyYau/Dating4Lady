@@ -24,7 +24,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.qpidnetwork.framework.util.Log;
-import com.qpidnetwork.ladydating.QpidApplication;
 import com.qpidnetwork.manager.WebsiteManager;
 
 /**

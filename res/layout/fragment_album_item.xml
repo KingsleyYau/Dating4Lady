@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <com.qpidnetwork.ladydating.customized.view.MultiSwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" 
+            android:gravity="center_horizontal">
+
+	        <com.qpidnetwork.framework.stickygridheaders.StickyGridHeadersGridView
+	            android:id="@+id/sgvTheme"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:gravity="center"
+	            android:horizontalSpacing="4dp"
+	            android:numColumns="3"
+	            android:scrollbars="none"
+	            android:verticalSpacing="4dp" >
+	        </com.qpidnetwork.framework.stickygridheaders.StickyGridHeadersGridView>
+	        
+            <TextView
+		        android:id="@+id/emptyView"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:padding="24dp"
+		        android:textColor="@color/text_color_dark"
+		        android:textSize="16sp"
+		        android:textStyle="bold"
+		        android:visibility="gone" 
+		        android:layout_marginTop="18dp"/>
+	        
+        </LinearLayout>
+    </com.qpidnetwork.ladydating.customized.view.MultiSwipeRefreshLayout>
+
+</RelativeLayout>

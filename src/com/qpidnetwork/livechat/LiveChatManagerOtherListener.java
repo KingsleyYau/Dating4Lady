@@ -1,12 +1,9 @@
 package com.qpidnetwork.livechat;
 
-import java.util.Iterator;
-
 import com.qpidnetwork.livechat.jni.LiveChatClientListener.KickOfflineType;
 import com.qpidnetwork.livechat.jni.LiveChatClientListener.LiveChatErrType;
 import com.qpidnetwork.livechat.jni.LiveChatClientListener.TalkEmfNoticeType;
 import com.qpidnetwork.livechat.jni.LiveChatTalkUserListItem;
-import com.qpidnetwork.livechat.jni.LiveChatUserStatus;
 
 /**
  * LiveChat管理回调接口类
@@ -48,20 +45,16 @@ public interface LiveChatManagerOtherListener {
 	
 	// ---------------- 在线状态相关回调函数(online status) ----------------
 	/**
+	 * 翻译状态改变通知(可调用GetUserInfo()获取用户本人信息及翻译信息)
+	 */
+	public void OnTransStatusChange();
+	
+	/**
 	 * 设置在线状态回调
 	 * @param errType	处理结果类型
 	 * @param errmsg	处理结果描述
 	 */
 	public void OnSetStatus(LiveChatErrType errType, String errmsg);
-	
-	
-	/**
-	 * 获取用户在线状态回调
-	 * @param errType	错误类型
-	 * @param errmsg	错误描述
-	 * @param userStatusArray	用户在线状态数组
-	 */
-	public void OnGetUserStatus(LiveChatErrType errType, String errmsg, LiveChatUserStatus[] userList);
 	
 	/**
 	 * 接收他人在线状态更新消息回调
@@ -92,7 +85,7 @@ public interface LiveChatManagerOtherListener {
 	 * 接收验证码
 	 * @param data	验证码图片数据
 	 */
-	public void OnRecvIdentifyCode(String filePath);
+	public void OnRecvIdentifyCode(byte[] data);
 	
 	// ---------------- 会话状态改变 ----------------
 	/**
@@ -105,7 +98,7 @@ public interface LiveChatManagerOtherListener {
 	/**
 	 * 联系人状态改变回调
 	 */
-	public void OnContactStatusChange();
+	public void OnContactListChange();
 
 	// ---------------- Push消息 ----------------
 	/**

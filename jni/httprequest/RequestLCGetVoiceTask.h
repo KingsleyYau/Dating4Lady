@@ -17,7 +17,7 @@ class RequestLCGetVoiceTask;
 class IRequestLCGetVoiceCallback {
 public:
 	virtual ~IRequestLCGetVoiceCallback(){};
-	virtual void OnGetPhoto(bool success
+	virtual void OnGetVoice(bool success
 							, const string& errnum
 							, const string& errmsg
 							, const string& filePath
@@ -30,12 +30,16 @@ public:
 	virtual ~RequestLCGetVoiceTask();
 
 	// set request param
-	void SetParam(const string& voiceId, OTHER_SITE_TYPE siteId, const string& filePath);
+	void SetParam(const string& voiceId, const string& siteId, const string& filePath);
 
 	// Implement RequestBaseTask
 	bool HandleCallback(const string& url, bool requestRet, const char* buf, int size);
+	void onReceiveBody(long requestId, string path, const char* buf, int size);
 
 	void SetCallback(IRequestLCGetVoiceCallback* pCallback);
+
+private:
+	string GetTempFilePath();
 
 protected:
 	IRequestLCGetVoiceCallback* mpCallback;

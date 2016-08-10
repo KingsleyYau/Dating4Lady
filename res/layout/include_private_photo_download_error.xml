@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llErrorPage"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+	<ImageView 
+	    android:layout_width="100dp"
+	    android:layout_height="100dp"
+	    android:src="@drawable/ic_broken_image_grey_100dp"
+	    android:scaleType="fitXY"/>
+	<TextView 
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="@string/livechat_private_photo_full_download_error"
+	    android:textColor="#FFFFFF"
+	    android:padding="24dp"
+	    android:textSize="18sp"/>
+
+	
+	<com.qpidnetwork.ladydating.customized.view.MaterialRaisedButton 
+        android:id="@+id/tvRetry"
+        style="@style/Button.BlueButton"
+        android:layout_width="112dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="56dp"
+        android:text="@string/retry"
+        android:clickable="true"/>
+	
+</LinearLayout>

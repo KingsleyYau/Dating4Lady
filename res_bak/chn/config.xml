@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 更新服务器环境，只需要更改此参数 -->
+    <item name="app_name" type="string">ChnLove</item>
+    <item name="phoneinfo_site_key" type="string">P2</item>
+    <item name="is_demo" type="bool">false</item>
+    <item name="is_language_set" type="bool">true</item>
+    <item name="web_site_id" type="string">0</item>
+    <item name="app_themeColor" type="color">@color/app_theme_cl</item>
+
+    <!-- 可选的服务器地址 -->
+    <string name="www_web_host_demo">http://demo.chnlove.com</string>
+    <string name="web_host_demo">http://demo-mobile.chnlove.com</string>
+    <string name="www_web_host_normal">http://www.chnlove.com</string>
+    <string name="web_host_normal">http://mobile.chnlove.com</string>
+    <!-- 站点跟踪配置 -->
+    <string name="web_short_name">cl</string>
+    <!-- 其它配置 -->
+    <string name="translate_host">http://api.microsofttranslator.com</string>
+
+</resources>

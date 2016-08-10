@@ -19,7 +19,7 @@
 
 /*6.3 查询高级表情配置*/
 //path
-#define EMOTION_CONFIG_PATH                 "/member/emotionconfig"
+#define EMOTION_CONFIG_PATH                 "/lady/emotionconfig"
 
 //返回参数解析
 #define OTHER_EMOTIONCONFIG_VERSION		    "face_senior_version"
@@ -89,6 +89,8 @@
 #define SYN_CONFIG_APK_VERSIONNAME          "android_apk_version_name"
 #define SYN_CONFIG_APK_VERSIONURL           "android_apk_url"
 #define SYN_CONFIG_SITE_URL                 "site_url"
+#define SYN_CONFIG_LIVECHATVOICEHOST		"chat_voice_hosturl"
+#define SYN_CONFIG_VIDEOUPLOADHOST			"video_upload_url"
 
 
 /*6.7 提交crash dump文件*/
@@ -99,6 +101,55 @@
 #define UPLOAD_CRASHLOG_DEVICEID            "deviceId"
 #define UPLOAD_CRASHLOG_CRASHFILE           "crashfile"
 
+/*联系机构*/
+//path
+#define GET_AGENTINFO_PATH                	"/lady/viewagent"
 
+//返回参数
+#define GET_AGENTINFO_NAME					"agent_name"
+#define GET_AGENTINFO_ID					"agent_id"
+#define GET_AGENTINFO_CITY					"city"
+#define GET_AGENTINFO_ADDR					"address"
+#define GET_AGENTINFO_EMAIL					"email"
+#define GET_AGENTINFO_TEL					"sp_tel"
+#define GET_AGENTINFO_FAX					"sp_fax"
+#define GET_AGENTINFO_CONTACT				"contact"
+#define GET_AGENTINFO_POSTCODE				"postcode"
+
+/*查询个人资料*/
+//path
+#define OTHER_MYPROFILE_PATH                "/lady/myprofile"
+
+//返回参数
+#define OTHER_MYPROFILE_ID					"lady_id"
+#define OTHER_MYPROFILE_FIRSTNAME			"firstname"
+#define OTHER_MYPROFILE_LASTNAME			"lastname"
+#define OTHER_MYPROFILE_AGE					"age"
+#define OTHER_MYPROFILE_COUNTRY				"country"
+#define OTHER_MYPROFILE_PROVINCE			"province"
+#define OTHER_MYPROFILE_CITY				"city"
+#define OTHER_MYPROFILE_BIRTHDAY			"birthday"
+#define OTHER_MYPROFILE_ZODIAC				"zodiac"
+#define OTHER_MYPROFILE_WEIGHT				"weight"
+#define OTHER_MYPROFILE_HEIGHT				"height"
+#define OTHER_MYPROFILE_SMOKE				"smokes"
+#define OTHER_MYPROFILE_DRINK				"drink"
+#define OTHER_MYPROFILE_ENGLISH				"english"
+#define OTHER_MYPROFILE_RELIGION			"religion"
+#define OTHER_MYPROFILE_EDUCATION			"education"
+#define OTHER_MYPROFILE_PROFESSION			"profession"
+#define OTHER_MYPROFILE_CHILDREN			"children"
+#define OTHER_MYPROFILE_CHILDREN_Y				"Y"
+#define OTHER_MYPROFILE_CHILDREN_N				"N"
+#define OTHER_MYPROFILE_MARRY				"marry"
+#define OTHER_MYPROFILE_MANAGE1				"man_age1"
+#define OTHER_MYPROFILE_MANAGE2				"man_age2"
+#define OTHER_MYPROFILE_ABOUTME				"about_me"
+#define OTHER_MYPROFILE_PHOTOURL			"photo_url"
+#define OTHER_MYPROFILE_PHOTOURLS			"photo_urls"
+#define OTHER_MYPROFILE_PHOTOURLS_SEPARATOR		","
+#define OTHER_MYPROFILE_THUMBURLS			"thumb_urls"
+#define OTHER_MYPROFILE_THUMBURLS_SEPARATOR		","
+#define OTHER_MYPROFILE_LASTREFRESH			"last_refresh"
 
 #endif/*REQUESTOTHERDEFINE_H*/

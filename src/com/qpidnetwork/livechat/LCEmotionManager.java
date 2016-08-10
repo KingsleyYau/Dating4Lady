@@ -1,16 +1,26 @@
 package com.qpidnetwork.livechat;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.util.Base64;
 
 import com.qpidnetwork.framework.util.Log;
+import com.qpidnetwork.framework.util.StringUtil;
 import com.qpidnetwork.livechat.LCEmotionDownloader.EmotionFileType;
 import com.qpidnetwork.livechat.LCMessageItem.MessageType;
+import com.qpidnetwork.request.OnOtherEmotionConfigCallback;
 import com.qpidnetwork.request.RequestJni;
+import com.qpidnetwork.request.RequestJniOther;
 import com.qpidnetwork.request.item.EmotionConfigEmotionItem;
 import com.qpidnetwork.request.item.EmotionConfigItem;
 import com.qpidnetwork.tool.ImageHandler;
@@ -25,6 +35,7 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 	public interface LCEmotionManagerCallback {
 		public void OnDownloadEmotionImage(boolean result, LCEmotionItem emotionItem);
 		public void OnDownloadEmotionPlayImage(boolean result, LCEmotionItem emotionItem);
+		public void OnGetEmotionConfig(boolean success, String errno, String errmsg, EmotionConfigItem item);
 	}
 	
 	/**
@@ -42,19 +53,21 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 	/**
 	 * GetEmotionConfig的RequestId
 	 */
-	public long mEmotionConfigReqId;
+	private long mEmotionConfigReqId;
 	/**
 	 * http下载host
 	 */
 	private String mHost;
+	/**
+	 * 站点ID 
+	 */
+	private String mSiteId;
 	/**
 	 * 文件下载路径
 	 */
 	private String mDownloadPath;
 	private final String mImgPath = "img/";
 	private final String mImgExt = ".png";
-//	private final String m3gpPath = "3gp/";
-//	private final String m3gpExt = ".3gp";
 	private final String mPlayImgPath = "pad/";
 	private final String mPlayBigPath = "_b";
 	private final String mPlayMidPath = "_m";
@@ -62,7 +75,6 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 	private final String mPlaySubPath = "_%d";
 	private final String mPlayExt = ".png";
 	private final String mLocalImgPath = "img/";
-//	private final String mLocal3gpPath = "3gp/";
 	/**
 	 * 下载回调
 	 */
@@ -76,13 +88,10 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 	 */
 	private HashMap<LCEmotionItem, LCEmotionDownloader> mPlayImgDownloadMap;
 	/**
-	 * 高级表情3gp下载map表
-	 */
-//	private HashMap<LCEmotionItem, LCEmotionDownloader> m3gpDownloadMap;
-	/**
 	 * 高级表情配置item
 	 */
 	private EmotionConfigItem mConfigItem;
+	private boolean mFirstGetConfig;
 	/**
 	 * 
 	 */
@@ -95,12 +104,13 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 		mDownloadPath = "";
 		mDirPath = "";
 		mHost = "";
+		mSiteId = "";
 		mCallback = null;
 		mImgDownloadMap = new HashMap<LCEmotionItem, LCEmotionDownloader>();
-//		m3gpDownloadMap = new HashMap<LCEmotionItem, LCEmotionDownloader>();
 		mPlayImgDownloadMap = new HashMap<LCEmotionItem, LCEmotionDownloader>();
 		mContext = null;
 		mConfigItem = null;
+		mFirstGetConfig = true;
 	}
 	
 	/**
@@ -109,14 +119,15 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 	 * @param host		http下载host
 	 * @return
 	 */
-	public boolean init(Context context, String dirPath, String host, String logPath, LCEmotionManagerCallback callback) 
+	public boolean init(Context context, String dirPath, String host, String siteId, String logPath, LCEmotionManagerCallback callback) 
 	{
 		boolean result = false;
-		if (!dirPath.isEmpty() 
-				&& !host.isEmpty() 
-				&& !logPath.isEmpty()
+		if (!StringUtil.isEmpty(dirPath) 
+				&& !StringUtil.isEmpty(host) 
+				&& !StringUtil.isEmpty(logPath)
+				&& !StringUtil.isEmpty(siteId)
 				&& null != callback
-				&& context != null) 
+				&& null != context) 
 		{
 			result = true;
 			
@@ -139,22 +150,7 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 					result = true;
 				}
 			}
-			
-			// 创建高级表情3gp文件目录
-//			if (result)
-//			{
-//				result = false;
-//				
-//				String strDir = get3gpDir();
-//				File dir = new File(strDir);
-//				if (!dir.exists()) {
-//					result = dir.mkdirs();
-//				}
-//				else {
-//					result = true;
-//				}
-//			}
-			
+
 			// 其它
 			if (result)
 			{
@@ -165,6 +161,7 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 				
 				mCallback = callback;
 				mContext = context;
+				mSiteId = siteId;
 				
 				// 从文件中读取配置
 				if (GetConfigItemWithFile()) {
@@ -204,25 +201,96 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 	
 	// ------------------- 高级表情配置操作 --------------------
 	/**
+	 * 获取高级表情配置
+	 */
+	public synchronized void GetEmotionConfig()
+	{
+		if (!mFirstGetConfig && null != mConfigItem)
+		{
+			// 不是第一次请求，不用请求直接返回
+			if (null != mCallback) {
+				mCallback.OnGetEmotionConfig(true, "", "", mConfigItem);
+			}
+		}
+		else 
+		{
+			if (mEmotionConfigReqId == RequestJni.InvalidRequestId)
+			{
+				// 马上请求获取高级表情配置
+				mEmotionConfigReqId = RequestJniOther.EmotionConfig(new OnOtherEmotionConfigCallback() {
+					
+					@Override
+					public void OnOtherEmotionConfig(boolean isSuccess, String errno,
+							String errmsg, EmotionConfigItem item) 
+					{
+						Log.d("LiveChatManager", "GetEmotionConfig() OnOtherEmotionConfig begin");
+						boolean success = isSuccess;
+						EmotionConfigItem configItem = item;
+						if (isSuccess) {
+							// 请求成功
+							if (IsVerNewThenConfigItem(item.version)) {
+								// 配置版本更新
+								success = UpdateConfigItem(item);
+							}
+							else {
+								// 使用旧配置
+								configItem = GetConfigItem();
+							}
+							
+							// 设为不是第一次请求高级表情配置
+							mFirstGetConfig = false;
+						}
+						Log.d("LiveChatManager", "GetEmotionConfig() OnOtherEmotionConfig callback");
+						if (null != mCallback) {
+							mCallback.OnGetEmotionConfig(success, errno, errmsg, configItem);
+						}
+						mEmotionConfigReqId = RequestJni.InvalidRequestId;
+						Log.d("LiveChatManager", "GetEmotionConfig() OnOtherEmotionConfig end");
+					}
+				});
+			}
+			
+			if (mEmotionConfigReqId == RequestJni.InvalidRequestId) 
+			{
+				// 请求失败（返回网络错误）
+				if (null != mCallback) {
+					mCallback.OnGetEmotionConfig(false, "", "", null);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 停止获取高级表情配置
+	 */
+	public void StopGetEmotionConfig()
+	{
+		if (mEmotionConfigReqId != RequestJni.InvalidRequestId) {
+			RequestJni.StopRequest(mEmotionConfigReqId);
+			mEmotionConfigReqId = RequestJni.InvalidRequestId;
+		}
+	}
+	
+	/**
 	 * 从文件中获取配置item
 	 * @return
 	 */
 	public boolean GetConfigItemWithFile() {
 		boolean result = false;
-//        try {  
-//        	String key = "EmotionConfigItem_" + WebSiteManager.newInstance(null).GetWebSite().getSiteId();
-//            SharedPreferences mSharedPreferences = mContext.getSharedPreferences("base64", Context.MODE_PRIVATE);  
-//            String personBase64 = mSharedPreferences.getString(key, "");  
-//            byte[] base64Bytes = Base64.decode(personBase64.getBytes(), Base64.DEFAULT);  
-//            ByteArrayInputStream bais = new ByteArrayInputStream(base64Bytes);  
-//            ObjectInputStream ois = new ObjectInputStream(bais);  
-//            mConfigItem = (EmotionConfigItem) ois.readObject();
-//            if (null != mConfigItem) {
-//            	result = true;
-//            }
-//        } catch (Exception e) {  
-//            e.printStackTrace();  
-//        }  
+        try {  
+        	String key = "EmotionConfigItem_" + mSiteId;
+            SharedPreferences mSharedPreferences = mContext.getSharedPreferences("base64", Context.MODE_PRIVATE);  
+            String personBase64 = mSharedPreferences.getString(key, "");  
+            byte[] base64Bytes = Base64.decode(personBase64.getBytes(), Base64.DEFAULT);  
+            ByteArrayInputStream bais = new ByteArrayInputStream(base64Bytes);  
+            ObjectInputStream ois = new ObjectInputStream(bais);  
+            mConfigItem = (EmotionConfigItem) ois.readObject();
+            if (null != mConfigItem) {
+            	result = true;
+            }
+        } catch (Exception e) {  
+            e.printStackTrace();  
+        }  
 		return result;
 	}
 	
@@ -236,21 +304,20 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 		if (null != mConfigItem
 			&& null != mContext) 
 		{
-//			try {
-//				String key = "EmotionConfigItem_" + WebSiteManager.newInstance(null).GetWebSite().getSiteId();
-//				SharedPreferences mSharedPreferences = mContext.getSharedPreferences("base64", Context.MODE_PRIVATE); 
-//				ByteArrayOutputStream baos = new ByteArrayOutputStream();  
-//		        ObjectOutputStream oos;
-//				oos = new ObjectOutputStream(baos);
-//		        oos.writeObject(mConfigItem);  
-//		        String personBase64 = new String(Base64.encode(baos.toByteArray(), Base64.DEFAULT));  
-//		        SharedPreferences.Editor editor = mSharedPreferences.edit();  
-//		        editor.putString(key, personBase64);  
-//		        result = editor.commit();
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			try {
+				String key = "EmotionConfigItem_" + mSiteId;
+				SharedPreferences mSharedPreferences = mContext.getSharedPreferences("base64", Context.MODE_PRIVATE); 
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+		        ObjectOutputStream oos;
+				oos = new ObjectOutputStream(baos);
+		        oos.writeObject(mConfigItem);  
+		        String personBase64 = new String(Base64.encode(baos.toByteArray(), Base64.DEFAULT));  
+		        SharedPreferences.Editor editor = mSharedPreferences.edit();  
+		        editor.putString(key, personBase64);  
+		        result = editor.commit();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return result;
 	}
@@ -264,7 +331,6 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 	{
 		boolean result = true;
 		if (null != mConfigItem) {
-			//result = (version > mConfigItem.version);
 			// 版本号不同就更新
 			result = (version != mConfigItem.version);
 		} 
@@ -279,11 +345,12 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 	public boolean UpdateConfigItem(EmotionConfigItem configItem) 
 	{
 		boolean result = false;
-		if (null != configItem) {
+		if (null != configItem) 
+		{
+			result = true;
+			
 			// 停止图片文件下载
 			StopAllDownloadImage();
-			// 停止3gp文件下载
-//			StopAllDownload3gp();
 			// 删除本地缓存目录下所有文件
 			DeleteAllEmotionFile();
 			// 删除所有高级表情item
@@ -355,13 +422,6 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 						item.imagePath = imagePath;
 					}
 					
-					// 判断3gp文件是否存在，若存在则赋值
-//					String f3gpPath = get3gpPath(item.emotionId);
-//					File f3gp = new File(f3gpPath);
-//					if (f3gp.exists()) {
-//						item.f3gpPath = f3gpPath;
-//					}
-					
 					mEmotionMap.put(item.emotionId, item);
 					result = true;
 				}
@@ -388,7 +448,6 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 			item = new LCEmotionItem();
 			item.init(emotionId
 					, getImagePath(emotionId)
-//					, get3gpPath(emotionId)
 					, getPlayBigImagePath(emotionId)
 					, getPlayBigSubImagePath(emotionId)
 //					, getPlayMidImagePath(emotionId)
@@ -533,52 +592,10 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 	}
 	
 	/**
-	 * 获取高级表情3gp目录
-	 * @return
-	 */
-//	private String get3gpDir()
-//	{
-//		String f3gpDir = mDirPath + mLocal3gpPath;
-//		return f3gpDir;
-//	}
-	
-	/**
-	 * 获取高级表情文件路径
-	 * @param emotionId	高级表情ID
-	 * @return
-	 */
-//	public String get3gpPath(String emotionId) {
-//		String f3gpPath = get3gpDir() + emotionId;
-//		return f3gpPath;
-//	}
-	
-	/**
-	 * 获取高级表情3gp下载URL
-	 * @param emotionId	高级表情ID
-	 * @return
-	 */
-//	public String get3gpURL(String emotionId) {
-//		String url = mHost + mDownloadPath + m3gpPath + emotionId + m3gpExt;
-//		return url;
-//	}
-	
-	/**
-	 * 删除所有高级表情文件（包括图片及3gp）
+	 * 删除所有高级表情文件（包括图片）
 	 */
 	private void DeleteAllEmotionFile()
 	{
-		// 删除3gp目录文件
-//		String str3gpDir = get3gpDir();
-//		File f3gpDir = new File(str3gpDir);
-//		if (f3gpDir.exists() && f3gpDir.isDirectory()) {
-//			File[] files = f3gpDir.listFiles();
-//			for (int i = 0; i < files.length; i++) {
-//				if (files[i].isFile() || files[i].isDirectory()) {
-//					files[i].delete();
-//				} 
-//			}
-//		}
-		
 		// 删除image目录文件
 		String strImageDir = getImageDir();
 		File fImageDir = new File(strImageDir);
@@ -699,51 +716,6 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 		return result;
 	}
 	
-	// ------------ 下载3gp ------------
-//	public boolean StartDownload3gp(LCEmotionItem item) {
-//		boolean result = false;
-//		synchronized(m3gpDownloadMap) {
-//			if (null == m3gpDownloadMap.get(item) && !item.emotionId.isEmpty()) 
-//			{
-//				LCEmotionDownloader loader = new LCEmotionDownloader(mContext);
-//				result = loader.Start(
-//						get3gpURL(item.emotionId)
-//						, get3gpPath(item.emotionId)
-//						, EmotionFileType.f3gp
-//						, item
-//						, this);
-//				
-//				if (result) {
-//					m3gpDownloadMap.put(item, loader);
-//				}
-//			}
-//		}
-//		return result;
-//	}
-//	
-//	public boolean StopDownload3gp(LCEmotionItem item) {
-//		boolean result = false;
-//		synchronized(m3gpDownloadMap) {
-//			LCEmotionDownloader loader = m3gpDownloadMap.get(item);
-//			if (null != loader) {
-//				loader.Stop();
-//				result = true;
-//			}
-//		}
-//		return result;
-//	}
-//	
-//	public boolean StopAllDownload3gp() {
-//		boolean result = false;
-//		synchronized(m3gpDownloadMap) {
-//			for (Entry<LCEmotionItem, LCEmotionDownloader> entry: m3gpDownloadMap.entrySet()) {
-//				LCEmotionDownloader loader = entry.getValue();
-//				loader.Stop();
-//			}
-//		}
-//		return result;
-//	}
-	
 	// ------------ 下载播放image ------------
 	/**
 	 * 开始下载播放image
@@ -806,12 +778,6 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 		if (mCallback != null) {
 			switch (fileType) 
 			{
-//			case f3gp: {
-//				mCallback.OnDownloadEmotion3gp(true, item);
-//				synchronized(m3gpDownloadMap) {
-//					m3gpDownloadMap.remove(item);
-//				}
-//			} break;
 			case fimage: {
 				mCallback.OnDownloadEmotionImage(true, item);
 				synchronized(mImgDownloadMap) {
@@ -859,12 +825,6 @@ public class LCEmotionManager implements LCEmotionDownloader.LCEmotionDownloader
 		if (mCallback != null) {
 			switch (fileType) 
 			{
-//			case f3gp: {
-//				mCallback.OnDownloadEmotion3gp(false, item);
-//				synchronized(m3gpDownloadMap) {
-//					m3gpDownloadMap.remove(item);
-//				}
-//			} break;
 			case fimage: {
 				mCallback.OnDownloadEmotionImage(false, item);
 				synchronized(mImgDownloadMap) {

@@ -36,7 +36,7 @@ public:
 				, const string& womanId
 				, const string& type
 				, int voiceLen
-				, OTHER_SITE_TYPE siteId
+				, const string& siteId
 				, const string& filePath);
 
 	// Implement RequestBaseTask

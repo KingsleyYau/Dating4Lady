@@ -365,7 +365,6 @@ public class HeaderableGridView extends GridView{
         }
         ListAdapter adapter = getAdapter();
         int numColumns = getNumColumnsCompatible();
-
         // adapter has not been set or has no views in it;
         if (adapter == null || adapter.getCount() <= numColumns * (mHeaderViewInfos.size() + mFooterViewInfos.size())) {
             return -1;

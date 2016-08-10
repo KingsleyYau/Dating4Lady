@@ -20,6 +20,9 @@ public:
 	virtual void OnGetPhoto(bool success
 							, const string& errnum
 							, const string& errmsg
+							, const string& photoId
+							, GETPHOTO_SIZE_TYPE sizeType
+							, GETPHOTO_MODE_TYPE modeType
 							, const string& filePath
 							, RequestLCGetPhotoTask* task) = 0;
 };
@@ -41,11 +44,18 @@ public:
 
 	// Implement RequestBaseTask
 	bool HandleCallback(const string& url, bool requestRet, const char* buf, int size);
+	void onReceiveBody(long requestId, string path, const char* buf, int size);
 
 	void SetCallback(IRequestLCGetPhotoCallback* pCallback);
 
+private:
+	string GetTempFilePath();
+
 protected:
 	IRequestLCGetPhotoCallback* mpCallback;
+	string m_photoId;
+	GETPHOTO_SIZE_TYPE	m_sizeType;
+	GETPHOTO_MODE_TYPE	m_modeType;
 	string m_filePath;
 };
 

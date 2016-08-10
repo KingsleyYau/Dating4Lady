@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <RadioGroup
+        android:id="@+id/rg_nav_content"
+        android:layout_width="fill_parent"
+        android:layout_height="48dip"
+        android:background="#F2F2F2"
+        android:orientation="horizontal" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <View
+            android:id="@+id/viewDivider"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#FFFFFF" />
+        <View
+            android:id="@+id/indicator"
+            android:layout_width="48dp"
+            android:layout_height="2dp"
+            android:background="@color/blue_color" />
+    </FrameLayout>
+
+</LinearLayout>

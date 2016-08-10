@@ -1,0 +1,59 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/actionbar_height"
+    android:background="@color/white"
+    android:orientation="horizontal" 
+    android:id="@+id/llSearchContainer">
+
+    <LinearLayout
+        android:id="@+id/llSearchBody"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp" >
+
+            <EditText
+                android:id="@+id/etSearchFilter"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:hint="@string/include_search_description"
+                android:imeOptions="actionSearch"
+                android:paddingLeft="4dp"
+                android:textColor="@color/white"
+                android:textColorHint="#80FFFFFF"
+                android:textSize="18sp" 
+                android:singleLine="true"
+                android:inputType="text|textNoSuggestions"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="16dp"
+                android:gravity="center" >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/white" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/ivCancle"
+            android:layout_width="@dimen/actionbar_height"
+            android:layout_height="@dimen/actionbar_height"
+            android:padding="8dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_close_white_24dp"
+            android:background="@drawable/touch_feedback_holo_dark_circle" />
+    </LinearLayout>
+
+</LinearLayout>

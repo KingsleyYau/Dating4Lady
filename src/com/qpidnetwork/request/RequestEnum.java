@@ -271,6 +271,16 @@ public class RequestEnum {
     }
     
     /**
+     * 英语能力
+     */
+    public enum English {
+    	Little,
+    	Learning,
+    	Fair,
+    	Good
+    }
+    
+    /**
      * 宗教
      */
     public enum Religion {                              
@@ -346,7 +356,7 @@ public class RequestEnum {
     }
     
     /**
-     * 人种
+     * 种族
      */
     public enum Ethnicity {
     	Unknow,
@@ -359,6 +369,25 @@ public class RequestEnum {
     	PacificIslander,
     	Semitic,
     	Other,
+    }
+    
+    /**
+     * 星座
+     */
+    public enum Zodiac {
+    	Unknow,
+    	Aquarius,
+    	Pisces,
+    	Aries,
+    	Taurus,
+    	Gemini,
+    	Cancer,
+    	Leo,
+    	Virgo,
+    	Libra,
+    	Scorpio,
+    	Sagittarius,
+    	Capricorn,
     }
     
     /**

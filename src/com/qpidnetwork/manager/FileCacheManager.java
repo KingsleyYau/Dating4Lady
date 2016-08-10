@@ -22,7 +22,9 @@ public class FileCacheManager {
 	static String LC_EMOTION_DIR = "livechat/emotion";
 	static String LC_VOICE_DIR = "livechat/voice";
 	static String LC_PHTOT_DIR = "livechat/photo";
+	static String LC_VIDEO_DIR = "livechat/video";
 	static String LC_TAKE_PHOTO_TEM_DIR = "livechat/photo/temp";
+	static String ALBUM_VIDEO_DIR = "album/video";
 	static String LOG_DIR = "log";
 	static String TEMP = "temp";
 	static String EMF = "emf";
@@ -62,7 +64,9 @@ public class FileCacheManager {
 		}
 		
 		File file = new File(mMainPath);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		}
 	}
 	
 	/**
@@ -81,7 +85,9 @@ public class FileCacheManager {
 		/*创建图片目录*/
 		String path = mMainPath + LC_TAKE_PHOTO_TEM_DIR + "/";
 		File file = new File(path);
-		file.mkdir();
+		if(!file.exists()) {
+			file.mkdirs();
+		}
 		return path;
 	}
 	
@@ -93,7 +99,9 @@ public class FileCacheManager {
 		/* 创建图片目录 */
 		String path = mMainPath + EMF + "/";
 		File file = new File(path);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		}
 		return path;
 	}
 	
@@ -105,7 +113,9 @@ public class FileCacheManager {
 		/* 创建图片目录 */
 		String path = mMainPath + HTTP + "/";
 		File file = new File(path);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		}
 		return path;
 	}
 	
@@ -116,7 +126,9 @@ public class FileCacheManager {
 	public String GetTempPath() {
 		String path = mMainPath + TEMP + "/";
 		File file = new File(path);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		}
 		return path;
 	}
 	
@@ -128,7 +140,9 @@ public class FileCacheManager {
 		/* 创建图片目录 */
 		String path = mMainPath + IMAGE_DIR + "/";
 		File file = new File(path);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		}
 		return path;
 	}
 	
@@ -140,7 +154,9 @@ public class FileCacheManager {
 		/* 创建女士(图片)目录 */
 		String path = mMainPath + LADY_DIR + "/";
 		File file = new File(path);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		}
 		return path;
 	}
 	
@@ -152,7 +168,9 @@ public class FileCacheManager {
 		/* 创建私密照路径 */
 		String path = mMainPath + PRIVATE_PHOTO + "/";
 		File file = new File(path);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		}
 		
 		return path;
 	}
@@ -165,7 +183,41 @@ public class FileCacheManager {
 		/* 创建虚拟礼物路径 */
 		String path = mMainPath + VIRTUAL_GIFT + "/";
 		File file = new File(path);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		}
+		
+		return path;
+	}
+	
+	/**
+	 * 获取相册Video本地缓存相关地址
+	 * @return
+	 */
+	private String GetAlbumVideoPath(){
+		/* 创建相册本地缓存 */
+		String path = mMainPath + ALBUM_VIDEO_DIR + "/";
+		File file = new File(path);
+		if(!file.exists()) {
+			file.mkdirs();
+		}
+		
+		return path;
+	}
+	
+	/**
+	 * 根据VideoUri生成本地缓存对应Video Thumb 路径
+	 * @param videoUri
+	 */
+	public String CacheVideoThumbnailFromVideoUri(String videoUri){
+		String path = "";
+		String name = "";
+		
+		if( videoUri != null && videoUri.length() > 0 ) {
+			path = GetAlbumVideoPath();
+			name = Arithmetic.MD5(videoUri.getBytes(), videoUri.getBytes().length);
+			path += name;
+		}
 		
 		return path;
 	}
@@ -175,10 +227,12 @@ public class FileCacheManager {
 	 * @return
 	 */
 	public String GetLCEmotionPath() {
-		/* 创建虚拟礼物路径 */
+		/* 创建高级表情路径 */
 		String path = mMainPath + LC_EMOTION_DIR + "/";
 		File file = new File(path);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		}
 		
 		return path;
 	}
@@ -188,10 +242,10 @@ public class FileCacheManager {
 	 * @return
 	 */
 	public String GetLCVoicePath() {
-		/* 创建虚拟礼物路径 */
+		/* 创建语音路径 */
 		String path = mMainPath + LC_VOICE_DIR + "/";
 		File file = new File(path);
-		if(!file.exists()){
+		if(!file.exists()) {
 			file.mkdirs();
 		}
 		return path;
@@ -202,11 +256,27 @@ public class FileCacheManager {
 	 * @return
 	 */
 	public String GetLCPhotoPath() {
-		/* 创建虚拟礼物路径 */
+		/* 创建图片路径 */
 		String path = mMainPath + LC_PHTOT_DIR + "/";
 		File file = new File(path);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		};
 		
+		return path;
+	}
+	
+	/**
+	 * 获取livechat视频目录
+	 * @return
+	 */
+	public String GetLCVideoPath() {
+		/* 创建视频路径 */
+		String path = mMainPath + LC_VIDEO_DIR + "/";
+		File file = new File(path);
+		if(!file.exists()) {
+			file.mkdirs();
+		}
 		return path;
 	}
 	
@@ -218,7 +288,9 @@ public class FileCacheManager {
 		/* 创建crash日志路径*/
 		String path = mMainPath + CRASH + "/";
 		File file = new File(path);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		};
 		
 		return path;
 	}
@@ -228,9 +300,12 @@ public class FileCacheManager {
 	 * @return
 	 */
 	public String GetLogPath() {
+		/* 创建log路径 */
 		String path = mMainPath + LOG_DIR + "/";
 		File file = new File(path);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		};
 		
 		return path;
 	}
@@ -240,9 +315,12 @@ public class FileCacheManager {
 	 * @return
 	 */
 	private String GetUpgradeFilePath(){
+		/* 创建apk包路径 */
 		String path = mMainPath + UPGRADE + "/";
 		File file = new File(path);
-		file.mkdirs();
+		if(!file.exists()) {
+			file.mkdirs();
+		};
 		
 		return path;
 	}
@@ -387,7 +465,7 @@ public class FileCacheManager {
 	 */
 	public String GetTempCameraImageUrl() {
 		String temp = "";
-		temp += GetTempPath() + "cameraphoto.jpg";
+		temp += GetTempPath() + "cameraphoto_" + System.currentTimeMillis() + ".jpg";
 		return temp;
 	}
 	
@@ -415,6 +493,7 @@ public class FileCacheManager {
 		return temp;
 	}
 	
+	
 	/**
 	 * 删除指定目录下所有文件
 	 * @param dirPath 目录路径
@@ -441,6 +520,9 @@ public class FileCacheManager {
 		delete(new File(GetLCEmotionPath()), false);
 		delete(new File(GetLCPhotoPath()), false);
 		delete(new File(GetLCVoicePath()), false);
+		
+		//清除Album相关
+		delete(new File(GetAlbumVideoPath()), false);
 	}
 	
 	/**

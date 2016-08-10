@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 import android.view.Menu;
@@ -16,8 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
+import com.qpidnetwork.ladydating.QpidApplication;
 import com.qpidnetwork.ladydating.R;
 import com.qpidnetwork.ladydating.base.BaseListViewFragment;
 import com.qpidnetwork.ladydating.bean.ManInfoBean;
@@ -31,7 +30,6 @@ import com.qpidnetwork.livechat.jni.LiveChatClientListener.KickOfflineType;
 import com.qpidnetwork.livechat.jni.LiveChatClientListener.LiveChatErrType;
 import com.qpidnetwork.livechat.jni.LiveChatClientListener.TalkEmfNoticeType;
 import com.qpidnetwork.livechat.jni.LiveChatTalkUserListItem;
-import com.qpidnetwork.livechat.jni.LiveChatUserStatus;
 import com.qpidnetwork.request.OnQueryFavourListCallback;
 import com.qpidnetwork.request.RequestJniMan;
 
@@ -44,7 +42,7 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 	public String TAG = MyFavoriteListFragment.class.getName();
 
 	private List<ManInfoBean> mManList;
-	private NormalManListAdapter mAdapter;
+	private MyFavoriteListAdapter mAdapter;
 
 	private HomeActivity homeActivity;
 	private LiveChatManager mLiveChatManager;
@@ -53,6 +51,9 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 
 	// 存放收藏男士默认返回排序序号
 	private HashMap<String, Integer> mFavoriteManSortId = new HashMap<String, Integer>();
+	
+	//当前请求seq Id，用于OnGetUsersInfo中确认是否为本请求成功返回使用
+	private int mCurrGetUserInfoSeq = -1;
 
 	@Override
 	protected void onFragmentCreated(Bundle savedInstanceState) {
@@ -64,10 +65,10 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 	@Override
 	protected void setupListView(ExtendableListView listView) {
 		mManList = new ArrayList<ManInfoBean>();
-		mAdapter = new NormalManListAdapter(getActivity(), mManList);
+		mAdapter = new MyFavoriteListAdapter(getActivity(), mManList);
 		listView.setAdapter(mAdapter);
 		listView.setOnItemClickListener(this);
-		setEmptyText("No Favorite mans");
+		setEmptyText(getString(R.string.your_favorite_list_is_empty));
 	}
 
 	@Override
@@ -88,7 +89,8 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-		startActivity(new Intent(this.getActivity(), ManProfileActivity.class));
+		ManInfoBean bean = mManList.get(arg2); 
+		ManProfileActivity.launchManProfileActivity(getActivity(), bean.man_id, bean.userName, bean.photoUrl);
 	}
 
 	@Override
@@ -97,18 +99,35 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 		switch (msg.what) {
 		case FAVORITE_MANLIST_CALLBACK: {
 			mManIds = (String[]) response.body;
-			if ((response.isSuccess) && (mManIds != null)
-					&& (mManIds.length > 0)) {
+			hideEmptyOrErrorTips();
+			if (response.isSuccess) {
+				//收藏列表刷新成功，清除需要刷新标志
+				QpidApplication.updataFavIfNeed = false;
+				
 				// 获取详情刷新页面
-				pageBean.setDataCount(mManIds.length);
-				getUserInfoByIds(pageBean.getNextPageIndex());
+				if (mManIds != null && (mManIds.length > 0)){
+					pageBean.resetPageIndex();
+					pageBean.setDataCount(mManIds.length);
+					getUserInfoByIds(pageBean.getNextPageIndex());
+				}else{
+					mManList.clear();
+					notifyListDataChanged();
+					if(isAdded()){
+						setEmptyOrErrorTips(getString(R.string.your_favorite_list_is_empty));
+					}
+					onRefreshComplete();
+				}
+				
 			} else {
 				// 在线列表获取失败处理
-				getProgressBar().setVisibility(View.GONE);
-				onRefreshComplete();
-				Toast.makeText(homeActivity,
-						getString(R.string.online_manlist_error),
-						Toast.LENGTH_SHORT).show();
+				if (mManList == null || mManList.size() == 0){
+					if(isAdded()){
+						setEmptyOrErrorTips(getString(R.string.online_manlist_error));
+					}
+					onRefreshComplete();
+					
+				}
+				
 			}
 		}
 			break;
@@ -118,7 +137,9 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 				ArrayList<ManInfoBean> manList = (ArrayList<ManInfoBean>) response.body;
 				if (pageBean.getPageIndex() > 1) {
 					// load more
-					mManList.addAll(manList);
+					for(ManInfoBean bean : manList){
+						mManList.add(bean);
+					}
 					notifyListDataChanged();
 				} else {
 					// refresh
@@ -129,9 +150,11 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 
 			} else {
 				pageBean.decreasePageIndex();
-				Toast.makeText(homeActivity,
-						getString(R.string.online_manlist_error),
-						Toast.LENGTH_SHORT).show();
+				if((mManList == null) || (mManList.size() == 0)){
+					if(isAdded()){
+						setEmptyOrErrorTips(getString(R.string.online_manlist_error));
+					}
+				}
 			}
 			onRefreshComplete();
 		}
@@ -141,6 +164,21 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 		}
 	}
 	
+	private void setEmptyOrErrorTips(String emptyText){
+		getProgressBar().setVisibility(View.GONE);
+		getListView().setEmptyView(null);
+		setEmptyText(emptyText);
+		getEmptyView().setVisibility(View.VISIBLE);
+	}
+	
+	/**
+	 * 刷新有数据后要控制隐藏无数据view
+	 */
+	private void hideEmptyOrErrorTips(){
+		getListView().setEmptyView(getEmptyView());
+		getEmptyView().setVisibility(View.GONE);
+	}
+	
 	/**
 	 * 通知ListView刷新
 	 */
@@ -148,8 +186,10 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 		Collections.sort(mManList, new Comparator<ManInfoBean>() {
 			public int compare(ManInfoBean lhs, ManInfoBean rhs) {
 				int result = 0;
-				if(lhs.isOnline == rhs.isOnline){
-					result = (lhs.sort_id > rhs.sort_id ? -1: 1);
+				if(lhs.isOnline == rhs.isOnline) {
+					if (lhs.sort_id != rhs.sort_id) {
+						result = (lhs.sort_id > rhs.sort_id ? 1: -1);
+					}
 				}else{
 					result = (lhs.isOnline ? -1 : 1);
 				}
@@ -184,14 +224,23 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 				RequestBaseResponse reponse = new RequestBaseResponse(
 						isSuccess, errno, errmsg, itemList);
 				if (isSuccess && (itemList != null)) {
-					mFavoriteManSortId.clear();
-					for (int i = 0; i < itemList.length; i++) {
-						mFavoriteManSortId.put(itemList[i], i);
+					synchronized (mFavoriteManSortId) {
+						mFavoriteManSortId.clear();
+						for (int i = 0; i < itemList.length; i++) {
+							mFavoriteManSortId.put(itemList[i], i);
+						}
 					}
 				}
 				sendUiMessage(FAVORITE_MANLIST_CALLBACK, reponse);
 			}
 		});
+	}
+	
+	/**
+	 * 刷新收藏列表
+	 */
+	public void refresh(){
+		queryFavoriteManList();
 	}
 
 	@Override
@@ -231,7 +280,13 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 			list[a] = mManIds[i];
 			a++;
 		}
-		mLiveChatManager.GetUsersInfo(list);
+		mCurrGetUserInfoSeq = mLiveChatManager.GetUsersInfo(list);
+		if(mCurrGetUserInfoSeq == -1){
+			//未登录无回调
+			RequestBaseResponse response = new RequestBaseResponse(false, "",
+					"", null);
+			sendUiMessage(GET_MAN_USERINFO_CALLBACK, response);
+		}
 	}
 	
 
@@ -247,45 +302,36 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 	public void OnGetUsersInfo(LiveChatErrType errType, String errmsg,
 			int seq, LiveChatTalkUserListItem[] list) {
 		boolean isSuccess = true;
-		if (errType != LiveChatErrType.Success) {
-			isSuccess = false;
-		}
-
-		ArrayList<ManInfoBean> manList = new ArrayList<ManInfoBean>();
-		if (isSuccess) {
-			if ((list != null) && (list.length > 0)) {
-				for (int i = 0; i < list.length; i++) {
-					ManInfoBean item = ManInfoBean.parse(list[i]);
-					if (item != null) {
-						// 填充排序Id
-						if (mFavoriteManSortId != null) {
-							if (mFavoriteManSortId.containsKey(item.man_id)) {
-								item.sort_id = mFavoriteManSortId
-										.get(item.man_id);
+		if(mCurrGetUserInfoSeq == seq){
+			if (errType != LiveChatErrType.Success) {
+				isSuccess = false;
+			}
+	
+			ArrayList<ManInfoBean> manList = new ArrayList<ManInfoBean>();
+			if (isSuccess) {
+				if ((list != null) && (list.length > 0)) {
+					for (int i = 0; i < list.length; i++) {
+						ManInfoBean item = ManInfoBean.parse(list[i]);
+						if (item != null) {
+							// 填充排序Id
+							synchronized(mFavoriteManSortId){
+								if (mFavoriteManSortId != null) {
+									if (mFavoriteManSortId.containsKey(item.man_id)) {
+										item.sort_id = mFavoriteManSortId
+												.get(item.man_id);
+									}
+								}
 							}
+							manList.add(item);
 						}
-						manList.add(item);
 					}
 				}
 			}
+			RequestBaseResponse response = new RequestBaseResponse(isSuccess, "",
+					errmsg, manList);
+			sendUiMessage(GET_MAN_USERINFO_CALLBACK, response);
 		}
-		RequestBaseResponse response = new RequestBaseResponse(isSuccess, "",
-				errmsg, manList);
-		sendUiMessage(GET_MAN_USERINFO_CALLBACK, response);
 	}
-
-//	@Override
-//	public void OnGetFeeRecentContactList(LiveChatErrType errType,
-//			String errmsg, String[] userIds) {
-//
-//	}
-//
-//	@Override
-//	public void OnGetLadyChatInfo(LiveChatErrType errType, String errmsg,
-//			String[] chattingUserIds, String[] chattingInviteIds,
-//			String[] missingUserIds, String[] missingInviteIds) {
-//
-//	}
 
 	@Override
 	public void OnLogin(LiveChatErrType errType, String errmsg,
@@ -310,13 +356,6 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 
 	@Override
 	public void OnSetStatus(LiveChatErrType errType, String errmsg) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void OnGetUserStatus(LiveChatErrType errType, String errmsg,
-			LiveChatUserStatus[] userList) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -358,13 +397,19 @@ public class MyFavoriteListFragment extends BaseListViewFragment implements
 	}
 
 	@Override
-	public void OnRecvIdentifyCode(String filePath) {
+	public void OnRecvIdentifyCode(byte[] data) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void OnContactStatusChange() {
+	public void OnContactListChange() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void OnTransStatusChange() {
 		// TODO Auto-generated method stub
 		
 	}

@@ -98,11 +98,10 @@ class RequestManListCallback : public IRequestManListCallback {
 
 				env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg, jItemArray, totalCount);
 
-				env->DeleteGlobalRef(callbackObj);
-
 				env->DeleteLocalRef(jerrno);
 				env->DeleteLocalRef(jerrmsg);
 			}
+			env->DeleteGlobalRef(callbackObj);
 		}
 
 
@@ -156,9 +155,9 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniMan_QueryManList
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long)task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 }
 
 /**************************	QueryManDetail **************************/
@@ -266,19 +265,20 @@ class RequestManDetailCallback : public IRequestManDetailCallback {
 		FileLog("httprequest", "JNI::OnQueryManDetail( callback : %p, signure : %s )",
 				callback, signure.c_str());
 
-		if( callbackObj != NULL && callback != NULL ) {
-			jstring jerrno = env->NewStringUTF(errnum.c_str());
-			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+		if( callbackObj != NULL ) {
+			if( callback != NULL ) {
+				jstring jerrno = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
 
-			FileLog("httprequest", "JNI::OnQueryManDetail( CallObjectMethod "
-					"jItem : %p )", jItem);
+				FileLog("httprequest", "JNI::OnQueryManDetail( CallObjectMethod "
+						"jItem : %p )", jItem);
 
-			env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg, jItem);
+				env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg, jItem);
 
+				env->DeleteLocalRef(jerrno);
+				env->DeleteLocalRef(jerrmsg);
+			}
 			env->DeleteGlobalRef(callbackObj);
-
-			env->DeleteLocalRef(jerrno);
-			env->DeleteLocalRef(jerrmsg);
 		}
 
 		if( jItem != NULL ) {
@@ -321,9 +321,9 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniMan_QueryManDetai
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long)task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 }
 
 /**************************	QueryFavourList **************************/
@@ -364,19 +364,20 @@ class RequestManFavourListCallback : public IRequestManFavourListCallback {
 		FileLog("httprequest", "RequestManFavourListCallback::OnQueryFavourList( callback : %p, signure : %s )",
 				callback, signure.c_str());
 
-		if( callbackObj != NULL && callback != NULL ) {
-			jstring jerrno = env->NewStringUTF(errnum.c_str());
-			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+		if( callbackObj != NULL ) {
+			if( callback != NULL ) {
+				jstring jerrno = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
 
-			FileLog("httprequest", "RequestManFavourListCallback::OnQueryFavourList( CallObjectMethod "
-					"jItemArray : %p )", jItemArray);
+				FileLog("httprequest", "RequestManFavourListCallback::OnQueryFavourList( CallObjectMethod "
+						"jItemArray : %p )", jItemArray);
 
-			env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg, jItemArray);
+				env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg, jItemArray);
 
+				env->DeleteLocalRef(jerrno);
+				env->DeleteLocalRef(jerrmsg);
+			}
 			env->DeleteGlobalRef(callbackObj);
-
-			env->DeleteLocalRef(jerrno);
-			env->DeleteLocalRef(jerrmsg);
 		}
 
 		if( jItemArray != NULL ) {
@@ -415,9 +416,9 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniMan_QueryFavourLi
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long)task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 }
 
 /**************************	AddFavourites **************************/
@@ -443,18 +444,19 @@ class RequestManAddFavourCallback : public IRequestManAddFavourCallback {
 			FileLog("httprequest", "JNI::OnAddFavourites( callbackCls : %p, callback : %p, signure : %s )",
 					callbackCls, callback, signure.c_str());
 
-			if( callbackObj != NULL && callback != NULL ) {
-				jstring jerrno = env->NewStringUTF(errnum.c_str());
-				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+			if( callbackObj != NULL ) {
+				if( callback != NULL ) {
+					jstring jerrno = env->NewStringUTF(errnum.c_str());
+					jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
 
-				FileLog("httprequest", "JNI::OnAddFavourites( CallObjectMethod )");
+					FileLog("httprequest", "JNI::OnAddFavourites( CallObjectMethod )");
 
-				env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg);
+					env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg);
 
+					env->DeleteLocalRef(jerrno);
+					env->DeleteLocalRef(jerrmsg);
+				}
 				env->DeleteGlobalRef(callbackObj);
-
-				env->DeleteLocalRef(jerrno);
-				env->DeleteLocalRef(jerrmsg);
 			}
 
 			if( iRet == JNI_OK ) {
@@ -493,9 +495,9 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniMan_AddFavourites
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long)task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 }
 
 /**************************	RemoveFavourites **************************/
@@ -520,18 +522,19 @@ class RequestManRemoveFavourCallback : public IRequestManRemoveFavourCallback {
 		FileLog("httprequest", "JNI::OnRemoveFavourites( callbackCls : %p, callback : %p, signure : %s )",
 				callbackCls, callback, signure.c_str());
 
-		if( callbackObj != NULL && callback != NULL ) {
-			jstring jerrno = env->NewStringUTF(errnum.c_str());
-			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+		if( callbackObj != NULL ) {
+			if( callback != NULL ) {
+				jstring jerrno = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
 
-			FileLog("httprequest", "JNI::OnRemoveFavourites( CallObjectMethod )");
+				FileLog("httprequest", "JNI::OnRemoveFavourites( CallObjectMethod )");
 
-			env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg);
+				env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg);
 
+				env->DeleteLocalRef(jerrno);
+				env->DeleteLocalRef(jerrmsg);
+			}
 			env->DeleteGlobalRef(callbackObj);
-
-			env->DeleteLocalRef(jerrno);
-			env->DeleteLocalRef(jerrmsg);
 		}
 
 		if( iRet == JNI_OK ) {
@@ -576,9 +579,9 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniMan_RemoveFavouri
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long)task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 }
 
 /**************************	QueryManRecentChatList **************************/
@@ -656,19 +659,20 @@ class RequestManRecentChatListCallback : public IRequestManRecentChatListCallbac
 		FileLog("httprequest", "JNI::OnQueryManRecentChatList( callback : %p, signure : %s )",
 				callback, signure.c_str());
 
-		if( callbackObj != NULL && callback != NULL ) {
-			jstring jerrno = env->NewStringUTF(errnum.c_str());
-			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+		if( callbackObj != NULL) {
+			if( callback != NULL ) {
+				jstring jerrno = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
 
-			FileLog("httprequest", "JNI::OnQueryManRecentChatList( CallObjectMethod "
-					"jItemArray : %p )", jItemArray);
+				FileLog("httprequest", "JNI::OnQueryManRecentChatList( CallObjectMethod "
+						"jItemArray : %p )", jItemArray);
 
-			env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg, jItemArray, totalCount);
+				env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg, jItemArray, totalCount);
 
+				env->DeleteLocalRef(jerrno);
+				env->DeleteLocalRef(jerrmsg);
+			}
 			env->DeleteGlobalRef(callbackObj);
-
-			env->DeleteLocalRef(jerrno);
-			env->DeleteLocalRef(jerrmsg);
 		}
 
 		if( jItemArray != NULL ) {
@@ -713,9 +717,9 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniMan_QueryManRecen
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long)task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 
 }
 
@@ -775,19 +779,20 @@ class RequestManRecentViewListCallback : public IRequestManRecentViewListCallbac
 		FileLog("httprequest", "JNI::OnQueryRecentViewList( callback : %p, signure : %s )",
 				callback, signure.c_str());
 
-		if( callbackObj != NULL && callback != NULL ) {
-			jstring jerrno = env->NewStringUTF(errnum.c_str());
-			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+		if( callbackObj != NULL ) {
+			if( callback != NULL ) {
+				jstring jerrno = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
 
-			FileLog("httprequest", "JNI::OnQueryRecentViewList( CallObjectMethod "
-					"jItemArray : %p )", jItemArray);
+				FileLog("httprequest", "JNI::OnQueryRecentViewList( CallObjectMethod "
+						"jItemArray : %p )", jItemArray);
 
-			env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg, jItemArray);
+				env->CallVoidMethod(callbackObj, callback, success, jerrno, jerrmsg, jItemArray);
 
+				env->DeleteLocalRef(jerrno);
+				env->DeleteLocalRef(jerrmsg);
+			}
 			env->DeleteGlobalRef(callbackObj);
-
-			env->DeleteLocalRef(jerrno);
-			env->DeleteLocalRef(jerrmsg);
 		}
 
 		if( jItemArray != NULL ) {
@@ -827,7 +832,7 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniMan_QueryManRecen
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long)task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 }

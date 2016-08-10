@@ -40,21 +40,41 @@ class RequestConfigCallback : public ConfigManagerCallback {
 		if(itr != gJavaItemMap.end()){
 			jclass jItemClass = env->GetObjectClass(itr->second);
 			string itemInitString = "(Ljava/lang/String;ILjava/lang/String;ILjava/lang/String;[Ljava/lang/String;"
-					"ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
+					"ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
 			jmethodID jItemInit = env->GetMethodID(jItemClass, "<init>", itemInitString.c_str());
 
 			//languages
 			jobjectArray jLanguages = env->NewObjectArray(item.translateLanguage.size(), env->FindClass("java/lang/String"), NULL);
 			list<string>::const_iterator languageItr;
 			int iLanguageIndex;
-			for(iLanguageIndex=0, languageItr=item.translateLanguage.begin(); languageItr!=item.translateLanguage.end(); iLanguageIndex++, languageItr++){
-				env->SetObjectArrayElement(jLanguages, iLanguageIndex, env->NewStringUTF((*languageItr).c_str()));
+			for(iLanguageIndex=0, languageItr=item.translateLanguage.begin(); languageItr!=item.translateLanguage.end(); iLanguageIndex++, languageItr++)
+			{
+				jstring jLanguage = env->NewStringUTF((*languageItr).c_str());
+				env->SetObjectArrayElement(jLanguages, iLanguageIndex, jLanguage);
+				env->DeleteLocalRef(jLanguage);
 			}
-			jItem = env->NewObject(jItemClass, jItemInit, env->NewStringUTF(item.socketHost.c_str()),
-					item.socketPort, env->NewStringUTF(item.socketVersion.c_str()), item.socketFromId,
-					env->NewStringUTF(item.translateUrl.c_str()), jLanguages, item.apkVersionCode, env->NewStringUTF(item.apkVersionName.c_str()),
-					env->NewStringUTF(item.apkVersionUrl.c_str()), env->NewStringUTF(item.siteUrl.c_str()));
+
+			jstring jSocketHost = env->NewStringUTF(item.socketHost.c_str());
+			jstring jSocketVersion = env->NewStringUTF(item.socketVersion.c_str());
+			jstring jTranslateUrl = env->NewStringUTF(item.translateUrl.c_str());
+			jstring jApkVersionName = env->NewStringUTF(item.apkVersionName.c_str());
+			jstring jApkVersionUrl = env->NewStringUTF(item.apkVersionUrl.c_str());
+			jstring jSiteUrl = env->NewStringUTF(item.siteUrl.c_str());
+			jstring jLiveChatVoiceHost = env->NewStringUTF(item.liveChatVoiceHost.c_str());
+
+			jItem = env->NewObject(jItemClass, jItemInit, jSocketHost,
+					item.socketPort, jSocketVersion, item.socketFromId,
+					jTranslateUrl, jLanguages, item.apkVersionCode, jApkVersionName,
+					jApkVersionUrl, jSiteUrl, jLiveChatVoiceHost);
 			env->DeleteLocalRef(jLanguages);
+
+			env->DeleteLocalRef(jSocketHost);
+			env->DeleteLocalRef(jSocketVersion);
+			env->DeleteLocalRef(jTranslateUrl);
+			env->DeleteLocalRef(jApkVersionName);
+			env->DeleteLocalRef(jApkVersionUrl);
+			env->DeleteLocalRef(jSiteUrl);
+			env->DeleteLocalRef(jLiveChatVoiceHost);
 		}
 
 		/* real callback java */
@@ -78,14 +98,11 @@ class RequestConfigCallback : public ConfigManagerCallback {
 
 					env->CallVoidMethod(callbackObj, callback, isSuccess, jerrno, jerrmsg, jItem);
 
-					env->DeleteGlobalRef(callbackObj);
-
 					env->DeleteLocalRef(jerrno);
 					env->DeleteLocalRef(jerrmsg);
 				}
 			}
 		}
-		gConfigCallbackMap.clear();
 		gConfigCallbackMapLock.unlock();
 
 		env->DeleteLocalRef(jItem);

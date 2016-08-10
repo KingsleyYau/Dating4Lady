@@ -25,7 +25,7 @@
                 android:layout_width="wrap_content"
                 android:textColor="@color/text_color_dark"
                 android:textSize="16sp"
-                android:text="Updating..."/>
+                android:text="@string/more_check_version_progress"/>
             
         </LinearLayout>
         

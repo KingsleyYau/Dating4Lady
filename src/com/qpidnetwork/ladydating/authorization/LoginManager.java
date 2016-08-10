@@ -9,16 +9,18 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.telephony.TelephonyManager;
-import android.util.Log;
+import android.text.TextUtils;
 
+import com.qpidnetwork.ladydating.auth.PhoneInfoManager;
 import com.qpidnetwork.ladydating.authorization.IAuthorizationCallBack.OperateType;
 import com.qpidnetwork.ladydating.bean.RequestBaseResponse;
+import com.qpidnetwork.ladydating.googleanalytics.AnalyticsManager;
 import com.qpidnetwork.manager.PreferenceManager;
 import com.qpidnetwork.request.LoginManagerJni;
 import com.qpidnetwork.request.OnLoginManagerCallback;
-import com.qpidnetwork.request.RequestErrorCode;
 import com.qpidnetwork.request.RequestJni;
 import com.qpidnetwork.request.item.LoginItem;
+import com.qpidnetwork.request.item.SynConfigItem;
 
 /**
  * 认证模块
@@ -27,6 +29,9 @@ import com.qpidnetwork.request.item.LoginItem;
  *
  */
 public class LoginManager implements OnLoginManagerCallback {
+	
+	private static final int LOGIN_CALLBACK = 1;
+	private static final int LOGOUT_CALLBACK = 2;
 	
 	/**
 	 * 登录状态
@@ -45,19 +50,10 @@ public class LoginManager implements OnLoginManagerCallback {
 	 */
 	private Context mContext = null;
 	private Handler mHandler = null;
-	private LoginItem mLoginItem = null;
 	private static LoginManager gLoginManager = null;
-	
-	public static LoginManager newInstance(Context context) {
-		if (gLoginManager == null) {
-			gLoginManager = new LoginManager(context);
-		}
-		return gLoginManager;
-	}
-	
-	public static LoginManager getInstance() {
-		return gLoginManager;
-	}
+	private String accountId = "";
+	private String password = "";
+	private OperateType mOperateType = OperateType.MANUAL;//用于区分当前登陆是否是session过期重新登陆还是手动登陆
 	
 	/**
 	 * 登录状态改变监听
@@ -71,38 +67,76 @@ public class LoginManager implements OnLoginManagerCallback {
     
     private PreferenceManager mPreferenceManager;
     
+    //保存同步配置信息，用于登陆后使用
+  	private SynConfigItem mSynConfigItem = null;
+    
+    
+    public static LoginManager newInstance(Context context) {
+		if (gLoginManager == null) {
+			gLoginManager = new LoginManager(context);
+		}
+		return gLoginManager;
+	}
+	
+	public static LoginManager getInstance() {
+		return gLoginManager;
+	}
+    
 	@SuppressLint("HandlerLeak")
 	public LoginManager(Context context) {
 		
 		mContext = context;
-		PreferenceManager.newInstance(context);
-		mPreferenceManager = PreferenceManager.getInstance();
+		mPreferenceManager = new PreferenceManager(context);
 		
 		mHandler = new Handler() {
 			@Override
 			public void handleMessage(Message msg) {
 				RequestBaseResponse response = (RequestBaseResponse) msg.obj;
-				LoginParam param = (LoginParam)response.body;
-				if( response.isSuccess ) {
-					// 改变状态
-		        	mLoginStatus = LoginStatus.LOGINED;
-					
-					// 登录成功, 处理是否记住密码, 自动登录等
-		        	mPreferenceManager.saveLoginParam(param);
-				} else {
-		        	mLoginStatus = LoginStatus.NONE;
-					switch (response.errno) {
-					default:
-						break;
+				switch (msg.what) {
+				case LOGIN_CALLBACK:{
+					LoginParam param = (LoginParam)response.body;
+					if( response.isSuccess ) {
+						// 登录成功, 处理是否记住密码, 自动登录等
+			        	mPreferenceManager.saveLoginParam(param);
+			        	if(param != null && param.item != null){
+			        		mPreferenceManager.setCurrentUserId(param.item.lady_id);
+			        	}
+			        	
+			        	//上传PhoneInfo
+			        	PhoneInfoManager.RequestPhoneInfo(mContext, param.item);
+			        	
+			        	// 统计登录
+			        	AnalyticsManager.newInstance().setGAUserId(param.item.lady_id);
+					} else {
+						switch (response.errno) {
+						default:
+							break;
+						}
 					}
+					
+					// 通知其他模块
+					for(IAuthorizationCallBack callback : mCallbackList) {
+						if( callback != null ) {
+							callback.OnLogin(mOperateType, response.isSuccess, response.errno, response.errmsg, param.item);
+						} 
+					}
+				}break;
+
+				case LOGOUT_CALLBACK:{
+					int type = (Integer)response.body;
+					mOperateType = OperateType.values()[type];
+					// 通知其他模块
+					for(IAuthorizationCallBack callback : mCallbackList) {
+						if( callback != null ) {
+							callback.OnLogout(OperateType.values()[type]);
+						} 
+					}
+				}break;
+				
+				default:
+					break;
 				}
 				
-				// 通知其他模块
-				for(IAuthorizationCallBack callback : mCallbackList) {
-					if( callback != null ) {
-						callback.OnLogin(OperateType.MANUAL, response.isSuccess, response.errno, response.errmsg, param.item);
-					} 
-				}
 			}
 		};
 		
@@ -132,6 +166,8 @@ public class LoginManager implements OnLoginManagerCallback {
 	 * @return				
 	 */
 	public void Login(final String email, final String password) {
+		this.accountId = email;
+		this.password = password;
 		TelephonyManager tm = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
 		
 		LoginManagerJni.Login(
@@ -143,69 +179,30 @@ public class LoginManager implements OnLoginManagerCallback {
 				);
 	}
 	
+	/**
+	 * Session过期后重新登陆（处理Webview等 Session过期）
+	 */
+	public void LoginBySessionOuttime(){
+		Logout(OperateType.AUTO);
+		Login(accountId, password);
+	}
+	
     /**
-     * 注销
+     * 手动注销，清除密码，
      */
-    public void Logout(OperateType operateType) {
-    	RequestJni.CleanCookies();
-    	
-		Log.d("LoginManager", "Logout( " + 
-				"mLoginStatus : " + mLoginStatus.name() + 
-				" )");
-		
-		if( mLoginStatus != LoginStatus.LOGINED ) {
-			return;
-		}
+    public void Logout(OperateType type) {
+    	LoginManagerJni.Logout(type.ordinal());
     	mLoginStatus = LoginStatus.NONE;
     	
-    	LoginParam param = mPreferenceManager.getLoginParam();
-    	if( param != null ) {
-        	param.item = null;
-        	if(operateType == OperateType.MANUAL){
-        		//手动注销需清除密码
-        		param.password = "";
-        	}
-    	}
-
-    	mPreferenceManager.saveLoginParam(param);
-    	
-		// 通知其他模块
-		for(IAuthorizationCallBack callback : mCallbackList) {
-			if( callback != null ) {
-				callback.OnLogout(operateType);
-			} 
-		}
-    }
-    
-    /**
-     * 自动登录
-     */
-    public void AutoLogin() {
-		Log.d("LoginManager", "AutoLogin( " + 
-				"mLoginStatus : " + mLoginStatus.name() + 
-				" )");
-		
-		if( mLoginStatus != LoginStatus.NONE ) {
-			return;
-		}
-		
-		boolean bCallback = true;
-    	LoginParam param = mPreferenceManager.getLoginParam();
-    	if( param != null ) {
-			if( param.email != null && param.email.length() > 0 &&
-		    		param.password != null && param.password.length() > 0 ) {
-				Login(param.email, param.password);
-				bCallback = false;
-			}
-    	} 
-		
-    	if( bCallback ) {
-    		// 通知其他模块
-    		for(IAuthorizationCallBack callback : mCallbackList) {
-    			if( callback != null ) {
-    				callback.OnLogin(OperateType.MANUAL, false, RequestErrorCode.LOCAL_ERROR_CODE_NERVER_LOGIN, "Login fail!", null);
-    			} 
-    		}
+    	if(type == OperateType.MANUAL){
+    		//手动注销清除账号密码
+	    	LoginParam param = GetLoginParam();
+	    	if( param != null ) {
+	        	param.item = null;
+	        	param.password = "";
+	    	}
+	
+	    	mPreferenceManager.saveLoginParam(param);
     	}
     }
     
@@ -215,6 +212,14 @@ public class LoginManager implements OnLoginManagerCallback {
      */
     public LoginStatus GetLoginStatus() {
     	return mLoginStatus;
+    }
+    
+    /**
+     * 设置当前登录状态
+     * @param status
+     */
+    public void setLoginnStatus(LoginStatus status){
+    	this.mLoginStatus = status;
     }
     
     /**
@@ -229,65 +234,19 @@ public class LoginManager implements OnLoginManagerCallback {
 	/**
 	 * 判断是否登录, 并弹出对应界面
 	 */
-	public boolean CheckLogin(Context context) {
-		return CheckLogin(context, true);
-	}
-	
-	/**
-	 * 判断是否登录, 并弹出对应界面
-	 */
-	public boolean CheckLogin(Context context, boolean bShowLoginActivity) {
-		return CheckLogin(context, bShowLoginActivity, "");
-	}
-	
-	/**
-	 * 获取 LoginItem，若未登录则返回null
-	 * @return
-	 */
-	public LoginItem GetLoginItem()
-	{
-		return mLoginItem;
-	}
-	
-	/**
-	 * 判断是否登录, 并弹出对应界面, 并传递参数
-	 */
-	public boolean CheckLogin(Context context, boolean bShowLoginActivity, String param) {
-		boolean bFlag = false;
-		// 判断是否登录
-		switch (LoginManager.getInstance().GetLoginStatus()) {
-		case NONE: {
-			// 处于未登录状态
-		}			
-		case LOGINING:{
-			// 处于未登录状态, 点击弹出登录界面
-			if( bShowLoginActivity ) {
-//				Intent intent = new Intent(mContext, RegisterActivity.class);
-//				//传递参数 
-//				if (null != param && !param.isEmpty()) {
-//					intent.putExtra("param", param);
-//				}
-//				
-//				context.startActivity(intent);
-			}
-		}break;
-		case LOGINED: {
-			// 处于登录状态
-			bFlag = true;
-		}break;
-		default:
-			break;
+	public boolean CheckLogin() {
+		boolean isLogined = false;
+		if(mLoginStatus == LoginStatus.LOGINED){
+			isLogined = true;
 		}
-		return bFlag;
+		return isLogined;
 	}
 
 	@Override
 	public void OnLogin(boolean isSuccess, String errno, String errmsg,
 			LoginItem item) {
-		// TODO Auto-generated method stub
-		mLoginItem = item;
-		
 		Message msg = Message.obtain();
+		msg.what = LOGIN_CALLBACK;
 		RequestBaseResponse response = new RequestBaseResponse(isSuccess, errno, errmsg, null);
 		LoginParam param = new LoginParam(LoginManagerJni.GetUser(), LoginManagerJni.GetPassword(), item);
 		response.body = param;
@@ -298,6 +257,35 @@ public class LoginManager implements OnLoginManagerCallback {
 	@Override
 	public void OnLogout(int type) {
 		// TODO Auto-generated method stub
-		mLoginItem = null;
+		Message msg = Message.obtain();
+		msg.what = LOGOUT_CALLBACK;
+		OperateType operateType = OperateType.values()[type];
+		RequestBaseResponse response = new RequestBaseResponse(true, "", "", Integer.valueOf(operateType.ordinal()));
+		msg.obj = response;
+		mHandler.sendMessage(msg);
+	}
+	
+	/**
+	 * 更新同步配置信息
+	 * @param item
+	 */
+	public void setSynConfigItem(SynConfigItem item){
+		if(item != null){
+			//设置翻译Host
+			String host = "";
+			if(!TextUtils.isEmpty(item.translateUrl)){
+				host = item.translateUrl.substring(0, item.translateUrl.indexOf("/v2/http.svc/Translate"));
+				RequestJni.SetTransSite(host);
+			}
+		}
+		this.mSynConfigItem = item;
+	}
+
+	/**
+	 * 获取同步配置信息
+	 * @return
+	 */
+	public SynConfigItem getSynConfigItem(){
+			return mSynConfigItem;
 	}
 }

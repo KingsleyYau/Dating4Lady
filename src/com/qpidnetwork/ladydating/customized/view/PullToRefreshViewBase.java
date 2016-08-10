@@ -89,7 +89,7 @@ public class PullToRefreshViewBase extends
 			View childView = getChildAt(i);
 			if (childView instanceof ListView) {
 				mListView = (ListView)childView;
-				mListView.addFooterView(mFooterView);
+				mListView.addFooterView(mFooterView, null, false);
 				// 设置滚动监听器给ListView, 使得滚动的情况下也可以自动加载
 				mListView.setOnScrollListener(this);
 				break;
@@ -103,7 +103,7 @@ public class PullToRefreshViewBase extends
 	 */
 	public void setRefreshListview(ListView listview){
 		mListView = listview;
-		mListView.addFooterView(mFooterView);
+		mListView.addFooterView(mFooterView, null, false);
 		// 设置滚动监听器给ListView, 使得滚动的情况下也可以自动加载
 		mListView.setOnScrollListener(this);
 	}
@@ -121,11 +121,13 @@ public class PullToRefreshViewBase extends
 		case MotionEvent.ACTION_DOWN:
 			// 按下
 			mYDown = (int) event.getRawY();
+			Log.i(TAG, "mYDown : " + mYDown);
 			break;
 
 		case MotionEvent.ACTION_MOVE:
 			// 移动
 			mLastY = (int) event.getRawY();
+			Log.i(TAG, "mLastY : " + mLastY);
 			break;
 
 		case MotionEvent.ACTION_UP:
@@ -133,6 +135,8 @@ public class PullToRefreshViewBase extends
 			if (canLoadMore()) {
 				loadMore();
 			}
+			mYDown = 0;
+			mLastY = 0;
 			break;
 		default:
 			break;
@@ -177,6 +181,7 @@ public class PullToRefreshViewBase extends
 	 * @return
 	 */
 	private boolean isPullUp() {
+		Log.i(TAG, "isPullUp mYDown : " + mYDown + " mLastY: " + mLastY + " mTouchSlop: " + mTouchSlop);
 		return (mYDown - mLastY) >= mTouchSlop;
 	}
 
@@ -201,7 +206,7 @@ public class PullToRefreshViewBase extends
 		isLoading = loading;
 		if (isLoading) {
 			setEnabled(false);
-			mListView.addFooterView(mFooterView);
+			mListView.addFooterView(mFooterView, null, false);
 		} else {
 			mListView.removeFooterView(mFooterView);
 			mYDown = 0;
@@ -243,6 +248,13 @@ public class PullToRefreshViewBase extends
 				mOnPullRefreshListener.onPullDownToRefresh();
 			}
 		}
+	}
+	
+	/**
+	 * 避免列表初始化更新过程中滑动加载更多或则上拉刷新冲突问题
+	 */
+	public void setIsRefreshing(){
+		isLoading = true;
 	}
 	
 	/**
@@ -290,6 +302,9 @@ public class PullToRefreshViewBase extends
 	 */
 	public void setCanPullUp(boolean b) {
 		can_pull_up = b;
+		if((mListView != null) && (mListView.getFooterViewsCount() > 0)){
+			mListView.removeFooterView(mFooterView);
+		}
 	}
 
 	/**

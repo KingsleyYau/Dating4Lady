@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:wheel="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@drawable/touch_feedback_holo_light"
     android:descendantFocusability="blocksDescendants"
     android:gravity="center"
-    android:orientation="vertical"
-    android:padding="4dp" >
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/rectangle_stroke_grey"
-        android:padding="1dp" >
+        android:background="@drawable/rectangle_stroke_grey" >
 
         <ImageView
             android:id="@+id/photo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="72dp"
-            android:minWidth="72dp"
+            android:layout_width="match_parent"
+            android:layout_height="198dp"
             android:scaleType="centerCrop" />
 
         <ImageButton
@@ -29,15 +27,35 @@
             android:background="@drawable/oval_view_transparent_dark"
             android:clickable="false"
             android:scaleType="center"
-            android:src="@drawable/ic_create_white_24dp"/>
-        
-        <ProgressBar android:id="@+id/uploadProgres"
-            android:layout_height="36dp"
-            android:layout_width="36dp"
+            android:src="@drawable/ic_create_white_24dp"
+            android:visibility="visible" />
+
+        <ImageButton
+            android:id="@+id/videoButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_centerInParent="true"
-            android:visibility="gone"/>
-        
-        
+            android:background="@drawable/rectangle_rounded_angle_transclucent_bg"
+            android:clickable="false"
+            android:scaleType="center"
+            android:src="@drawable/ic_play_circle_outline_white_24dp"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+        <com.qpidnetwork.ladydating.customized.view.MaterialProgressBar
+            android:id="@+id/uploadProgres"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            wheel:matProg_barColor="@color/blue"
+            wheel:matProg_progressIndeterminate="false" />
+
         <ImageButton
             android:id="@+id/retryButton"
             android:layout_width="48dp"
@@ -47,8 +65,7 @@
             android:clickable="false"
             android:scaleType="center"
             android:src="@drawable/ic_error_red_24dp"
-            android:visibility="gone"/>
-        
+            android:visibility="gone" />
     </RelativeLayout>
 
     <TextView
@@ -56,10 +73,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
         android:ellipsize="end"
         android:singleLine="true"
-        android:text="Photo title"
-        android:textColor="@color/text_color_dark"
-        android:textSize="16sp" />
+        android:gravity="center"
+        android:text="@string/album_gridview_detail_photo_title"
+        android:textColor="@color/text_color_light"
+        android:textSize="14sp" />
 
 </LinearLayout>

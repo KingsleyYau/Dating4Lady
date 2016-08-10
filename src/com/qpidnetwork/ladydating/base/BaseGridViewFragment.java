@@ -1,9 +1,5 @@
 package com.qpidnetwork.ladydating.base;
 
-import com.qpidnetwork.ladydating.R;
-import com.qpidnetwork.ladydating.customized.view.HeaderableGridView;
-import com.qpidnetwork.ladydating.customized.view.MultiSwipeRefreshLayout;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,9 +8,12 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.qpidnetwork.ladydating.R;
+import com.qpidnetwork.ladydating.customized.view.HeaderableGridView;
+import com.qpidnetwork.ladydating.customized.view.MultiSwipeRefreshLayout;
 
 public abstract class BaseGridViewFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener{
 	

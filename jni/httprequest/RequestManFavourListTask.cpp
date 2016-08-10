@@ -46,7 +46,9 @@ bool RequestManFavourListTask::HandleCallback(const string& url, bool requestRet
 		if( HandleResult(buf, size, errnum, errmsg, &dataJson, NULL, &bContinue) ) {
 			if( dataJson.isObject() && dataJson[MAN_FAVOUR_LIST_MAN_IDS].isString() ) {
 				string manids = dataJson[MAN_FAVOUR_LIST_MAN_IDS].asString();
-				itemList = StringHandle::split(manids, ",");
+				if(!manids.empty()){
+					itemList = StringHandle::split(manids, ",");
+				}
 				bFlag = true;
 			} else {
 				// parsing fail

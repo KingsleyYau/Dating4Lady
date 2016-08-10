@@ -5,10 +5,10 @@ import java.util.Calendar;
 import java.util.List;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,7 +19,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.qpidnetwork.ladydating.R;
 import com.qpidnetwork.ladydating.base.BaseListViewFragment;
@@ -36,7 +35,6 @@ import com.qpidnetwork.livechat.jni.LiveChatClientListener.KickOfflineType;
 import com.qpidnetwork.livechat.jni.LiveChatClientListener.LiveChatErrType;
 import com.qpidnetwork.livechat.jni.LiveChatClientListener.TalkEmfNoticeType;
 import com.qpidnetwork.livechat.jni.LiveChatTalkUserListItem;
-import com.qpidnetwork.livechat.jni.LiveChatUserStatus;
 import com.qpidnetwork.request.OnQueryManListCallback;
 import com.qpidnetwork.request.OnQueryManRecentViewListCallback;
 import com.qpidnetwork.request.RequestEnum.Country;
@@ -76,6 +74,9 @@ public class ManListFragment extends BaseListViewFragment implements
 
 	// 在线男士及最近访问存放Ids列表，用于更多处理
 	String[] mManIds = null;
+	
+	//记录GetUsersInfo()返回数据是否是当前请求
+	private int currSeq = -1;
 
 	private enum CategoryType {
 		ONLINE, SEARCH, RECENT_VISITORS
@@ -91,9 +92,12 @@ public class ManListFragment extends BaseListViewFragment implements
 		homeActivity = (HomeActivity) getActivity();
 		categoryText = new String[] { getString(R.string.online),
 				getString(R.string.all), getString(R.string.recent_visitors) };
-		mCategoryType = CategoryType.SEARCH;
+		mCategoryType = CategoryType.ONLINE;
 		pageBean.resetPageIndex();
 		initRefreshData();
+		
+		// 统计sub的子页
+//		homeActivity.onAnalyticsPageSelected(0, 0, mCategoryType.ordinal());
 	}
 
 	@Override
@@ -172,6 +176,9 @@ public class ManListFragment extends BaseListViewFragment implements
 		((TextView) mListviewHeader.findViewById(R.id.category))
 				.setText(categoryText[which]);
 		onCategoryClick(which);
+		
+		// 统计sub的子页
+		homeActivity.onAnalyticsPageSelected(0, 0, which);
 	}
 
 	/**
@@ -203,7 +210,8 @@ public class ManListFragment extends BaseListViewFragment implements
 	/* listview item click */
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		startActivity(new Intent(this.getActivity(), ManProfileActivity.class));
+		ManInfoBean bean = mManList.get(position-1); 
+		ManProfileActivity.launchManProfileActivity(getActivity(), bean.man_id, bean.userName, bean.photoUrl);
 	}
 
 	// search button点击响应
@@ -219,6 +227,9 @@ public class ManListFragment extends BaseListViewFragment implements
 		this.isWithPhoto = isWithPhoto;
 		getProgressBar().setVisibility(View.VISIBLE);
 		initRefreshData();
+		
+		// 统计search screen
+		homeActivity.onAnalyticsPageSelected(0, 0, -1);
 	}
 
 	@Override
@@ -229,6 +240,9 @@ public class ManListFragment extends BaseListViewFragment implements
 		man_id = ladyId;
 		getProgressBar().setVisibility(View.VISIBLE);
 		initRefreshData();
+		
+		// 统计search screen
+		homeActivity.onAnalyticsPageSelected(0, 0, -1);
 	}
 
 	/**
@@ -291,18 +305,31 @@ public class ManListFragment extends BaseListViewFragment implements
 		case ONLINE_MANLIST_CALLBACK: {
 			if ((mCategoryType == CategoryType.ONLINE)) {
 				mManIds = (String[]) response.body;
-				if ((response.isSuccess) && (mManIds != null)
-						&& (mManIds.length > 0)) {
+				hideEmptyOrErrorTips();//暂时不处理无数据
+				if ((response.isSuccess)) {
 					// 获取详情刷新页面
-					pageBean.setDataCount(mManIds.length);
-					getUserInfoByIds(pageBean.getNextPageIndex());
+					if (mManIds != null && mManIds.length > 0){
+						pageBean.resetPageIndex();
+						pageBean.setDataCount(mManIds.length);
+						getUserInfoByIds(pageBean.getNextPageIndex());
+					}else{
+						mManList.clear();
+						mAdapter.notifyDataSetChanged();
+						if(isAdded()){
+							setEmptyOrErrorTips(getString(R.string.no_online_members_at_the_moment));
+						}
+						onRefreshComplete();
+					}
+					
 				} else {
 					// 在线列表获取失败处理
-					getProgressBar().setVisibility(View.GONE);
 					onRefreshComplete();
-					Toast.makeText(homeActivity,
-							getString(R.string.online_manlist_error),
-							Toast.LENGTH_SHORT).show();
+					if (mManList == null || mManList.size() == 0){
+						if(isAdded()){	
+							setEmptyOrErrorTips(getString(R.string.online_manlist_error));
+						}
+					}
+					
 				}
 			}
 		}
@@ -322,16 +349,26 @@ public class ManListFragment extends BaseListViewFragment implements
 						mManList.clear();
 						mManList.addAll(manList);
 						mAdapter.notifyDataSetChanged();
-						if(mManList.size() == 0){
-							setEmptyOrErrorTips("Can not find man for ID " + man_id);
+						if(mManList == null || mManList.size() == 0){
+							if(isAdded()){
+								if(!TextUtils.isEmpty(man_id)){
+									setEmptyOrErrorTips(String.format(getString(R.string.profile_id_x_not_found), man_id));
+								}else{
+									setEmptyOrErrorTips(getString(R.string.search_man_not_match));
+								}
+							}
 						}else{
 							hideEmptyOrErrorTips();
 						}
 					}
 					
 				} else {
-					Toast.makeText(homeActivity, response.errmsg,
-							Toast.LENGTH_SHORT).show();
+					if (mManList == null || mManList.size() == 0){
+						if(isAdded()){
+							setEmptyOrErrorTips(getString(R.string.online_manlist_error));
+						}
+					}
+					
 					pageBean.decreasePageIndex();
 				}
 				onRefreshComplete();
@@ -340,19 +377,38 @@ public class ManListFragment extends BaseListViewFragment implements
 			break;
 		case RECENT_VISITORS_MANLIST_CALLBACK: {
 			if ((mCategoryType == CategoryType.RECENT_VISITORS)) {
-				mManIds = (String[]) response.body;
-				if ((response.isSuccess) && (mManIds != null)
-						&& (mManIds.length > 0)) {
+				ManRecentViewListItem[] recentVisit = (ManRecentViewListItem[]) response.body;
+				if(recentVisit != null && recentVisit.length > 0){
+					String[] manIds = new String[recentVisit.length];
+					for(int i=0; i<recentVisit.length; i++){
+						manIds[i] = recentVisit[i].man_id;
+					}
+					mManIds = manIds;
+				}
+				hideEmptyOrErrorTips();//暂时不处理无数据
+				if (response.isSuccess) {
 					// 获取详情刷新页面
-					pageBean.setDataCount(mManIds.length);
-					getUserInfoByIds(pageBean.getNextPageIndex());
+					if (mManIds != null && mManIds.length > 0){
+						pageBean.setDataCount(mManIds.length);
+						getUserInfoByIds(pageBean.getNextPageIndex());
+					}else{
+						mManList.clear();
+						mAdapter.notifyDataSetChanged();
+						if(isAdded()){
+							setEmptyOrErrorTips(getString(R.string.no_recent_visitors));
+						}
+						onRefreshComplete();
+					}
+					
+					
 				} else {
 					// 在线列表获取失败处理
-					getProgressBar().setVisibility(View.GONE);
 					onRefreshComplete();
-					Toast.makeText(homeActivity,
-							getString(R.string.online_manlist_error),
-							Toast.LENGTH_SHORT).show();
+					if (mManList == null || mManList.size() == 0){
+						if(isAdded()){
+							setEmptyOrErrorTips(getString(R.string.online_manlist_error));
+						}
+					}
 				}
 			}
 		}
@@ -374,12 +430,18 @@ public class ManListFragment extends BaseListViewFragment implements
 						mAdapter.notifyDataSetChanged();
 					}
 					
+					
 				} else {
 					pageBean.decreasePageIndex();
-					Toast.makeText(homeActivity,
-							getString(R.string.online_manlist_error),
-							Toast.LENGTH_SHORT).show();
+					
+					if (mManList == null || mManList.size() == 0){
+						if(isAdded()){
+							setEmptyOrErrorTips(getString(R.string.online_manlist_error));
+						}
+					}
+					
 				}
+				
 				onRefreshComplete();
 			}
 		}
@@ -390,6 +452,7 @@ public class ManListFragment extends BaseListViewFragment implements
 	}
 	
 	private void setEmptyOrErrorTips(String emptyText){
+		getProgressBar().setVisibility(View.GONE);
 		getListView().setEmptyView(null);
 		setEmptyText(emptyText);
 		getEmptyView().setVisibility(View.VISIBLE);
@@ -409,6 +472,8 @@ public class ManListFragment extends BaseListViewFragment implements
 		super.onRefreshComplete();
 		Log.i(TAG, "hasNextPage: " + pageBean.hasNextPage() + " datacount: " + pageBean.getDataCount());
 		getRefreshLayout().setCanPullUp(pageBean.hasNextPage());
+		getListView().setVisibility(View.VISIBLE);
+		getProgressBar().setVisibility(View.GONE);
 	}
 
 	@Override
@@ -433,6 +498,8 @@ public class ManListFragment extends BaseListViewFragment implements
 	 * 上拉刷新及切换Category初始化请求数据
 	 */
 	private void initRefreshData() {
+		
+		hideEmptyOrErrorTips();
 		switch (mCategoryType) {
 		case ONLINE: {
 			queryOnlineManlist();
@@ -546,7 +613,13 @@ public class ManListFragment extends BaseListViewFragment implements
 			list[a] = mManIds[i];
 			a++;
 		}
-		mLiveChatManager.GetUsersInfo(list);
+		currSeq = mLiveChatManager.GetUsersInfo(list);
+		if(currSeq == -1){
+			//未登录无回调
+			RequestBaseResponse response = new RequestBaseResponse(false, "",
+					"", null);
+			sendUiMessage(GET_MAN_USERINFO_CALLBACK, response);
+		}
 	}
 
 	/** =================== livechat interface ====================== */
@@ -566,25 +639,27 @@ public class ManListFragment extends BaseListViewFragment implements
 	@Override
 	public void OnGetUsersInfo(LiveChatErrType errType, String errmsg,
 			int seq, LiveChatTalkUserListItem[] list) {
-		boolean isSuccess = true;
-		if (errType != LiveChatErrType.Success) {
-			isSuccess = false;
-		}
-
-		ArrayList<ManInfoBean> manList = new ArrayList<ManInfoBean>();
-		if (isSuccess) {
-			if ((list != null) && (list.length > 0)) {
-				for (int i = 0; i < list.length; i++) {
-					ManInfoBean item = ManInfoBean.parse(list[i]);
-					if (item != null) {
-						manList.add(item);
+		if(seq == currSeq){
+			boolean isSuccess = true;
+			if (errType != LiveChatErrType.Success) {
+				isSuccess = false;
+			}
+		
+			ArrayList<ManInfoBean> manList = new ArrayList<ManInfoBean>();
+			if (isSuccess) {
+				if ((list != null) && (list.length > 0)) {
+					for (int i = 0; i < list.length; i++) {
+						ManInfoBean item = ManInfoBean.parse(list[i]);
+						if (item != null) {
+							manList.add(item);
+						}
 					}
 				}
 			}
+			RequestBaseResponse response = new RequestBaseResponse(isSuccess, "",
+					errmsg, manList);
+			sendUiMessage(GET_MAN_USERINFO_CALLBACK, response);
 		}
-		RequestBaseResponse response = new RequestBaseResponse(isSuccess, "",
-				errmsg, manList);
-		sendUiMessage(GET_MAN_USERINFO_CALLBACK, response);
 	}
 
 //	@Override
@@ -628,13 +703,6 @@ public class ManListFragment extends BaseListViewFragment implements
 	}
 
 	@Override
-	public void OnGetUserStatus(LiveChatErrType errType, String errmsg,
-			LiveChatUserStatus[] userList) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void OnUpdateStatus(LCUserItem userItem) {
 		// TODO Auto-generated method stub
 		
@@ -671,13 +739,19 @@ public class ManListFragment extends BaseListViewFragment implements
 	}
 
 	@Override
-	public void OnRecvIdentifyCode(String filePath) {
+	public void OnRecvIdentifyCode(byte[] data) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void OnContactStatusChange() {
+	public void OnContactListChange() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void OnTransStatusChange() {
 		// TODO Auto-generated method stub
 		
 	}

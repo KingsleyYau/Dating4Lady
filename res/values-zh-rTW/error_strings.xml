@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- PHP错误消息 -->
+    <string name="err0001">聯絡伺服器失敗。</string>
+    <string name="err0002">聯絡伺服器時出現未知錯誤，請稍后再重試</string>
+    <string name="err0003">您尚未登錄。</string>
+    <string name="err1001">請錄入您的會員ID。</string>
+    <string name="err1002">請錄入您的登錄密碼。</string>
+    <string name="err1003">請錄正確的驗證碼。</string>
+    <string name="err1004">無效的會員ID或密碼。</string>
+    <string name="err1005">無效的會員ID或密碼。</string>
+    <string name="err1006">無效的會員ID或密碼，或您的會員權利已被限制。</string>
+    <string name="err1007">無效的會員ID或密碼，或您的會員權利尚未啓用。</string>
+    <string name="err1008">無效的會員ID或密碼，或您的會員權利已被限制。</string>
+    <string name="err1009">無效的會員ID或密碼</string>
+    <string name="err2001">請錄入男士會員ID。</string>
+    <string name="err3001">男士會員ID未被找到。</string>
+    <string name="err3002">該男士已在您的收藏夾。</string>
+    <string name="err3003">男士會員ID未被找到。</string>
+    <string name="err3004">未能成功地將此男士加入到您的收藏夾，請重試。</string>
+    <string name="err4001">男士會員ID未被找到。</string>
+    <string name="err4002">未能成功刪除此資料。</string>
+    <string name="err5001">您尚未錄入任何消息模板，請錄入后再提交。</string>
+    <string name="err5002">您的模板數量已達到最大限制，請刪除一些后再提交。</string>
+    <string name="err5003">聯絡伺服器時出現未知錯誤，請稍后再重試</string>
+    <string name="err5004">聯絡伺服器時出現未知錯誤，請稍后再重試</string>
+    <string name="err6001">聯絡伺服器時出現未知錯誤，請稍后再重試</string>
+    <string name="err6002">未能成功地刪除消息模板，請重試。</string>
+    <string name="err7001">會員ID不存在。</string>
+    <string name="err8001">請錄入正確的密碼。</string>
+    <string name="err8002">您所錄入的當前密碼不正確。</string>
+    <string name="err8003">聯絡伺服器時出現未知錯誤，請稍后再重試</string>
+    <string name="err9001">聯絡伺服器時出現未知錯誤，請稍后再重試</string>
+    <string name="err10001">聯絡伺服器時出現未知錯誤，請稍后再重試</string>
+    
+    <!-- Livechat -->
+    <string name="errUnbindInterpreter">翻譯為邦定到此聊天或翻譯目前不在綫上。</string>
+    <string name="errSideOffile">男士不在綫。</string>
+    <string name="errDuplicateChat">請勿重復開啓聊天窗口。</string>
+    <string name="errNoMoney">男士沒有足夠的信用點。</string>
+    <string name="errInvalidUser">您的會員帳號遇到了一些問題，請稍候再試。</string>
+    <string name="errTargetNotExist">男士目前不在綫。</string>
+    <string name="errInvalidPassword">您的會員帳號遇到了一些問題，請稍候再試。</string>
+    <string name="errNoTransOrAgentFound">翻譯目前不在綫。</string>
+    <string name="errNoPermission">您的會員帳號遇到了一些問題，請稍候再試。</string>
+    <string name="errTransInfoChange">您的會員帳號遇到了一些問題，請稍候再試。</string>
+    <string name="errChatTargetReject">男士回絕了你的聊天請求。</string>
+    <string name="errMaxBinding">您的會員帳號遇到了一些問題，請稍候再試。</string>
+    <string name="errCommandReject">聯絡伺服器時出現未知錯誤，請稍后再重試</string>
+    <string name="errBlockUser">男士在你的黑名單列表中，您不能聯絡他。</string>
+    <string name="errIdentifyCode">對不起，您需要錄入一個安全驗證碼。</string>
+    <string name="errSocketNotExist">您的會員帳號遇到了一些問題，請稍候再試。</string>
+    <string name="errEmotionError">聊天未開始時，請不要發送高級表情。</string>
+    <string name="errFrequencyEmotion">請不要過於頻繁地發送高級表情。</string>
+    <string name="errWarnTimes">請不要在30分鐘内發送多個警告給相同的男士。</string>
+    <string name="errPhotoError">聊天開始前請勿發送照片。</string>
+    <string name="errWomanChatLimit">聯絡伺服器時出現未知錯誤，請稍后再重試</string>
+    <string name="errFrequencyVoice">請勿過於頻繁地發送語音消息。</string>
+    <string name="errMicVideo">語音消息未能發送成功。</string>
+    <string name="errVoiceError">聊天開始前請勿發送語音消息</string>
+    <string name="errNoSession">您的會員帳號遇到了一些問題，請稍候再試。</string>
+    <string name="errFrequencyMagicIcon">請勿在聊天開始前發送魔幻貼紙。</string>
+    <string name="errMagicIconError">聊天未開始時請勿發送魔幻貼紙</string>
+    <string name="errWomanActiveChatLimit">請勿過於頻繁地發送魔幻貼紙。</string>
+    <!-- 登陆异常 -->
+       	<!-- 登陆异常 -->
+    <string name="errProtocolError">您的指令未被成功執行，請重試。</string>
+    <string name="errConnectFail">您的指令未被成功執行，請重試。</string>
+    <string name="errCheckVerFail">未能成功檢測更新，請重試。</string>
+    <string name="errLoginFail">未能成功登入，請重試。</string>
+    <string name="errServerBreak">您的指令未被成功執行，請重試。</string>
+    <string name="errCanNotSetOffline">您的指令未被成功執行，請重試。</string>
+   
+</resources>

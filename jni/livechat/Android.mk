@@ -22,6 +22,7 @@ LOCAL_LDLIBS += -lz
 
 LOCAL_STATIC_LIBRARIES += common
 LOCAL_STATIC_LIBRARIES += livechat
+LOCAL_STATIC_LIBRARIES += androidcommon
 
 LOCAL_CPPFLAGS  := -std=c++11
 LOCAL_CFLAGS	+= -fpermissive

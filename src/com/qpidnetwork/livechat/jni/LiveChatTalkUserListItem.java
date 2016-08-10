@@ -30,7 +30,12 @@ public class LiveChatTalkUserListItem {
 			int orderValue,
 			int deviceType,
 			int clientType,
-			String clientVersion) 
+			String clientVersion,
+			boolean needTrans,
+			String transUserId,
+			String transUserName,
+			boolean transBind,
+			int transStatus) 
 	{
 		this.userId = userId;
 		this.userName = userName;
@@ -50,15 +55,24 @@ public class LiveChatTalkUserListItem {
 		this.deviceType = DeviceType.values()[deviceType];
 		this.clientType = LiveChatClient.ClientType.values()[clientType];
 		this.clientVersion = clientVersion; 
+		// --- 以下是女士端获取自己信息才有 ---
+		this.needTrans = needTrans;
+		this.transUserId = transUserId;
+		this.transUserName = transUserName;
+		this.transBind = transBind;
+		this.transStatus = LiveChatClient.UserStatusType.values()[transStatus];
 	}
 	
 	/**
 	 * 婚姻状况类型
 	 */
 	public enum MarryType {
-		Unknow,		// 未知
-		NotMarry,	// 未婚
-		Married,	// 已婚
+		Unknow,			// 未知
+		NeverMarried,	// 未婚
+		Disvorced,		// 离婚
+		Widowed,		// 丧偶
+		Separated,		// 分居
+		Married,		// 已婚
 	}
 	
 	/**
@@ -180,4 +194,30 @@ public class LiveChatTalkUserListItem {
 	 * 客户端版本号
 	 */
 	public String clientVersion;
+	
+	// --- 以下是女士端获取自己信息才有 ---
+	/**
+	 * 是否需要翻译
+	 */
+	public boolean needTrans;
+	
+	/**
+	 * 翻译ID
+	 */
+	public String transUserId;
+	
+	/**
+	 * 翻译名称
+	 */
+	public String transUserName;
+	
+	/**
+	 * 是否绑定翻译
+	 */
+	public boolean transBind;
+	
+	/**
+	 * 翻译在线状态
+	 */
+	public LiveChatClient.UserStatusType transStatus;
 }

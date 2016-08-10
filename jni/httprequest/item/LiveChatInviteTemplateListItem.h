@@ -50,9 +50,10 @@ public:
 				tempContent = root[LC_INVITETEMPLATE_TEMPCONTENT].asString();
 			}
 
-			if( root[LC_INVITETEMPLATE_STATUS].isIntegral() )
+			if( root[LC_INVITETEMPLATE_STATUS].isString() )
 			{
-				int iStatus = root[LC_INVITETEMPLATE_STATUS].asInt();
+				string status = root[LC_INVITETEMPLATE_STATUS].asString();
+				int iStatus = atoi(status.c_str());
 				tempStatus = GetTempStatusWithInt(iStatus);
 			}
 

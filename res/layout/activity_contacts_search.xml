@@ -1,0 +1,26 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llSearchContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical" >
+
+    <include
+        android:id="@+id/includeSearch"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/include_search_header" />
+
+    <ListView
+        android:id="@+id/lvContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:cacheColorHint="@null"
+        android:fadeScrollbars="true"
+        android:fadingEdge="@null"
+        android:fadingEdgeLength="0dp"
+        android:gravity="top|center"
+        android:visibility="gone" />
+
+</LinearLayout>

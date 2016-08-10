@@ -1,19 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-        <declare-styleable name="RaisedButton">
-   		<attr name="android:src"/>
+
+    <declare-styleable name="RaisedButton">
+        <attr name="android:src" />
         <attr name="android:text" />
-        <attr name="android:textColor"/>
+        <attr name="android:textColor" />
         <attr name="android:background" />
-        <attr name="touch_feedback" format="reference"/>
-        <attr name="elevation"/>
-        <attr name="radius" format="dimension"/>
+        <attr name="touch_feedback" format="reference" />
+        <attr name="elevation" />
+        <attr name="radius" format="dimension" />
     </declare-styleable>
-    
-        
-        <!-- circleImageView -->
+
+    <!-- circleImageView -->
     <declare-styleable name="CircleImageView">
         <attr name="border_width" format="dimension" />
         <attr name="border_color" format="color" />
     </declare-styleable>
+    
+    <!-- MaterialProgressBar -->
+    <declare-styleable name="ProgressWheel">
+        <attr name="matProg_progressIndeterminate" format="boolean" />
+        <attr name="matProg_barColor" format="color" />
+        <attr name="matProg_rimColor" format="color" />
+        <attr name="matProg_rimWidth" format="dimension" />
+        <attr name="matProg_spinSpeed" format="float" />
+        <attr name="matProg_barSpinCycleTime" format="integer" />
+        <attr name="matProg_circleRadius" format="dimension" />
+        <attr name="matProg_fillRadius" format="boolean" />
+        <attr name="matProg_barWidth" format="dimension" />
+        <attr name="matProg_linearProgress" format="boolean" />
+    </declare-styleable>
+
 </resources>

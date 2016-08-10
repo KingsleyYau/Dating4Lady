@@ -21,7 +21,11 @@ public class LCVoiceManager {
 	/**
 	 * msgId与item的待发送map表(msgId, item)（记录未发送成功item，发送成功则移除）
 	 */
-	private HashMap<Integer, LCMessageItem> mMsgIdMap;
+	private HashMap<Integer, LCMessageItem> mSendingMap;
+	/**
+	 * 正在获取验证码队列
+	 */
+	private ArrayList<LCMessageItem> mGetingCodeList;
 	/**
 	 * requestId与item的待请求map表(requestId, item)
 	 */
@@ -37,7 +41,8 @@ public class LCVoiceManager {
 	private String mDirPath;
 	
 	public LCVoiceManager() {
-		mMsgIdMap = new HashMap<Integer, LCMessageItem>();
+		mSendingMap = new HashMap<Integer, LCMessageItem>();
+		mGetingCodeList = new ArrayList<LCMessageItem>();
 		mRequestIdMap = new HashMap<Long, LCMessageItem>();
 		mVoiceRequestMap = new HashMap<LCMessageItem, Long>();
 //		mVoiceIdMap = new HashMap<String, LCMessageItem>();
@@ -116,6 +121,23 @@ public class LCVoiceManager {
 		return result;
 	}
 	
+	/**
+	 * 清除所有语音文件
+	 */
+	public void removeAllVoiceFile()
+	{
+		if (!mDirPath.isEmpty())
+		{
+			String dirPath = mDirPath + "*";
+			String cmd = "rm -f " + dirPath;
+			try {
+				Runtime.getRuntime().exec(cmd);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	// --------------------- sending（正在发送） --------------------------
 	/**
 	 * 获取从待发送map表中获取指定文件路径的item，并把item从照表中移除
@@ -124,9 +146,9 @@ public class LCVoiceManager {
 	 */
 	public LCMessageItem getAndRemoveSendingItem(int msgId) {
 		LCMessageItem item = null;
-		synchronized (mMsgIdMap)
+		synchronized (mSendingMap)
 		{
-			item = mMsgIdMap.remove(msgId);
+			item = mSendingMap.remove(msgId);
 		}
 		
 		if (null == item) { 
@@ -143,13 +165,13 @@ public class LCVoiceManager {
 	 */
 	public boolean addSendingItem(int msgId, LCMessageItem item) {
 		boolean result = false;
-		synchronized (mMsgIdMap)
+		synchronized (mSendingMap)
 		{
 			if (item.msgType == MessageType.Voice
 					&& null != item.getVoiceItem()
-					&& null == mMsgIdMap.get(msgId)) 
+					&& null == mSendingMap.get(msgId)) 
 			{
-				mMsgIdMap.put(msgId, item);
+				mSendingMap.put(msgId, item);
 				result = true;
 			}
 			else {
@@ -163,9 +185,60 @@ public class LCVoiceManager {
 	 * 清除所有待发送表map表的item
 	 */
 	public void clearAllSendingItems() {
-		synchronized (mMsgIdMap) 
+		synchronized (mSendingMap) 
 		{
-			mMsgIdMap.clear();
+			mSendingMap.clear();
+		}
+	}
+	
+	// --------------------- GetingCode（正在获取验证码） --------------------------
+	/**
+	 * 获取待发送语音消息并移除该消息 
+	 * @return
+	 */
+	public LCMessageItem getAndRemoveGetingCodeItem() {
+		LCMessageItem item = null;
+		synchronized (mGetingCodeList)
+		{
+			if (!mGetingCodeList.isEmpty()) {
+				item = mGetingCodeList.remove(0);
+			}
+		}
+		
+		if (null == item) { 
+			Log.e("livechat", "LCVoiceManager::getAndRemoveGetingCodeItem() mSendingList is empty");
+		}
+		return item;
+	}
+	
+	/**
+	 * 添加到获取验证码队列
+	 * @param item		item
+	 * @return
+	 */
+	public boolean addGetingCodeItem(LCMessageItem item) {
+		boolean result = false;
+		synchronized (mGetingCodeList)
+		{
+			if (item.msgType == MessageType.Voice
+					&& null != item.getVoiceItem()) 
+			{
+				mGetingCodeList.add(item);
+			}
+			else {
+				Log.e("livechat", "LCVoiceManager::addGetingCodeItem() fail item.msgType:%s", item.msgType.name());
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * 清除获取验证码队列
+	 */
+	public void clearAllGetingCodeItems() {
+		synchronized (mGetingCodeList) 
+		{
+			mGetingCodeList.clear();
 		}
 	}
 	
@@ -235,8 +308,11 @@ public class LCVoiceManager {
 		return item;
 	}
 	
-	public ArrayList<Long> clearAllRequestItem() {
+	public void clearAllRequestItem() 
+	{
 		ArrayList<Long> list = null;
+		
+		// 清空map表
 		synchronized (mRequestIdMap)
 		{
 			list = new ArrayList<Long>(mRequestIdMap.keySet());
@@ -246,6 +322,14 @@ public class LCVoiceManager {
 				mVoiceRequestMap.clear();
 			}
 		}
-		return list;
+		
+		// 停止所有请求
+		if (null != list && !list.isEmpty())
+		{
+			for (Long requestId : list)
+			{
+				RequestJni.StopRequest(requestId);
+			}
+		}
 	}
 }

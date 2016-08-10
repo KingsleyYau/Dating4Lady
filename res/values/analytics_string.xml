@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScreenName Define -->
+    <string name="com.qpidnetwork.ladydating.auth.LoginActivity">Login</string>
+    
+	<string name="com.qpidnetwork.ladydating.home.HomeActivity_0_0_0">Home.OnlineGentlemen</string>
+	<string name="com.qpidnetwork.ladydating.home.HomeActivity_0_0_1">Home.AllMaleMembers</string>
+	<string name="com.qpidnetwork.ladydating.home.HomeActivity_0_0_2">Home.RecentVistors</string>
+	<string name="com.qpidnetwork.ladydating.home.HomeActivity_0_0__1">Home.SearchResult</string>
+	<string name="com.qpidnetwork.ladydating.home.HomeActivity_0_1">Home.FavoritesList</string>
+	<string name="com.qpidnetwork.ladydating.home.HomeActivity_0_2">Home.MoreList</string>
+	<string name="com.qpidnetwork.ladydating.home.HomeActivity_1">Home.ChatList</string>
+	<string name="com.qpidnetwork.ladydating.man.ManProfileActivity">ManProfile</string>
+	<string name="com.qpidnetwork.ladydating.home.ContactSearchActivity">LiveChat.SearchChat</string>
+
+	<string name="com.qpidnetwork.ladydating.chat.invite.OutgoingChatInvitationActivity">ChatList.OutgoingInvitation</string>
+	<string name="com.qpidnetwork.ladydating.chat.invitationtemplate.ChatInvitationTemplateActivity_0">ChatList.PersonalTemplateList</string>
+	<string name="com.qpidnetwork.ladydating.chat.invitationtemplate.ChatInvitationTemplateActivity_1">ChatList.SystemTemplateList</string>
+	<string name="com.qpidnetwork.ladydating.common.activity.SimpleTextEditorActivity">ChatList.AddNewTemplate</string>
+	<string name="com.qpidnetwork.ladydating.common.activity.SimpleTextPreviewerActivity">ChatList.ViewTemplate</string>	
+	<string name="com.qpidnetwork.ladydating.chat.ChatActivity">LiveChat.Chat</string>
+	<string name="com.qpidnetwork.ladydating.chat.picture.LivechatPrivatePhotoPreviewActivity">LiveChat.ViewPrivatePhoto</string>
+	<string name="com.qpidnetwork.ladydating.chat.history.LivechatChatHistoryActivity">LiveChat.HistoryList</string>
+	<string name="com.qpidnetwork.ladydating.chat.history.LivechatChatHistoryDetailActivity">LiveChat.HistoryDetail</string>
+
+	<string name="com.qpidnetwork.ladydating.more.LadyProfileDetailActivity">More.ViewMyProfile</string>
+	<string name="com.qpidnetwork.ladydating.more.NormalPhotoPreviewActivity">More.ViewMyPhoto</string>
+	<string name="com.qpidnetwork.ladydating.more.ChangePasswordActivity">More.ChangePassword</string>
+	<string name="com.qpidnetwork.ladydating.more.ContactAgentActivity">More.ContactAgent</string>
+	
+	<!-- Event Define -->
+	<string name="LiveChatF_Category">LiveChat</string>
+	<string name="LiveChatF_Action_TakePhoto">TakePhoto</string>
+	<string name="LiveChatF_Label_TakePhoto">LiveChat.TakePhoto</string>
+	<string name="LiveChatF_Action_Photo">Photo</string>
+	<string name="LiveChatF_Label_Photo">LiveChat.Photo</string>
+	<string name="LiveChatF_Action_Voice">Voice</string>
+	<string name="LiveChatF_Label_Voice">LiveChat.Voice</string>
+	<string name="LiveChatF_Action_AnimatedEmotions">AnimatedEmotions</string>
+	<string name="LiveChatF_Label_AnimatedEmotions">LiveChat.AnimatedEmotions</string>
+</resources>

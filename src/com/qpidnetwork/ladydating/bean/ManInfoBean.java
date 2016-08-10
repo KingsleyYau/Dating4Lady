@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import com.qpidnetwork.livechat.jni.LiveChatClient;
 import com.qpidnetwork.livechat.jni.LiveChatTalkUserListItem;
+import com.qpidnetwork.request.RequestEnum.Country;
 import com.qpidnetwork.request.RequestEnum.PHOTO_STATUS;
 import com.qpidnetwork.request.item.ManListItem;
 
@@ -15,6 +16,7 @@ public class ManInfoBean implements Serializable{
 	public String userName = ""; //男士姓名
 	public int age = 0; //年龄
 	public String country = ""; //国籍
+	public Country countryEnum = Country.Unknow; //用于搜索返回记录
 	public String photoUrl = ""; //男士头像
 	public PHOTO_STATUS photo_status = PHOTO_STATUS.Yes; //头像状态
 	
@@ -56,7 +58,7 @@ public class ManInfoBean implements Serializable{
 			bean.man_id = item.man_id;
 			bean.userName = item.firstname;
 			bean.age = item.age;
-			bean.country = item.country.name();
+			bean.countryEnum = item.country;
 			bean.photoUrl = item.photo_url;
 			bean.photo_status = item.photo_status;
 		}

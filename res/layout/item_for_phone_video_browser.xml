@@ -3,28 +3,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
-    <ImageView android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
+
+    <ImageView
         android:id="@+id/image"
-        android:scaleType="centerCrop"/>
-    
-    <TextView android:id="@+id/duration"
-        android:padding="4dp"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:textColor="@android:color/white"
-        android:textSize="14sp"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:layout_alignParentBottom="true"
-        android:background="@color/transparent_dark"
-        android:text="16 seconds"/>
-    
-    <View android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:background="@drawable/touch_feedback_holo_dark"
-        android:id="@+id/touchPoint"/>
-    
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/black"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:padding="4dp"
+        android:singleLine="true"
+        android:textColor="@android:color/white"
+        android:textSize="14sp" />
+
+    <View
+        android:id="@+id/touchPoint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/touch_feedback_holo_dark" />
 
 </RelativeLayout>

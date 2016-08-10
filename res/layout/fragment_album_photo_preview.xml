@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:wheel="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rl_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <com.qpidnetwork.ladydating.customized.view.TouchImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageButton
+        android:id="@+id/videoButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/rectangle_rounded_angle_transclucent_bg"
+        android:scaleType="center"
+        android:src="@drawable/ic_play_circle_outline_white_24dp"
+        android:visibility="gone" />
+
+    <com.qpidnetwork.ladydating.customized.view.MaterialProgressBar
+        android:id="@+id/progress"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        wheel:matProg_barColor="@color/white"
+        wheel:matProg_progressIndeterminate="true" />
+
+    <TextView
+        android:id="@+id/tvDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_margin="10dp"
+        android:textColor="@color/white" />
+    
+    <TextView 
+        android:id="@+id/tvErrorTips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
+        android:textColor="@color/white"
+        android:text="@string/album_video_preview_not_exist"
+        android:layout_centerInParent="true"
+        android:gravity="center_horizontal"
+        android:padding="20dp"
+        android:background="@drawable/circle_angle_solid_alpha_black_rect"
+        android:visibility="gone"/>
+
+</RelativeLayout>

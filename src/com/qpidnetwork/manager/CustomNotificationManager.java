@@ -1,6 +1,5 @@
 package com.qpidnetwork.manager;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.support.v4.app.NotificationCompat;
@@ -31,7 +30,7 @@ public class CustomNotificationManager {
     	NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
     	
     	// 声音
-    	builder.setDefaults(Notification.DEFAULT_SOUND);
+//    	builder.setDefaults(Notification.DEFAULT_SOUND);
     	
         // 状态栏
     	builder.setSmallIcon(icon);

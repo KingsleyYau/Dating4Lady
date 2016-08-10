@@ -14,15 +14,10 @@ public class LCBlockManager {
 	 * 黑名单列表
 	 */
 	private ArrayList<LiveChatTalkUserListItem> mBlockList;
-	/**
-	 * 被屏蔽女士列表
-	 */
-	private ArrayList<String> mBlockUsers;
 	
 	public LCBlockManager() 
 	{
 		mBlockList = new ArrayList<LiveChatTalkUserListItem>();
-		mBlockUsers = new ArrayList<String>();
 	}
 	
 	/**
@@ -39,19 +34,6 @@ public class LCBlockManager {
 	}
 	
 	/**
-	 * 更新被屏蔽女士列表
-	 * @param array	黑名单列表
-	 */
-	public synchronized void UpdateWithBlockUsers(String[] array)
-	{
-		mBlockUsers.clear();
-		for (int i = 0; i < array.length; i++)
-		{
-			mBlockUsers.add(array[i]);
-		}
-	}
-	
-	/**
 	 * 用户是否存在于黑名单
 	 * @param userId	用户ID
 	 * @return
@@ -64,18 +46,18 @@ public class LCBlockManager {
 		{
 			if (item.userId.compareTo(userId) == 0) {
 				result = true;
+				break;
 			}
 		}
-		
-		// 判断被屏蔽女士列表
-		if (!result ) {
-			for (String blockUserId : mBlockUsers)
-			{
-				if (blockUserId.compareTo(userId) == 0) {
-					result = true;
-				}
-			}
-		}
+
 		return result;
+	}
+	
+	/**
+	 * 清空黑名单
+	 */
+	public synchronized void Clear()
+	{
+		mBlockList.clear();
 	}
 }

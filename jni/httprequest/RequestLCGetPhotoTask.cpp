@@ -12,7 +12,11 @@ RequestLCGetPhotoTask::RequestLCGetPhotoTask()
 {
 	// TODO Auto-generated constructor stub
 	mUrl = LC_GETPHOTO_PATH;
+	mSiteType = WebSite;
+	m_photoId = "";
 	m_filePath = "";
+	m_sizeType = GETPHOTO_SIZETYPE_LARGE;
+	m_modeType = GETPHOTO_MODETYPE_FUZZY;
 }
 
 RequestLCGetPhotoTask::~RequestLCGetPhotoTask()
@@ -60,20 +64,23 @@ void RequestLCGetPhotoTask::SetParam(
 	}
 
 	// photoId
+	m_photoId = photoId;
 	if( photoId.length() > 0 ) {
 		mHttpEntiy.AddContent(LC_GETPHOTO_PHOTOID, photoId.c_str());
 	}
 
 	// sizeType
+	m_sizeType = sizeType;
 	string strSizeType("");
-	if (GETPHOTO_SIZETYPE_BEGIN <= sizeType && sizeType <= GETPHOTO_SIZETYPE_END) {
-		strSizeType = GETPHOTO_PHOTOSIZE_PROTOCOL[sizeType];
+	if (GETPHOTO_SIZETYPE_BEGIN <= m_sizeType && m_sizeType <= GETPHOTO_SIZETYPE_END) {
+		strSizeType = GETPHOTO_PHOTOSIZE_PROTOCOL[m_sizeType];
 		mHttpEntiy.AddContent(LC_GETPHOTO_SIZE, strSizeType.c_str());
 	}
 
 	// modeType
+	m_modeType = modeType;
 	string strModeType("");
-	snprintf(temp, sizeof(temp), "%d", modeType);
+	snprintf(temp, sizeof(temp), "%d", m_modeType);
 	strModeType = temp;
 	mHttpEntiy.AddContent(LC_GETPHOTO_MODE, strModeType.c_str());
 
@@ -87,9 +94,9 @@ void RequestLCGetPhotoTask::SetParam(
 			"targetId: %s, "
 			"sid: %s, "
 			"userId: %s, "
-			"photoId: %s"
-			"sizeType: %s"
-			"modeType: %s"
+			"photoId: %s, "
+			"sizeType: %s, "
+			"modeType: %s, "
 			"filePath: %s"
 			")",
 			strToFlag.c_str(),
@@ -126,7 +133,7 @@ bool RequestLCGetPhotoTask::HandleCallback(const string& url, bool requestRet, c
 		// request success
 		string contentType = GetContentType();
 		if (string::npos != contentType.find("image")) {
-			string tempPath = m_filePath + ".tmp";
+			string tempPath = GetTempFilePath();
 			FILE* file = fopen(tempPath.c_str(), "rb");
 			if (NULL != file) {
 				fseek(file, 0, SEEK_END);
@@ -173,8 +180,32 @@ bool RequestLCGetPhotoTask::HandleCallback(const string& url, bool requestRet, c
 	}
 
 	if( bContinue && mpCallback != NULL ) {
-		mpCallback->OnGetPhoto(bFlag, errnum, errmsg, m_filePath, this);
+		mpCallback->OnGetPhoto(bFlag, errnum, errmsg, m_photoId, m_sizeType, m_modeType, m_filePath, this);
 	}
 	return bFlag;
+}
+
+void RequestLCGetPhotoTask::onReceiveBody(long requestId, string path, const char* buf, int size)
+{
+	string tempPath = GetTempFilePath();
+	FILE* pFile = fopen(tempPath.c_str(), "a+b");
+	if (NULL != pFile) {
+		fwrite(buf, 1, size, pFile);
+		fclose(pFile);
+
+		FileLog("httprequest", "RequestLCGetPhotoTask::onReceiveBody"
+					"( write file requestId:%ld, path:%s, filePath:%s, tempPath:%s )",
+					requestId, path.c_str(), m_filePath.c_str(), tempPath.c_str());
+	}
+	else {
+		FileLog("httprequest", "RequestLCGetPhotoTask::onReceiveBody"
+					"( open file fail, requestId:%ld, path:%s, filePath:%s, tempPath:%s )",
+					requestId, path.c_str(), m_filePath.c_str(), tempPath.c_str());
+	}
+}
+
+string RequestLCGetPhotoTask::GetTempFilePath()
+{
+	return m_filePath + ".tmp";
 }
 

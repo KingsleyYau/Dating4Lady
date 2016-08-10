@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- PHP错误消息 -->
+    <string name="err0001">Parameter Error.</string>
+    <string name="err0002">Insufficient parameters or parameter error.</string>
+    <string name="err0003">Please login.</string>
+    <string name="err1001">Please enter your profile ID.</string>
+    <string name="err1002">Please enter your password.</string>
+    <string name="err1003">Please enter the correct verification code.</string>
+    <string name="err1004">Invalid profile ID or login password.</string>
+    <string name="err1005">Invalid profile ID or password, please try again.</string>
+    <string name="err1006">This profile has been deleted.</string>
+    <string name="err1007">This profile is pending to be posted.</string>
+    <string name="err1008">This profile has been hidden.</string>
+    <string name="err1009">Invalid profile ID or login password.</string>
+    <string name="err2001">Please enter gentleman ID.</string>
+    <string name="err3001">Sorry, gentleman ID is not found.</string>
+    <string name="err3002">The profile is in your favorite list already.</string>
+    <string name="err3003">Sorry, gentleman ID is not found.</string>
+    <string name="err3004">Sorry, fail to add this profile into your favorite list. Please try again.</string>
+    <string name="err4001">Sorry, gentleman ID is not found.</string>
+    <string name="err4002">Sorry, fail to delete the profile. Please try again.</string>
+    <string name="err5001">Invitation template can not be empty. Please enter your words.</string>
+    <string name="err5002">You can have a maximum number of 20 invitation templates.</string>
+    <string name="err5003">Parameter Error.</string>
+    <string name="err5004">Parameter Error.</string>
+    <string name="err6001">Parameter Error.</string>
+    <string name="err6002">Sorry, fail to delete the invitation template. Please try again.</string>
+    <string name="err7001">Sorry,the profile ID doesn\'t exist.</string>
+    <string name="err8001">Please enter the valid password.</string>
+    <string name="err8002">Old password is incorrect,please try again.</string>
+    <string name="err8003">Parameter Error.</string>
+    <string name="err9001">Parameter Error.</string>
+    <string name="err10001">Parameter Error.</string>
+    
+    <!-- Livechat -->
+    <string name="errUnbindInterpreter">Translator has not bound the chat session yet or is not online.</string>
+    <string name="errSideOffile">The gentleman is offline.</string>
+    <string name="errDuplicateChat">Please do not open duplicated chat window.</string>
+    <string name="errNoMoney">The gentleman may not have enough credits to continue to chat.</string>
+    <string name="errInvalidUser">Your account encountered some troubles. Please logout and login again.</string>
+    <string name="errTargetNotExist">The gentleman is offline.</string>
+    <string name="errInvalidPassword">Your account encountered some troubles. Please logout and login again.</string>
+    <string name="errNoTransOrAgentFound">Sorry, the translator is now offline.</string>
+    <string name="errNoPermission">Your account encountered some troubles. Please logout and login again.</string>
+    <string name="errTransInfoChange">Your account encountered some troubles. Please logout and login again.</string>
+    <string name="errChatTargetReject">Sorry, the gentleman has rejected your message.</string>
+    <string name="errMaxBinding">Your account encountered some troubles. Please logout and login again.</string>
+    <string name="errCommandReject">Sorry, we has encountered some troubles, please try again later.</string>
+    <string name="errBlockUser">Sorry, the gentleman is in your blocked list.</string>
+    <string name="errIdentifyCode">Sorry, you need to enter a secure code.</string>
+    <string name="errSocketNotExist">Your account encountered some troubles. Please logout and login again.</string>
+    <string name="errEmotionError">Please do not send stickers before the chat is started.</string>
+    <string name="errFrequencyEmotion">Please do not send stickers too frequently.</string>
+    <string name="errWarnTimes">Please do not send more than 1 reminders within 30 minutes.</string>
+    <string name="errPhotoError">Please do not send photos before the chat is started.</string>
+    <string name="errWomanChatLimit">Connection interrupted, please try later.</string>
+    <string name="errFrequencyVoice">Please do not send voice messages too frequently.</string>
+    <string name="errMicVideo">Voice could not be sent, please try later.</string>
+    <string name="errVoiceError">Please do not send voice messages before the chat is started.</string>
+    <string name="errNoSession">Your account encountered some troubles. Please logout and login again.</string>
+    <string name="errFrequencyMagicIcon">Please do not send magic icons too frequently.</string>
+    <string name="errMagicIconError">Please do not send magic icons before the chat is started.</string>
+    <string name="errWomanActiveChatLimit">Please do not send chat invitation too frequently.</string>
+   	<!-- 登陆异常 -->
+    <string name="errProtocolError">Troubles encountered, please try again later.</string>
+    <string name="errConnectFail">Troubles encountered, please try again later.</string>
+    <string name="errCheckVerFail">Failed to check updates, please try again later.</string>
+    <string name="errLoginFail">Failed to login, please try again later.</string>
+    <string name="errServerBreak">Troubles encountered, please try again later.</string>
+    <string name="errCanNotSetOffline">Failed to login, please try again later.</string>
+</resources>

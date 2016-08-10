@@ -31,13 +31,13 @@ public class MultiLanguageManager {
 	public MultiLanguageManager(Context context){
 		this.mContext = context;
 		languagePre = mContext.getSharedPreferences(PRERENCE_LANGUAGE_CHOICE, Context.MODE_PRIVATE);
-		initLocalLanguage();
+//		initLocalLanguage();
 	}
 	
 	/**
 	 * 初始化设置用于默认设置App语言
 	 */
-	private void initLocalLanguage(){
+	public void initLocalLanguage(){
 		LanguageType type = getDefultLanguageChoice();
 		changeLocale(type);
 	}

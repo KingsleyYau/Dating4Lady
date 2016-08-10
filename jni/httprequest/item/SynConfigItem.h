@@ -28,6 +28,8 @@ public:
 		apkVersionName = "";
 		apkVersionUrl = "";
 		siteUrl = "";
+		liveChatVoiceHost = "";
+		videoUploadHost = "";
 	};
 
 	SynConfigItem(const SynConfigItem& item) {
@@ -40,6 +42,8 @@ public:
 		apkVersionName = item.apkVersionName;
 		apkVersionUrl = item.apkVersionUrl;
 		siteUrl = item.siteUrl;
+		liveChatVoiceHost = item.liveChatVoiceHost;
+		videoUploadHost = item.videoUploadHost;
 	}
 
 	~SynConfigItem(){};
@@ -54,6 +58,8 @@ public:
 		apkVersionName = item.apkVersionName;
 		apkVersionUrl = item.apkVersionUrl;
 		siteUrl = item.siteUrl;
+		liveChatVoiceHost = item.liveChatVoiceHost;
+		videoUploadHost = item.videoUploadHost;
 		return *this;
 	}
 
@@ -93,11 +99,18 @@ public:
 			if(data[SYN_CONFIG_SITE_URL].isString()){
 				siteUrl = data[SYN_CONFIG_SITE_URL].asString();
 			}
+			if(data[SYN_CONFIG_LIVECHATVOICEHOST].isString()){
+				liveChatVoiceHost = data[SYN_CONFIG_LIVECHATVOICEHOST].asString();
+			}
+			if(data[SYN_CONFIG_VIDEOUPLOADHOST].isString()){
+				videoUploadHost = data[SYN_CONFIG_VIDEOUPLOADHOST].asString();
+			}
+
 			if(!socketHost.empty()){
 				result = true;
 			}
-			return result;
 		}
+		return result;
 	}
 public:
 	string socketHost;
@@ -110,6 +123,8 @@ public:
 	string apkVersionName;
 	string apkVersionUrl;
 	string siteUrl;
+	string liveChatVoiceHost;
+	string videoUploadHost;
 };
 
 #endif/*SYNCONFIGITEM_H*/

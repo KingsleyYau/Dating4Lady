@@ -11,6 +11,13 @@
 #include "RequestDefine.h"
 
 /* ########################	LiveChat相关 模块  ######################## */
+/**
+ * 公共请求参数
+ */
+#define LC_USER_SID		"user_sid"	// sid
+#define LC_USER_ID		"user_id"	// 用户id
+
+
 /* ########################	查询个人邀请模板列表 ######################## */
 /* 接口路径  */
 #define LC_INVITETEMPLATE_PATH			"/lady/invitetemplatelist"
@@ -28,7 +35,7 @@ typedef enum {
 	TEMPSTATUS_APPROVE = 1,			// 已通过
 	TEMPSTATUS_NOT_APPROVE = 2,		// 已否决
 	TEMPSTATUS_BEGIN = TEMPSTATUS_WAIT_APPROVE,		// 起始值
-	TEMPSTATUS_END = TEMPSTATUS_WAIT_APPROVE,		// 结束值
+	TEMPSTATUS_END = TEMPSTATUS_NOT_APPROVE,		// 结束值
 	TEMPSTATUS_DEFAULT = TEMPSTATUS_WAIT_APPROVE,	// 默认值
 } TEMP_STATUS;
 inline TEMP_STATUS GetTempStatusWithInt(int status) {
@@ -87,7 +94,7 @@ inline TEMP_STATUS GetTempStatusWithInt(int status) {
 /**
  * 请求参数
  */
-#define	LC_LADYINVITEMSG_INVITEID			"inviteid"			// 邀请id
+#define	LC_LADYINVITEMSG_INVITEID			"invite_id"			// 邀请id
 
 /**
  * 返回参数
@@ -152,6 +159,11 @@ typedef enum {
 #define LC_LADYGETPHOTOLIST_PATH 	"/livechat/setstatus.php?action=lady_get_photolist"
 
 /**
+ * 请求参数
+ */
+#define LC_LADYGETPHOTOLIST_WOMANID				"womanid"		// 女士id
+
+/**
  * 返回参数
  */
 #define	LC_LADYGETPHOTOLIST_ALBUM				"album"			// 相册（数组）
@@ -188,6 +200,21 @@ typedef enum {
 #define	LC_LADYCHECKPHOTO_INVITEID				"inviteid"		// 邀请id
 #define LC_LADYCHECKPHOTO_PHOTOID				"photoid"		// 照片id
 
+/**
+ * 返回参数
+ */
+typedef enum {
+	LCT_CANNOT_SEND = 0,// 不能发送
+	LCT_ALLOW_SEND,		// 允许发送
+	LCT_NOT_EXIST,		// 相片不存在或未审核
+	LCT_NOT_ALLOW,		// 不允许
+	LCT_OVER_UNREAD,	// 超过未读数
+	LCT_SENT,			// 本次会话已经发送
+	LCT_SENT_AND_READ,	// 已发送且已阅读
+	LCT_BEGIN = LCT_CANNOT_SEND,	// 起始值
+	LCT_END = LCT_SENT_AND_READ,	// 结束值
+} LC_CHECKPHOTO_TYPE;
+
 /* ######################## 获取对方私密照片 ######################## */
 /* 接口路径  */
 #define LC_GETPHOTO_PATH 		"/livechat/setstatus.php?action=load_private_photo"
@@ -196,7 +223,7 @@ typedef enum {
  * 请求参数
  */
 #define	LC_GETPHOTO_TOFLAG					"toflag"		// 获取类型
-#define	LC_GETPHOTO_TARGETID				"inviteid"		// 对方id
+#define	LC_GETPHOTO_TARGETID				"targetid"		// 对方id
 #define LC_GETPHOTO_USERSID					"user_sid"		// 登录成功返回的sessionid
 #define LC_GETPHOTO_USERID					"user_id"		// 登录成功返回的ladyid
 #define LC_GETPHOTO_PHOTOID					"photoid"		// 照片id
@@ -256,4 +283,151 @@ typedef enum {
 #define LC_PLAYVOICE_PATH			"/livechat/play?r=%s&t=%s&a=wp"
 #define LC_PLAYVOICE_SUBPATH			"/livechat/play?"
 
+/* ########################	5.13.	获取微视频列表  ######################## */
+/* 接口路径  */
+#define LC_LADYGETVIDEOLIST_PATH 	"/livechat/setstatus.php?action=lady_get_videolist"
+
+/**
+ * 请求参数
+ */
+
+/**
+ * 返回参数
+ */
+#define	LC_LADYGETVIDEOLIST_GROUP				"videogroup"	// 视频组（数组）
+#define	LC_LADYGETVIDEOLIST_GROUPID				"groupid"		// 组id
+#define	LC_LADYGETVIDEOLIST_GROUPTITLE			"grouptitle"	// 组标题
+#define	LC_LADYGETVIDEOLIST_VIDEO				"video"			// 视频（数组）
+#define	LC_LADYGETVIDEOLIST_VIDEOID				"videoid"		// 视频id
+#define	LC_LADYGETVIDEOLIST_LIST				"list"			// 数组item标识
+#define	LC_LADYGETVIDEOLIST_TITLE				"title"			// 标题
+
+/* ######################## 5.14.	获取微视频图片 ######################## */
+/* 接口路径  */
+#define LC_GETVIDEOPHOTO_PATH 					"/livechat/setstatus.php?action=view_short_video_photo"
+
+/**
+ * 请求参数
+ */
+#define	LC_GETVIDEOPHOTO_TARGETID				"targetid"		// 女士id
+#define LC_GETVIDEOPHOTO_VIDEOID				"videoid"		// 视频id
+#define LC_GETVIDEOPHOTO_SIZE					"size"			// 照片尺寸
+
+// 照片清晰度类型
+typedef enum {
+	GETVIDEOPHOTO_SIZE_TYPE_FUZZY = 0,		// 模糊
+	GETVIDEOPHOTO_SIZE_TYPE_CLEAR = 1,		// 清晰
+} GETVIDEOPHOTO_SIZE_TYPE;
+
+/**
+ * 返回参数
+ */
+
+/* ######################## 5.15.	获取微视频文件URL ######################## */
+/* 接口路径  */
+#define LC_GETVIDEO_PATH 					"/livechat/setstatus.php?action=view_short_video"
+
+/**
+ * 请求参数
+ */
+#define	LC_GETVIDEO_TARGETID				"targetid"		// 对方ID
+#define LC_GETVIDEO_VIDEOID					"videoid"		// 视频id
+#define	LC_GETVIDEO_INVITEID				"inviteid"		// 邀请ID
+#define	LC_GETVIDEO_TOFLAG					"toflag"		// toflag：客户端类型（0：女士端，1：男士端）
+#define	LC_GETVIDEO_SENDID					"sendid"		// 发送ID
+
+// 客户端类型
+typedef enum {
+	GETVIDEO_TO_FLAG_TYPE_WOMAN,			// 女士端
+	GETVIDEO_TO_FLAG_TYPE_MAN				// 男士端
+} GETVIDEO_TO_FLAG_TYPE;
+
+/**
+ * 返回参数
+ */
+#define	LC_GETVIDEO_VIDEO_URL					"video_url"		// 视频文件下载URL
+
+/* ######################## 5.16.	检测女士是否可发微视频 ######################## */
+/* 接口路径  */
+#define LC_CHECKVIDEO_PATH 					"/livechat/setstatus.php?action=lady_check_short_video"
+
+/**
+ * 请求参数
+ */
+#define	LC_CHECKVIDEO_TARGETID				"targetid"		// 对方ID
+#define LC_CHECKVIDEO_VIDEOID				"videoid"		// 视频id
+#define	LC_CHECKVIDEO_INVITEID				"inviteid"		// 邀请ID
+
+/**
+ * 返回参数
+ */
+typedef enum {
+	LCTV_CANNOT_SEND = 0,// 不能发送
+	LCTV_ALLOW_SEND,		// 允许发送
+	LCTV_NOT_EXIST,		// 相片不存在或未审核
+	LCTV_NOT_ALLOW,		// 不允许
+	LCTV_OVER_UNREAD,	// 超过未读数
+	LCTV_SENT,			// 本次会话已经发送
+	LCTV_SENT_AND_READ,	// 已发送且已阅读
+	LCTV_BEGIN = LCT_CANNOT_SEND,	// 起始值
+	LCTV_END = LCT_SENT_AND_READ,	// 结束值
+} LC_CHECKVIDEO_TYPE;
+
+/* ######################## 5.17.	发送微视频 ######################## */
+/* 接口路径  */
+#define LC_SENDVIDEO_PATH 					"/livechat/setstatus.php?action=lady_send_short_video"
+
+/**
+ * 请求参数
+ */
+#define	LC_SENDVIDEO_TARGETID				"targetid"		// 对方ID
+#define LC_SENDVIDEO_VIDEOID				"videoid"		// 视频id
+#define	LC_SENDVIDEO_INVITEID				"inviteid"		// 邀请ID
+
+/**
+ * 返回参数
+ */
+#define	LC_SENDVIDEO_SENDID					"sendId"		// 视频ID
+
+/* ######################## 5.18.检测功能是否开通 ######################## */
+/* 接口路径  */
+#define LC_CHECKFUNCTIONS_PATH 				"/livechat/setstatus.php?action=function_check"
+
+/**
+ * 请求参数
+ */
+#define	LC_CHECKFUNCTIONS_FUNCTIONIDS		"functionid"	// 功能列表IDs
+#define LC_CHECKFUNCTIONS_DEVICETYPE		"devicetype"		// 设备类型
+#define	LC_CHECKFUNCTIONS_VERSIONCODE		"versioncode"		// 版本号
+
+/**
+ * 返回参数
+ */
+#define	LC_CHECKFUNCTIONS_DATA				"data"		//功能开关列表
+
+// 设备类型
+typedef enum {
+	CHAT_TEXT = 1001,
+	CHAT_VIDEO = 1003,
+	CHAT_EMOTION = 1005,
+	CHAT_TRYTIKET = 1007,
+	CHAT_GAME = 1009,
+	CHAT_VOICE = 1011,
+	CHAT_MAGICICON = 1013,
+	CHAT_PRIVATEPHOTO = 1015,
+	CHAT_SHORTVIDEO = 1017,
+} FOUNCTION_TYPE;
+
+// DEVICE_TYPE(设备类型) 转换
+static const int FunctionsArray[] = {
+		CHAT_TEXT,
+		CHAT_VIDEO,
+		CHAT_EMOTION,
+		CHAT_TRYTIKET,
+		CHAT_GAME,
+		CHAT_VOICE,
+		CHAT_MAGICICON,
+		CHAT_PRIVATEPHOTO,
+		CHAT_SHORTVIDEO
+};
 #endif /* REQUESTLIVECHATDEFINE_H_ */

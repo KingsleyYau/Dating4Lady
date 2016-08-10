@@ -26,10 +26,10 @@ JNIEXPORT void JNICALL Java_com_qpidnetwork_request_LoginManagerJni_Login
 /*
  * Class:     com_qpidnetwork_request_LoginManagerJni
  * Method:    Logout
- * Signature: ()V
+ * Signature: (jint)V
  */
 JNIEXPORT void JNICALL Java_com_qpidnetwork_request_LoginManagerJni_Logout
-  (JNIEnv *, jclass);
+  (JNIEnv *, jclass, jint);
 
 /*
  * Class:     com_qpidnetwork_request_LoginManagerJni

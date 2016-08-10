@@ -10,4 +10,14 @@
 	<dimen name="normal_list_photo_width">64dp</dimen>
 	<dimen name="normal_list_photo_height">64dp</dimen>
 	
+	<!-- 聊天窗口 -->
+    <dimen name="expre_drawable_size">25dip</dimen>
+    
+    <!-- 按钮尺寸 -->
+    <dimen name="btnWidth">80dip</dimen>
+    <dimen name="btnHeight">40dip</dimen>
+    <!-- 高级表情尺寸 -->
+    <dimen name="emtWidth">80dip</dimen>
+    <dimen name="emtHeight">80dip</dimen>
+	
 </resources>

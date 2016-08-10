@@ -3,47 +3,102 @@ package com.qpidnetwork.ladydating.base;
 
 import java.lang.ref.WeakReference;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 
+import com.qpidnetwork.ladydating.QpidApplication;
 import com.qpidnetwork.ladydating.R;
+import com.qpidnetwork.ladydating.auth.LoginActivity;
+import com.qpidnetwork.ladydating.authorization.IAuthorizationCallBack.OperateType;
+import com.qpidnetwork.ladydating.authorization.LoginManager;
 import com.qpidnetwork.ladydating.customized.view.FlatToast;
 import com.qpidnetwork.ladydating.customized.view.MaterialProgressDialog;
+import com.qpidnetwork.ladydating.googleanalytics.AnalyticsFragmentActivity;
+import com.qpidnetwork.ladydating.home.HomeActivity;
+import com.qpidnetwork.livechat.jni.LiveChatClientListener.KickOfflineType;
 
-public abstract class BaseFragmentActivity extends AppCompatActivity{
+public abstract class BaseFragmentActivity extends AnalyticsFragmentActivity {
+	
+	public static final String LIVECHAT_KICKOFF_ACTION = "kickoff";
 
 	private FlatToast flatToast;
 	private MaterialProgressDialog progressBar;
 	
 	private boolean isActivityVisible = false;//判断activity是否可见，用于处理异步Dialog显示 windowToken异常
 	
+	private BroadcastReceiver kickoffReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, android.content.Intent intent) {
+			String action = intent.getAction();
+			if(action.equals(LIVECHAT_KICKOFF_ACTION)){
+				Bundle bundle = intent.getExtras();
+				if(bundle != null && bundle.containsKey(LoginActivity.LIVE_CHAT_KICK_OFF)){
+					final KickOfflineType type = KickOfflineType.values()[bundle.getInt(LoginActivity.LIVE_CHAT_KICK_OFF)];
+					Intent jumpIntent = new Intent(BaseFragmentActivity.this, HomeActivity.class);
+					jumpIntent.putExtra(LoginActivity.LIVE_CHAT_KICK_OFF, type);
+					jumpIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(jumpIntent);
+				}
+			}
+		}
+	};
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		flatToast = new FlatToast(this);
 		progressBar = new MaterialProgressDialog(this);
-	}
-	
-	@Override
-	protected void onResume() {
-		// TODO Auto-generated method stub
-		super.onResume();
 		isActivityVisible = true;
 	}
 	
 	@Override
+	protected void onResume() {
+		super.onResume();
+		isActivityVisible = true;
+		/*处理被踢逻辑*/
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(LIVECHAT_KICKOFF_ACTION);
+		registerReceiver(kickoffReceiver, filter);
+		
+		if(QpidApplication.isKickOff){
+			LoginManager.getInstance().Logout(OperateType.MANUAL);
+			if(!(this instanceof LoginActivity)){
+				Intent intent = new Intent(this, LoginActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+				finish();
+			}
+		}
+	}
+	
+	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
 		isActivityVisible = false;
+		try{
+			unregisterReceiver(kickoffReceiver);
+		}catch(IllegalArgumentException e){
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 设定进度条是否可以手动返回取消
+	 * @param canCancel
+	 */
+	public void setProgressDialogCanCancel(boolean canCancel){
+		if(progressBar != null){
+			progressBar.setCancelable(canCancel);
+		}
 	}
 	
 	protected void showProgressToast(String text){
@@ -188,12 +243,37 @@ public abstract class BaseFragmentActivity extends AppCompatActivity{
     	mHandler.sendEmptyMessageDelayed(what, delayMillis);
     }
     
+    protected void removeUiMessage(int what){
+    	mHandler.removeMessages(what);
+    }
+    
     /**
      * 判断当前activity是否可见，用于Dialog显示判断Token使用
      * @return
      */
     public boolean isActivityVisible(){
     	return isActivityVisible;
+    }
+    
+    /**
+     * 隐藏软键盘
+     */
+    protected void hideSoftInput() {
+        InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        // manager.toggleSoftInput(InputMethodManager.HIDE_NOT_ALWAYS, 0);
+        if (getCurrentFocus() != null) {
+            manager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                    InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+
+    }
+    
+    /**
+     * 显示软键盘
+     */
+    protected void showSoftInput() {
+        InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        manager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
     }
 	
 }

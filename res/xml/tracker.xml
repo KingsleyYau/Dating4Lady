@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+tools:ignore="TypographyDashes">
+  	<integer name="ga_sessionTimeout">1800</integer>
+
+  	<!-- 
+    <bool name="ga_autoActivityTracking">false</bool>
+    -->
+    <bool name="ga_reportUncaughtExceptions">true</bool>
+
+	<!--  The following value should be replaced with correct property id. -->
+    <string name="ga_trackingId">UA-70662760-2</string>
+</resources>

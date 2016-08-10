@@ -1,12 +1,16 @@
 package com.qpidnetwork.ladydating.base;
 
 
-import com.qpidnetwork.ladydating.customized.view.FlatToast;
-import com.qpidnetwork.ladydating.customized.view.MaterialProgressDialog;
+import java.lang.ref.WeakReference;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
+
+import com.qpidnetwork.ladydating.customized.view.FlatToast;
+import com.qpidnetwork.ladydating.customized.view.MaterialProgressDialog;
 
 public class BaseFragment extends Fragment{
 	
@@ -100,5 +104,60 @@ public class BaseFragment extends Fragment{
 			progressBar.dismiss();
 		super.onDetach();
 	}
+	
+	protected Handler mUiHandler = new UiHandler(this) {
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            if (getFragmentReference() != null && getFragmentReference().get() != null) {
+                handleUiMessage(msg);
+            }
+        };
+    };
+
+    private static class UiHandler extends Handler {
+        private final WeakReference<Fragment> mFragmentReference;
+
+        public UiHandler(Fragment activity) {
+            mFragmentReference = new WeakReference<Fragment>(activity);
+        }
+
+        public WeakReference<Fragment> getFragmentReference() {
+            return mFragmentReference;
+        }
+    }
+    
+    /**
+     * 处理更新UI任务
+     * 
+     * @param msg
+     */
+    protected void handleUiMessage(Message msg) {
+    }
+    
+    /**
+     * 发送UI更新操作
+     * 
+     * @param msg
+     */
+    protected void sendUiMessage(Message msg) {
+        mUiHandler.sendMessage(msg);
+    }
+
+    protected void sendUiMessageDelayed(Message msg, long delayMillis) {
+        mUiHandler.sendMessageDelayed(msg, delayMillis);
+    }
+
+    /**
+     * 发送UI更新操作
+     * 
+     * @param what
+     */
+    protected void sendEmptyUiMessage(int what) {
+        mUiHandler.sendEmptyMessage(what);
+    }
+
+    protected void sendEmptyUiMessageDelayed(int what, long delayMillis) {
+        mUiHandler.sendEmptyMessageDelayed(what, delayMillis);
+    }
 
 }

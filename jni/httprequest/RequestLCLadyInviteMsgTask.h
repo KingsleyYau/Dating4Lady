@@ -3,7 +3,7 @@
  *
  *  Created on: 2015-10-12
  *      Author: Samson
- * Description: 查询男士聊天历史
+ * Description: 查询男士历史聊天消息
  */
 
 #ifndef REQUESTLCLADYINVITEMSGTASK_H_
@@ -23,6 +23,7 @@ public:
 								, const string& errmsg
 								, int dbTime
 								, const LiveChatRecordList& theList
+								, const string& inviteId
 								, RequestLCLadyInviteMsgTask* task) = 0;
 };
 
@@ -41,6 +42,7 @@ public:
 
 protected:
 	IRequestLCLadyInviteMsgCallback* mpCallback;
+	string m_inviteId;
 };
 
 #endif /* REQUESTLCLADYINVITEMSGTASK_H_ */

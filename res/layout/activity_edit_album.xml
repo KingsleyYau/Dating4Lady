@@ -5,43 +5,59 @@
     android:orientation="vertical"
     android:padding="24dp" >
 
-    <LinearLayout android:layout_height="match_parent"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:orientation="vertical">
-    <TextView
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp" >
+
+            <TextView
                 android:id="@+id/albumType"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:background="@drawable/touch_feedback_round_border_white"
                 android:drawableRight="@drawable/ic_expand_more_grey600_24dp"
+                android:gravity="center"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:text="@string/select_album_type"
                 android:textColor="@color/text_color_dark"
-                android:textSize="16sp"
-                android:gravity="center"
-                android:layout_marginBottom="16dp" />
-    
-    
-    <com.qpidnetwork.ladydating.customized.view.MaterialEditText 
-        android:id="@+id/albumName"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:textColor="@color/text_color_dark"
-        android:textSize="16sp"
-        android:hint="@string/album_name"
-        android:maxLength="20"/>
-    
-    <com.qpidnetwork.ladydating.customized.view.MaterialEditText 
-        android:id="@+id/albumDescription"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:textColor="@color/text_color_dark"
-        android:textSize="16sp"
-        android:hint="@string/album_description"
-        android:layout_marginTop="16dp"
-        android:maxLength="60"/>
-    
+                android:textSize="16sp" />
 
-</LinearLayout>
+            <!-- android:background="@drawable/touch_feedback_round_border_white" -->
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="0.5dp"
+                android:layout_alignLeft="@+id/albumType"
+                android:layout_alignRight="@+id/albumType"
+                android:layout_below="@+id/albumType"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@color/text_color_grey" />
+        </RelativeLayout>
+
+        <com.qpidnetwork.ladydating.customized.view.MaterialEditText
+            android:id="@+id/albumName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/album_name"
+            android:maxLength="20"
+            android:textColor="@color/text_color_dark"
+            android:textSize="16sp" />
+
+        <com.qpidnetwork.ladydating.customized.view.MaterialEditText
+            android:id="@+id/albumDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="@string/album_description"
+            android:maxLength="60"
+            android:textColor="@color/text_color_dark"
+            android:textSize="16sp" />
+    </LinearLayout>
+
 </RelativeLayout>

@@ -2,15 +2,6 @@ package com.qpidnetwork.ladydating.more;
 
 import java.io.File;
 
-import com.qpidnetwork.framework.util.Log;
-import com.qpidnetwork.framework.util.StringUtil;
-import com.qpidnetwork.ladydating.R;
-import com.qpidnetwork.manager.CustomNotificationManager;
-import com.qpidnetwork.manager.FileCacheManager;
-import com.qpidnetwork.request.item.VersionCheckItem;
-import com.qpidnetwork.tool.FileDownloader;
-import com.qpidnetwork.tool.FileDownloader.FileDownloaderCallback;
-
 import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
@@ -19,6 +10,14 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.widget.Toast;
+
+import com.qpidnetwork.framework.util.StringUtil;
+import com.qpidnetwork.ladydating.R;
+import com.qpidnetwork.manager.CustomNotificationManager;
+import com.qpidnetwork.manager.FileCacheManager;
+import com.qpidnetwork.request.item.VersionCheckItem;
+import com.qpidnetwork.tool.FileDownloader;
+import com.qpidnetwork.tool.FileDownloader.FileDownloaderCallback;
 
 public class ApkUpdateService extends Service implements FileDownloaderCallback{
 	
@@ -54,16 +53,14 @@ public class ApkUpdateService extends Service implements FileDownloaderCallback{
 				switch (msg.what) {
 				case APK_UPDATE_PROGRESSING:{
 					progress = mFileDownloader.getCurrentProgress();
-					Log.i("hunter", "Current progress is : " + progress);
 					if(mFileDownloader.IsDownloading()){
 						mHandler.sendEmptyMessageDelayed(APK_UPDATE_PROGRESSING, 100);
 					}
-					mNotificationManager.showAppUpgradeNotification(R.drawable.ic_launcher, "qpidnetwork_lady", progress);
+					mNotificationManager.showAppUpgradeNotification(R.drawable.ic_launcher, getResources().getString(R.string.app_name), progress);
 				}break;
 				case APK_UPDATE_DOWNLOAD_SUCCESS:{
 					mHandler.removeMessages(APK_UPDATE_PROGRESSING);
 					progress = msg.arg1;
-					Log.i("hunter", "Current progress is : " + progress);
 					mNotificationManager.cancelUpgradeNotification();
 					reSetupApk();
 				}break;

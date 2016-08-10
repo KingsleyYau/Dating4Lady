@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.qpidnetwork.ladydating"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="205"
+    android:versionName="2.0.5a" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="9"
         android:targetSdkVersion="22" />
 		
 	<uses-permission android:name="android.permission.INTERNET" />
@@ -26,12 +26,41 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/CustomActionBarTheme" android:debuggable="true">
+        android:theme="@style/CustomActionBarTheme">
+        
+        <!-- Add by Samson for Google Play Services -->
+	    <meta-data
+	      android:name="com.google.android.gms.version"
+	      android:value="@integer/google_play_services_version" />
+
+	    <!-- Optionally, register AnalyticsReceiver and AnalyticsService to support background
+	         dispatching on non-Google Play devices -->
+	    <receiver android:name="com.google.android.gms.analytics.AnalyticsReceiver"
+	        android:enabled="true">
+	        <intent-filter>
+	            <action android:name="com.google.android.gms.analytics.ANALYTICS_DISPATCH" />
+	        </intent-filter>
+	    </receiver>
+	    <service android:name="com.google.android.gms.analytics.AnalyticsService"
+	        android:enabled="true"
+	        android:exported="false"/>
+	
+	    <!-- Optionally, register CampaignTrackingReceiver and CampaignTrackingService to enable
+	         installation campaign reporting -->
+	    <service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
+	    <receiver android:name="com.google.android.gms.analytics.CampaignTrackingReceiver"
+	              android:exported="true">
+	        <intent-filter>
+	            <action android:name="com.android.vending.INSTALL_REFERRER" />
+	        </intent-filter>
+	    </receiver>
+        <!-- end -->
       
         <activity
-            android:name="com.qpidnetwork.ladydating.MainActivity"
+            android:name="com.qpidnetwork.ladydating.auth.LoginActivity"
             android:label="@string/app_name" 
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,7 +73,8 @@
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
-            android:configChanges="locale">
+            android:configChanges="locale"
+            android:launchMode="singleTop">
         </activity>
         
         <activity
@@ -53,8 +83,14 @@
             android:screenOrientation="portrait">
         </activity>
         
+        <activity
+            android:name="com.qpidnetwork.ladydating.man.ManPhotoPreviewActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+        </activity>
+        
          <activity
-            android:name="com.qpidnetwork.ladydating.chat.OutgoingChatInvitationActivity"
+            android:name="com.qpidnetwork.ladydating.chat.invite.OutgoingChatInvitationActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
         </activity>
@@ -66,13 +102,19 @@
         </activity>
         
         <activity
+            android:name="com.qpidnetwork.ladydating.chat.invitationtemplate.InviteTemplateEditActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+        </activity>
+        
+        <activity
             android:name="com.qpidnetwork.ladydating.common.activity.SimpleTextPreviewerActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
         </activity>
         
         <activity
-            android:name="com.qpidnetwork.ladydating.auth.LoginActivity"
+            android:name="com.qpidnetwork.ladydating.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
@@ -92,6 +134,12 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
         
+        <activity
+            android:name="com.qpidnetwork.ladydating.album.AlbumPreviewActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+        </activity>
+        
 		<activity
             android:name="com.qpidnetwork.ladydating.album.EditPhotoActivity"
             android:label="@string/app_name"
@@ -109,7 +157,6 @@
             android:label="@string/app_name"
             android:screenOrientation="portrait">
         </activity>
-        
                   
         <activity android:name="com.qpidnetwork.ladydating.common.activity.PhoneVideoBrowserActivity"
             android:label="@string/app_name"
@@ -118,9 +165,46 @@
         <activity android:name="com.qpidnetwork.ladydating.common.activity.SimpleTextEditorActivity"
             android:screenOrientation="portrait"/>
         
+        <activity 
+            android:name="com.qpidnetwork.ladydating.home.ContactSearchActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        
+        <!-- livechat -->
+        <activity 
+            android:name="com.qpidnetwork.ladydating.chat.ChatActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity 
+            android:name="com.qpidnetwork.ladydating.chat.history.LivechatChatHistoryActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity 
+            android:name="com.qpidnetwork.ladydating.chat.history.LivechatChatHistoryDetailActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity 
+            android:name="com.qpidnetwork.ladydating.chat.picture.LivechatPrivatePhotoPreviewActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity 
+            android:name="com.qpidnetwork.ladydating.chat.video.VideoPlayActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        
         <!-- more -->
         <activity 
+            android:name="com.qpidnetwork.ladydating.more.LadyProfileDetailActivity"
+            android:screenOrientation="portrait"/>
+        <activity 
             android:name="com.qpidnetwork.ladydating.more.ChangePasswordActivity"
+            android:screenOrientation="portrait"/>
+        <activity 
+            android:name="com.qpidnetwork.ladydating.more.ContactAgentActivity"
+            android:screenOrientation="portrait"/>
+        <activity 
+            android:name="com.qpidnetwork.ladydating.more.NormalPhotoPreviewActivity"
             android:screenOrientation="portrait"/>
         
         <service android:name="com.qpidnetwork.ladydating.more.ApkUpdateService" />

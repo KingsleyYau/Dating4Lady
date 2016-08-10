@@ -12,6 +12,7 @@ RequestLCSendVoiceTask::RequestLCSendVoiceTask()
 {
 	// TODO Auto-generated constructor stub
 	mUrl = "";
+	mSiteType = ChatVoiceSite;
 }
 
 RequestLCSendVoiceTask::~RequestLCSendVoiceTask()
@@ -30,14 +31,14 @@ void RequestLCSendVoiceTask::SetParam(const string& voiceCode
 				, const string& womanId
 				, const string& fileType
 				, int voiceLen
-				, OTHER_SITE_TYPE siteId
+				, const string& siteId
 				, const string& filePath)
 {
 	char temp[2048] = {0};
 	mHttpEntiy.Reset();
 
 	// inviteId
-	if( inviteId.length() > 0 ) {
+	if( !inviteId.empty() ) {
 		mHttpEntiy.AddContent(LC_UPLOADVOICE_INVITEID, inviteId.c_str());
 	}
 
@@ -45,17 +46,17 @@ void RequestLCSendVoiceTask::SetParam(const string& voiceCode
 	mHttpEntiy.AddContent(LC_UPLOADVOICE_SEX, LC_UPLOADVOICE_SEX_WOMAN);
 
 	// manId
-	if( manId.length() > 0 ) {
+	if( !manId.empty() ) {
 		mHttpEntiy.AddContent(LC_UPLOADVOICE_MANID, manId.c_str());
 	}
 
 	// womanId
-	if( womanId.length() > 0 ) {
+	if( !womanId.empty() ) {
 		mHttpEntiy.AddContent(LC_UPLOADVOICE_WOMANID, womanId.c_str());
 	}
 
 	// flieType
-	if( fileType.length() > 0 ) {
+	if( !fileType.empty() ) {
 		mHttpEntiy.AddContent(LC_UPLOADVOICE_FILETYPE, fileType.c_str());
 	}
 
@@ -66,8 +67,9 @@ void RequestLCSendVoiceTask::SetParam(const string& voiceCode
 	mHttpEntiy.AddContent(LC_UPLOADVOICE_VOICELENGTH, strVoiceLen.c_str());
 
 	// siteId
-	string strSiteId = GetSiteId(siteId);
-	mHttpEntiy.AddContent(LC_UPLOADVOICE_SITEID, strSiteId.c_str());
+	if ( !siteId.empty() ) {
+		mHttpEntiy.AddContent(LC_UPLOADVOICE_SITEID, siteId.c_str());
+	}
 
 	// filePath
 	mHttpEntiy.AddFile(LC_UPLOADVOICE_VOICEFILE, filePath.c_str());
@@ -94,7 +96,7 @@ void RequestLCSendVoiceTask::SetParam(const string& voiceCode
 			womanId.c_str(),
 			fileType.c_str(),
 			strVoiceLen.c_str(),
-			strSiteId.c_str(),
+			siteId.c_str(),
 			filePath.c_str()
 			);
 }
@@ -119,12 +121,9 @@ bool RequestLCSendVoiceTask::HandleCallback(const string& url, bool requestRet, 
 	string voiceId = "";
 	if (requestRet) {
 		// request success
-		Json::Value root;
-		Json::Reader reader;
-		if (reader.parse(buf, root, false)
-			&& root.isString())
-		{
-			voiceId = root.asString();
+		if (size < 512) {
+			voiceId.append(buf, size);
+			bFlag = true;
 		}
 		else {
 			errnum = LOCAL_ERROR_CODE_PARSEFAIL;

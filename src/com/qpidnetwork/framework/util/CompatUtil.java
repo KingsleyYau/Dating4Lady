@@ -1,5 +1,6 @@
 package com.qpidnetwork.framework.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -33,6 +34,7 @@ public class CompatUtil {
 	 * 解决4.4及以上版本与4.4一下版本读取系统相册差异化问题
 	 * @return
 	 */
+	@SuppressLint("NewApi")
 	public static String getSelectedPhotoPath(Context context, Uri contentUri){
 		String filePath = "";
 		if((android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) && (DocumentsContract.isDocumentUri(context, contentUri))){

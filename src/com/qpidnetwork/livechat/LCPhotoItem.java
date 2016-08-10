@@ -2,6 +2,10 @@ package com.qpidnetwork.livechat;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
+
+import com.qpidnetwork.request.RequestJniLivechat.PhotoModeType;
+import com.qpidnetwork.request.RequestJniLivechat.PhotoSizeType;
 
 
 /**
@@ -50,15 +54,11 @@ public class LCPhotoItem implements Serializable{
 	/**
 	 * 处理状态定义
 	 */
-	enum StatusType {
+	enum DownloadStatus {
 		/**
-		 * 已完成
+		 * 没有下载
 		 */
-		Finish,
-		/**
-		 * 正在付费
-		 */
-		PhotoFee,
+		DownloadNothing,
 		/**
 		 * 正在下载模糊拇指图
 		 */
@@ -80,7 +80,7 @@ public class LCPhotoItem implements Serializable{
 		 */
 		DownloadSrcPhoto,
 	}
-	StatusType statusType;
+	ArrayList<DownloadStatus> downloadStatusList;
 	
 	
 	public LCPhotoItem() {
@@ -93,7 +93,7 @@ public class LCPhotoItem implements Serializable{
 		showSrcFilePath = "";
 		thumbSrcFilePath = "";
 		charge = false;
-		statusType = StatusType.Finish;
+		downloadStatusList = new ArrayList<DownloadStatus>();
 	}
 	
 	public void init(
@@ -148,36 +148,94 @@ public class LCPhotoItem implements Serializable{
 		}
 	}
 	
-//	/**
-//	 * 设置处理状态
-//	 * @param modeType	图片类型
-//	 * @param sizeType	图片尺寸
-//	 */
-//	public void SetStatusType(PhotoModeType modeType, PhotoSizeType sizeType)
-//	{
-//		if (modeType == PhotoModeType.Clear) {
-//			if (sizeType == PhotoSizeType.Large
-//				|| sizeType == PhotoSizeType.Middle) 
-//			{
-//				statusType = StatusType.DownloadShowSrcPhoto;
-//			}
-//			else if (sizeType == PhotoSizeType.Original) 
-//			{
-//				statusType = StatusType.DownloadSrcPhoto;
-//			}
-//			else {
-//				statusType = StatusType.DownloadThumbSrcPhoto;
-//			}
-//		}
-//		else if (modeType == PhotoModeType.Fuzzy) {
-//			if (sizeType == PhotoSizeType.Large
-//				|| sizeType == PhotoSizeType.Middle) 
-//			{
-//				statusType = StatusType.DownloadShowFuzzyPhoto;
-//			}
-//			else {
-//				statusType = StatusType.DownloadThumbFuzzyPhoto;
-//			}
-//		}
-//	}
+	/**
+	 * 判断是否正在下载
+	 * @param modeType
+	 * @param sizeType
+	 * @return
+	 */
+	public boolean  IsDownloading(PhotoModeType modeType, PhotoSizeType sizeType)
+	{
+		boolean result = false;
+		
+		synchronized (downloadStatusList)
+		{
+			// 获取对应的下载状态
+			DownloadStatus status = GetDownloadStatus(modeType, sizeType);
+			// 判断下载状态是否存在状态列表
+			result = downloadStatusList.contains(status);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * 根据mode及size添加下载状态
+	 * @param modeType
+	 * @param sizeType
+	 */
+	public void AddDownloading(PhotoModeType modeType, PhotoSizeType sizeType)
+	{
+		synchronized (downloadStatusList)
+		{
+			DownloadStatus status = GetDownloadStatus(modeType, sizeType);
+			if (status != DownloadStatus.DownloadNothing 
+					&& !downloadStatusList.contains(status)) 
+			{
+				downloadStatusList.add(status);
+			}
+		}
+	}
+	
+	/**
+	 * 根据mode及size移除下载状态
+	 * @param modeType
+	 * @param sizeType
+	 */
+	public void RemoveDownloading(PhotoModeType modeType, PhotoSizeType sizeType)
+	{
+		synchronized (downloadStatusList)
+		{
+			DownloadStatus status = GetDownloadStatus(modeType, sizeType);
+			if (downloadStatusList.contains(status)) {
+				downloadStatusList.remove(status);
+			}
+		}
+	}
+	
+	/**
+	 * 根据mode及size获取对应的下载状态
+	 * @param modeType	
+	 * @param sizeType
+	 * @return
+	 */
+	public static DownloadStatus GetDownloadStatus(PhotoModeType modeType, PhotoSizeType sizeType)
+	{
+		DownloadStatus status = DownloadStatus.DownloadNothing;
+		if (modeType == PhotoModeType.Clear) {
+			if (sizeType == PhotoSizeType.Large
+				|| sizeType == PhotoSizeType.Middle) 
+			{
+				status = DownloadStatus.DownloadShowSrcPhoto;
+			}
+			else if (sizeType == PhotoSizeType.Original) 
+			{
+				status = DownloadStatus.DownloadSrcPhoto;
+			}
+			else {
+				status = DownloadStatus.DownloadThumbSrcPhoto;
+			}
+		}
+		else if (modeType == PhotoModeType.Fuzzy) {
+			if (sizeType == PhotoSizeType.Large
+				|| sizeType == PhotoSizeType.Middle) 
+			{
+				status = DownloadStatus.DownloadShowFuzzyPhoto;
+			}
+			else {
+				status = DownloadStatus.DownloadThumbFuzzyPhoto;
+			}
+		}
+		return status;
+	}
 }

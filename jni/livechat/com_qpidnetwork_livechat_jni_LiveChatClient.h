@@ -34,10 +34,10 @@ JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_IsIn
 /*
  * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
  * Method:    Login
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)Z
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_Login
-  (JNIEnv *, jclass, jstring, jstring, jstring, jint, jint);
+  (JNIEnv *, jclass, jstring, jstring, jstring, jint);
 
 /*
  * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
@@ -62,14 +62,6 @@ JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_Uplo
  */
 JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_SetStatus
   (JNIEnv *, jclass, jint);
-
-/*
- * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
- * Method:    GetUserStatus
- * Signature: ([Ljava/lang/String;)Z
- */
-JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_GetUserStatus
-  (JNIEnv *, jclass, jobjectArray);
 
 /*
  * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
@@ -121,18 +113,18 @@ JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_Send
 
 /*
  * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
- * Method:    SendPhoto
+ * Method:    SendLadyPhoto
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;I)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_SendPhoto
+JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_SendLadyPhoto
   (JNIEnv *, jclass, jstring, jstring, jstring, jstring, jboolean, jstring, jint);
 
 /*
  * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
- * Method:    ShowPhoto
+ * Method:    SendLadyVideo
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;I)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_ShowPhoto
+JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_SendLadyVideo
   (JNIEnv *, jclass, jstring, jstring, jstring, jstring, jboolean, jstring, jint);
 
 /*
@@ -157,22 +149,6 @@ JNIEXPORT jint JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_GetUsers
  * Signature: ()Z
  */
 JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_GetBlockList
-  (JNIEnv *, jclass);
-
-/*
- * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
- * Method:    GetContactList
- * Signature: ()Z
- */
-JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_GetContactList
-  (JNIEnv *, jclass);
-
-/*
- * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
- * Method:    GetRecentContactList
- * Signature: ()Z
- */
-JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_GetRecentContactList
   (JNIEnv *, jclass);
 
 /*

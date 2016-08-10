@@ -12,7 +12,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.qpidnetwork.framework.util.UnitConversion;
 import com.qpidnetwork.ladydating.R;
+import com.qpidnetwork.ladydating.chat.ExpressionImageGetter;
+import com.qpidnetwork.ladydating.chat.invitationtemplate.InviteTemplateManager.InviteTemplateMode;
 import com.qpidnetwork.ladydating.utility.DrawableUtil;
 import com.qpidnetwork.request.item.LiveChatInviteTemplateListItem;
 
@@ -21,10 +24,12 @@ public class CustomTemplateAdapter extends BaseAdapter{
 	private List<LiveChatInviteTemplateListItem> mDataList;
 	private ChatInvitationTemplateActivity context;
 	private OnCustomTemplateStatusClickListener mOnCustomTemplateStatusClickListener;
+	private InviteTemplateMode templateMode = InviteTemplateMode.EDIT_MODE;
 	
-	public CustomTemplateAdapter(Context context,  List<LiveChatInviteTemplateListItem> invitationList){
+	public CustomTemplateAdapter(Context context,  List<LiveChatInviteTemplateListItem> invitationList, InviteTemplateMode mode){
 		this.context = (ChatInvitationTemplateActivity) context;
 		this.mDataList = invitationList;
+		this.templateMode = mode;
 	}
 	
 	@Override
@@ -61,7 +66,11 @@ public class CustomTemplateAdapter extends BaseAdapter{
 		}
 
 		holder.reviewFlag.setTag(position);
-		holder.text.setText(invitationItem.tempContent);
+		
+		/*添加表情显示*/
+		ExpressionImageGetter imageGetter = new ExpressionImageGetter(context, UnitConversion.dip2px(
+						context, 20), UnitConversion.dip2px(context, 20));
+		holder.text.setText(imageGetter.getExpressMsgHTML(invitationItem.tempContent));
 		
 		Drawable drawable;
 		switch(invitationItem.tempStatus){
@@ -90,6 +99,11 @@ public class CustomTemplateAdapter extends BaseAdapter{
 				}
 			}
 		});
+		
+		//发送邀请时，隐藏状态按钮
+		if(templateMode == InviteTemplateMode.CHOOSE_MODE){
+			holder.reviewFlag.setVisibility(View.GONE);
+		}
 		
 		return convertView;
 	}

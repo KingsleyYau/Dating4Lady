@@ -14,6 +14,7 @@ public class LoginItem implements Serializable {
 	private static final long serialVersionUID = -899283677195011786L;
 	public LoginItem() {
 		this.lady_id = "";
+		this.sid = "";
 		this.firstname = "";
 		this.lastname = "";	
 		this.photo_url = "";
@@ -29,6 +30,7 @@ public class LoginItem implements Serializable {
 	/**
 	 * 登录成功结构体
 	 * @param lady_id			女士id
+	 * @param sid				sid
 	 * @param firstname			用户first name
 	 * @param lastname			用户last name
 	 * @param photo_url			头像URL
@@ -42,6 +44,7 @@ public class LoginItem implements Serializable {
 	 */
 	public LoginItem(
 			String lady_id,
+			String sid,
 			String firstname,
 			String lastname,	
 			String photo_url,
@@ -54,6 +57,7 @@ public class LoginItem implements Serializable {
 			boolean video
 			) {
 		this.lady_id = lady_id;
+		this.sid = sid;
 		this.firstname = firstname;
 		this.lastname = lastname;	
 		this.photo_url = photo_url;
@@ -69,6 +73,7 @@ public class LoginItem implements Serializable {
 	public String toString() {
 		String result = "{ ";
 		result += "lady_id = " + lady_id + ", ";
+		result += "sid = " + sid + ", ";
 		result += "firstname = " + firstname + ", ";
 		result += "lastname = " + lastname + ", ";
 		result += "login = " + login + ", ";
@@ -80,6 +85,7 @@ public class LoginItem implements Serializable {
 	}
 	
 	public String lady_id;
+	public String sid;
 	public String firstname;
 	public String lastname;	
 	public String photo_url;

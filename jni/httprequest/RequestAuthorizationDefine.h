@@ -30,6 +30,7 @@
  * 返回
  */
 #define AUTHORIZATION_LADY_ID			"lady_id"
+#define AUTHORIZATION_SESSIONID			"sessionid"
 #define AUTHORIZATION_FIRSTNAME 		"firstname"
 #define AUTHORIZATION_LASTNAME 			"lastname"
 #define AUTHORIZATION_PHOTO_URL 		"photo_url"

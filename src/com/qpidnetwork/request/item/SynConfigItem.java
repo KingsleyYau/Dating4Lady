@@ -7,7 +7,17 @@ public class SynConfigItem implements Serializable{
 	private static final long serialVersionUID = -7261447099845711699L;
 
 	public SynConfigItem(){
-		
+		socketHost = "";
+		socketPort = 0;
+		socketVersion = "";
+		socketFromId = 0;
+		translateUrl = "";
+		translateLanguages = new String[0];
+		apkVersionCode = 0;
+		apkVersionName = "";
+		apkVersionUrl = "";
+		siteUrl = "";
+		liveChatVoiceHost = "";
 	}
 	
 	public SynConfigItem(
@@ -20,7 +30,8 @@ public class SynConfigItem implements Serializable{
 			int apkVersionCode,
 			String apkVersionName,
 			String apkVersionUrl,
-			String siteUrl
+			String siteUrl,
+			String liveChatVoiceHost
 			){
 		this.socketHost = socketHost;
 		this.socketPort = socketPort;
@@ -32,6 +43,7 @@ public class SynConfigItem implements Serializable{
 		this.apkVersionName = apkVersionName;
 		this.apkVersionUrl = apkVersionUrl;
 		this.siteUrl = siteUrl;
+		this.liveChatVoiceHost = liveChatVoiceHost;
 	}
 	
 	public String socketHost;
@@ -44,4 +56,5 @@ public class SynConfigItem implements Serializable{
 	public String apkVersionName;
 	public String apkVersionUrl;
 	public String siteUrl;
+	public String liveChatVoiceHost;
 }

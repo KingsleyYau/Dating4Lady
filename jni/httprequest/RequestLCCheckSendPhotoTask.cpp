@@ -12,6 +12,8 @@ RequestLCCheckSendPhotoTask::RequestLCCheckSendPhotoTask()
 {
 	// TODO Auto-generated constructor stub
 	mUrl = LC_LADYCHECKPHOTO_PATH;
+	mSiteType = WebSite;
+	mHttpEntiy.SetGetMethod(true);
 }
 
 RequestLCCheckSendPhotoTask::~RequestLCCheckSendPhotoTask()
@@ -24,7 +26,7 @@ void RequestLCCheckSendPhotoTask::SetCallback(IRequestLCCheckSendPhotoCallback* 
 	mpCallback = pCallback;
 }
 
-void RequestLCCheckSendPhotoTask::SetParam(const string& targetId, const string& inviteId, const string& photoId)
+void RequestLCCheckSendPhotoTask::SetParam(const string& targetId, const string& inviteId, const string& photoId, const string& sid, const string& userId)
 {
 	mHttpEntiy.Reset();
 
@@ -40,14 +42,26 @@ void RequestLCCheckSendPhotoTask::SetParam(const string& targetId, const string&
 		mHttpEntiy.AddContent(LC_LADYCHECKPHOTO_PHOTOID, photoId.c_str());
 	}
 
+	if (!sid.empty()) {
+		mHttpEntiy.AddContent(LC_USER_SID, sid.c_str());
+	}
+
+	if (!userId.empty()) {
+		mHttpEntiy.AddContent(LC_USER_ID, userId.c_str());
+	}
+
 	FileLog("httprequest", "RequestLCCheckSendPhotoTask::SetParam( "
 			"targetId: %s, "
 			"inviteId: %s, "
 			"photoId: %s"
+			"sid:%s, "
+			"userId:%s"
 			")",
 			targetId.c_str(),
 			inviteId.c_str(),
-			photoId.c_str()
+			photoId.c_str(),
+			sid.c_str(),
+			userId.c_str()
 			);
 }
 
@@ -67,14 +81,39 @@ bool RequestLCCheckSendPhotoTask::HandleCallback(const string& url, bool request
 
 	string errnum = "";
 	string errmsg = "";
+	LC_CHECKPHOTO_TYPE result = LCT_CANNOT_SEND;
 	bool bFlag = false;
-	string sendId = "";
 	bool bContinue = true;
 	if (requestRet) {
 		// request success
 		TiXmlDocument doc;
-		if( HandleResult(buf, size, errnum, errmsg, doc, &bContinue) ) {
+		HandleResult(buf, size, errnum, errmsg, doc, &bContinue);
+		if( bContinue && !doc.Error() ) {
 			bFlag = true;
+
+			TiXmlNode *rootNode = doc.FirstChild(COMMON_ROOT);
+			if (NULL != rootNode) {
+				TiXmlNode *resultNode = rootNode->FirstChild(COMMON_RESULT);
+				if( resultNode != NULL ) {
+					// status
+					TiXmlNode *statusNode = resultNode->FirstChild(COMMON_STATUS);
+					if( statusNode != NULL ) {
+						TiXmlElement* itemElement = statusNode->ToElement();
+						if ( itemElement != NULL ) {
+							const char* p = itemElement->GetText();
+							if( p != NULL )
+							{
+								int status = atoi(p);
+								if (LCT_BEGIN <= status <= LCT_END)
+								{
+									result = (LC_CHECKPHOTO_TYPE)atoi(p);
+									bFlag = (LCT_ALLOW_SEND == result);
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	} else {
 		// request fail
@@ -82,8 +121,8 @@ bool RequestLCCheckSendPhotoTask::HandleCallback(const string& url, bool request
 		errmsg = LOCAL_ERROR_CODE_TIMEOUT_DESC;
 	}
 
-	if( mpCallback != NULL ) {
-		mpCallback->OnCheckSendPhoto(bFlag, errnum, errmsg, this);
+	if( bContinue && mpCallback != NULL ) {
+		mpCallback->OnCheckSendPhoto(result, errnum, errmsg, this);
 	}
 
 	return bFlag;

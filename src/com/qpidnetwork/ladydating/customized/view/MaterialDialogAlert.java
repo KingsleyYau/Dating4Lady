@@ -16,8 +16,6 @@ package com.qpidnetwork.ladydating.customized.view;
  */
 
 
-import com.qpidnetwork.ladydating.R;
-
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Context;
@@ -36,6 +34,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+
+import com.qpidnetwork.ladydating.R;
 
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2) 
@@ -124,6 +124,7 @@ public class MaterialDialogAlert extends Dialog {
         CheckBox checkBox = new CheckBox(this.getContext());
         checkBox.setLayoutParams(checkBoxParams);
         checkBox.setId(android.R.id.checkbox);
+        checkBox.setTextColor(this.getContext().getResources().getColor(R.color.text_color_dark));
         checkBox.setVisibility(View.GONE);
         
         //add elements to body view

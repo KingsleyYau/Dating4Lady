@@ -21,15 +21,16 @@
                     android:id="@+id/baseToolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    app:layout_scrollFlags="scroll|enterAlways"
                     app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
             </android.support.design.widget.AppBarLayout>
+            <!-- app:layout_scrollFlags="scroll|enterAlways" -->
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                android:paddingBottom="?attr/actionBarSize" >
+                app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+
+                <!-- android:paddingBottom="?attr/actionBarSize" -->
 
                 <RelativeLayout
                     android:id="@+id/customizedContentViewHolder"

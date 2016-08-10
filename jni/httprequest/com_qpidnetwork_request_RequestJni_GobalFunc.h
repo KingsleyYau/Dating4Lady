@@ -20,6 +20,7 @@ using namespace std;
 
 #include <httpclient/HttpRequestManager.h>
 #include <httpclient/HttpRequestHostManager.h>
+#include <httpclient/HttpRequestDefine.h>
 
 #include "CallbackItemAndroidDef.h"
 #include "LoginManager.h"

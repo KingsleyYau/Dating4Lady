@@ -17,12 +17,32 @@ public abstract class LiveChatClientListener {
 		// 服务器返回错误
 		UnbindInterpreter,		// 女士的翻译未将其绑定
 		SideOffile,				// 对方不在线（聊天）
+		DuplicateChat,			// 聊天状态已经建立
 		NoMoney,				// 帐号余额不足
 		InvalidUser,			// 用户不存在（登录）
+		TargetNotExist,			// 目标用户不存在
 		InvalidPassword,		// 密码错误（登录）
+		NoTransOrAgentFound,	// 没有找到翻译或机构
+		NoPermission,			// 没有权限
+		TransInfoChange,		// 翻译信息改变
+		ChatTargetReject,		// 对方拒绝
+		MaxBinding,				// 超过最大连接数
+		CommandReject,			// 请求被拒绝
 		BlockUser,				// 对方为黑名单用户（聊天）
+		IdentifyCode,			// 需要验证码
+		SocketNotExist,			// socket不存在
 		EmotionError,			// 高级表情异常（聊天）
+		FrequencyEmotion,		// 高级表情发送过快（聊天）
+		WarnTimes,				// 严重警告
+		PhotoError,				// 图片异常（聊天）
+		WomanChatLimit,			// 女士勃起聊天上限
+		FrequencyVoice,			// 语音发送过快（聊天）
+		MicVideo,				// 不允许发送视频
 		VoiceError,				// 语音异常（聊天）
+		NoSession,				// session错误
+		FrequencyMagicIcon,		// 小高表发送过快
+		MagicIconError,			// 小高表异常
+		WomanActiveChatLimit,	// 女士发送邀请过快
 		
 		// 客户端定义的错误
 		ProtocolError,			// 协议解析失败（服务器返回的格式不正确）
@@ -31,8 +51,7 @@ public abstract class LiveChatClientListener {
 		LoginFail,				// 登录失败
 		ServerBreak,			// 服务器踢下线
 		CanNotSetOffline,		// 不能把在线状态设为"离线"，"离线"请使用Logout()
-		
-		
+		NotSupportedFunction,   // 对方不支持该功能
 	};
 	
 	/**
@@ -66,31 +85,6 @@ public abstract class LiveChatClientListener {
 	}
 	
 	/**
-	 * 获取用户在线状态回调
-	 * @param errType			处理结果类型
-	 * @param errmsg			处理结果描述
-	 * @param userStatusArray	用户在线状态数组
-	 */
-	public abstract void OnGetUserStatus(LiveChatErrType errType, String errmsg, LiveChatUserStatus[] userStatusArray);
-	public void OnGetUserStatus(int errType, String errmsg, LiveChatUserStatus[] userStatusArray) {
-		OnGetUserStatus(LiveChatErrType.values()[errType], errmsg, userStatusArray);
-	}
-	
-	/**
-	 * 获取聊天会话信息回调
-	 * @param errType	处理结果类型
-	 * @param errmsg	处理结果描述
-	 * @param userId	用户ID
-	 * @param invitedId	邀请ID
-	 * @param charget	是否已付费
-	 * @param chatTime	聊天时长
-	 */
-	public abstract void OnGetTalkInfo(LiveChatErrType errType, String errmsg, String userId, String invitedId, boolean charget, int chatTime);
-	public void OnGetTalkInfo(int errType, String errmsg, String userId, String invitedId, boolean charget, int chatTime) {
-		OnGetTalkInfo(LiveChatErrType.values()[errType], errmsg, userId, invitedId, charget, chatTime);
-	}
-	
-	/**
 	 * 发送聊天文本消息回调
 	 * @param errType	处理结果类型
 	 * @param errmsg	处理结果描述
@@ -117,18 +111,6 @@ public abstract class LiveChatClientListener {
 	}
 
 	/**
-	 * 发送虚拟礼物回调
-	 * @param errType	处理结果类型
-	 * @param errmsg	处理结果描述
-	 * @param userId	用户ID
-	 * @param giftId	虚拟礼物ID
-	 */
-	public abstract void OnSendVGift(LiveChatErrType errType, String errmsg, String userId, String giftId, int ticket);
-	public void OnSendVGift(int errType, String errmsg, String userId, String giftId, int ticket) {
-		OnSendVGift(LiveChatErrType.values()[errType], errmsg, userId, giftId, ticket);
-	}
-	
-	/**
 	 * 发送语音回调 
 	 * @param errType	处理结果类型
 	 * @param errmsg	处理结果描述
@@ -141,23 +123,23 @@ public abstract class LiveChatClientListener {
 	}
 
 	/**
-	 * 发送图片回调
+	 * 女士发送图片回调
 	 * @param errType	处理结果类型
 	 * @param errmsg	处理结果描述
 	 */
-	public abstract void OnSendPhoto(LiveChatErrType errType, String errmsg, int ticket);
-	public void OnSendPhoto(int errType, String errmsg, int ticket) {
-		OnSendPhoto(LiveChatErrType.values()[errType], errmsg, ticket);
+	public abstract void OnSendLadyPhoto(LiveChatErrType errType, String errmsg, int ticket);
+	public void OnSendLadyPhoto(int errType, String errmsg, int ticket) {
+		OnSendLadyPhoto(LiveChatErrType.values()[errType], errmsg, ticket);
 	}
 	
 	/**
-	 * 显示图片回调
+	 * 女士发送视频回调
 	 * @param errType	处理结果类型
 	 * @param errmsg	处理结果描述
 	 */
-	public abstract void OnShowPhoto(LiveChatErrType errType, String errmsg, int ticket);
-	public void OnShowPhoto(int errType, String errmsg, int ticket) {
-		OnShowPhoto(LiveChatErrType.values()[errType], errmsg, ticket);
+	public abstract void OnSendLadyVideo(LiveChatErrType errType, String errmsg, int ticket);
+	public void OnSendLadyVideo(int errType, String errmsg, int ticket) {
+		OnSendLadyVideo(LiveChatErrType.values()[errType], errmsg, ticket);
 	}
 	
 	/**
@@ -166,9 +148,9 @@ public abstract class LiveChatClientListener {
 	 * @param errmsg	处理结果描述
 	 * @param item		用户信息item
 	 */
-	public abstract void OnGetUserInfo(LiveChatErrType errType, String errmsg, LiveChatTalkUserListItem item);
-	public void OnGetUserInfo(int errType, String errmsg, LiveChatTalkUserListItem item) {
-		OnGetUserInfo(LiveChatErrType.values()[errType], errmsg, item);
+	public abstract void OnGetUserInfo(LiveChatErrType errType, String errmsg, String userId, LiveChatTalkUserListItem item);
+	public void OnGetUserInfo(int errType, String errmsg, String userId, LiveChatTalkUserListItem item) {
+		OnGetUserInfo(LiveChatErrType.values()[errType], errmsg, userId, item);
 	}
 	
 	/**
@@ -191,28 +173,6 @@ public abstract class LiveChatClientListener {
 	public abstract void OnGetBlockList(LiveChatErrType errType, String errmsg, LiveChatTalkUserListItem[] list);
 	public void OnGetBlockList(int errType, String errmsg, LiveChatTalkUserListItem[] list) {
 		OnGetBlockList(LiveChatErrType.values()[errType], errmsg, list);
-	}
-	
-	/**
-	 * 获取LiveChat联系人列表
-	 * @param errType	处理结果类型
-	 * @param errmsg	处理结果描述
-	 * @param list		联系人列表
-	 */
-	public abstract void OnGetContactList(LiveChatErrType errType, String errmsg, LiveChatTalkUserListItem[] list);
-	public void OnGetContactList(int errType, String errmsg, LiveChatTalkUserListItem[] list) {
-		OnGetContactList(LiveChatErrType.values()[errType], errmsg, list);
-	}
-	
-	/**
-	 * 获取最近联系人回调
-	 * @param errType	处理结果类型	
-	 * @param errmsg	处理结果描述
-	 * @param userIds	联系人ID数组
-	 */
-	public abstract void OnGetRecentContactList(LiveChatErrType errType, String errmsg, String[] userIds);
-	public void OnGetRecentContactList(int errType, String errmsg, String[] userIds) {
-		OnGetRecentContactList(LiveChatErrType.values()[errType], errmsg, userIds);
 	}
 	
 	/**
@@ -386,20 +346,6 @@ public abstract class LiveChatClientListener {
 	}
 	
 	/**
-	 * 接收试聊开始消息回调
-	 * @param toId		接收者ID
-	 * @param fromId	发起者ID
-	 * @param time		试聊时长
-	 */
-	public abstract void OnRecvTryTalkBegin(String toId, String fromId, int time);
-	
-	/**
-	 * 接收试聊结束消息回调
-	 * @param userId	聊天对象ID
-	 */
-	public abstract void OnRecvTryTalkEnd(String userId);
-	
-	/**
 	 * 邮件类型
 	 */
 	public enum TalkEmfNoticeType {
@@ -424,6 +370,7 @@ public abstract class LiveChatClientListener {
 	public enum KickOfflineType {
 		Unknow,		// 未知
 		Maintain,	// 服务器维护退出通知
+		Timeout,	// 服务器超时
 		OtherLogin,	// 用户在其它地方登录
 	}
 	
@@ -451,14 +398,42 @@ public abstract class LiveChatClientListener {
 	public abstract void OnRecvPhoto(String toId, String fromId, String fromName, String inviteId, String photoId, String sendId, boolean charget, String photoDesc, int ticket);
 	
 	/**
+	 * 接收图片被查看回调
+	 * @param toId		接收者ID
+	 * @param fromId	发送者ID
+	 * @param fromName	发送者用户名
+	 * @param inviteId	邀请ID
+	 * @param photoId	图片ID
+	 * @param sendId	图片发送ID
+	 * @param charget	是否已付费
+	 * @param photoDesc	图片描述
+	 * @param ticket	票根
+	 */
+	public abstract void OnRecvShowPhoto(String toId, String fromId, String fromName, String inviteId, String photoId, String sendId, boolean charget, String photoDesc, int ticket);
+	
+	/**
 	 * 接收验证码回调
 	 * @param data		验证码图片数据
 	 */
-	public abstract void OnRecvIdentifyCode(Byte[] data);
+	public abstract void OnRecvIdentifyCode(byte[] data);
 	
 	/**
 	 * 接收女士语音验证码
 	 * @param code		验证码
 	 */
 	public abstract void OnRecvLadyVoiceCode(String code);
+	
+	/**
+	 * 接收视频被查看回调
+	 * @param toId		接收者ID
+	 * @param fromId	发送者ID
+	 * @param fromName	发送者用户名
+	 * @param inviteId	邀请ID
+	 * @param videoId	视频ID
+	 * @param sendId	发送ID
+	 * @param charget	是否已付费
+	 * @param videoDesc	视频描述
+	 * @param ticket	票根
+	 */
+	public abstract void OnRecvShowVideo(String toId, String fromId, String fromName, String inviteId, String videoId, String sendId, boolean charget, String videoDesc, int ticket);
 }

@@ -3,9 +3,9 @@ package com.qpidnetwork.livechat;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 
+import com.qpidnetwork.livechat.LCMessageItem.MessageType;
 import com.qpidnetwork.livechat.LCMessageItem.SendType;
 import com.qpidnetwork.livechat.LCMessageItem.StatusType;
 import com.qpidnetwork.livechat.jni.LiveChatClient.ClientType;
@@ -13,10 +13,6 @@ import com.qpidnetwork.livechat.jni.LiveChatClient.UserSexType;
 import com.qpidnetwork.livechat.jni.LiveChatClient.UserStatusType;
 import com.qpidnetwork.livechat.jni.LiveChatClientListener.TalkEventType;
 import com.qpidnetwork.livechat.jni.LiveChatClientListener.TalkMsgType;
-import com.qpidnetwork.livechat.jni.LiveChatTalkUserListItem.DeviceType;
-import com.qpidnetwork.livechat.jni.LiveChatTalkUserListItem.MarryType;
-import com.qpidnetwork.livechat.jni.LiveChatTalkUserListItem.UserType;
-import com.qpidnetwork.livechat.jni.LiveChatClient;
 import com.qpidnetwork.livechat.jni.LiveChatTalkUserListItem;
 
 /**
@@ -35,13 +31,29 @@ public class LCUserItem implements Serializable{
 	 */
 	public String userName;
 	/**
+	 * 用户头像URL
+	 */
+	public String imgUrl;
+	/**
 	 * 用户性别
 	 */
 	public UserSexType sexType;
 	/**
+	 * 用户年龄
+	 */
+	public int age;
+	/**
+	 * 国家
+	 */
+	public String country;
+	/**
 	 * 用户使用的客户端类型
 	 */
 	public ClientType clientType;
+	/**
+	 * 客户端版本
+	 */
+	public String clientVer;
 	/**
 	 * 用户在线状态
 	 */
@@ -66,6 +78,10 @@ public class LCUserItem implements Serializable{
 	 * 聊天记录列表
 	 */
 	protected ArrayList<LCMessageItem> msgList;
+	/**
+	 * 发送消息规则处理器
+	 */
+	private LCSendMsgRuleHandler mSendMsgRule;
 	
 	/**
 	 * 聊天状态
@@ -81,28 +97,75 @@ public class LCUserItem implements Serializable{
 	public LCUserItem() {
 		userId = "";
 		userName = "";
+		imgUrl = "";
 		sexType = UserSexType.USER_SEX_MALE;
+		age = 0;
+		country = "";
 		clientType = ClientType.CLIENT_ANDROID;
+		clientVer = "";
 		statusType = UserStatusType.USTATUS_OFFLINE_OR_HIDDEN;
 		chatType = ChatType.Other;
 		inviteId = "";
 		order = 0;
 		msgList = new ArrayList<LCMessageItem>();
 		sendMsgList = new ArrayList<LCMessageItem>();
+		mSendMsgRule = new LCSendMsgRuleHandler(this);
 	}
 	
 	/**
 	 * 根据获取邀请/在聊用户列表user item更新用户信息
 	 * @param listItem
+	 * @return 有否更新
 	 */
-	public void UpdateWithLiveChatTalkUserListItem(LiveChatTalkUserListItem listItem)
+	public boolean UpdateWithLiveChatTalkUserListItem(LiveChatTalkUserListItem item)
 	{
-		this.userId = listItem.userId;
-		this.userName = listItem.userName;
-		this.sexType = listItem.sexType;
-		this.statusType = listItem.statusType;
-		this.clientType = listItem.clientType;
-		this.order = listItem.orderValue;
+		boolean result = false;
+		
+		if (this.userName.compareTo(item.userName) != 0) {
+			this.userName = item.userName;
+			result = true;
+		}
+		
+		if (this.imgUrl.compareTo(item.imgUrl) != 0) {
+			this.imgUrl = item.imgUrl;
+			result = true;
+		}
+		
+		if (this.sexType != item.sexType) {
+			this.sexType = item.sexType;
+			result = true;
+		}
+		
+		if (this.age != item.age) {
+			this.age = item.age;
+			result = true;
+		}
+		
+		if (this.country.compareTo(item.country) != 0) {
+			this.country = item.country;
+			result = true;
+		}
+		
+		if (this.statusType != item.statusType) { 
+			this.statusType = item.statusType;
+			result = true;
+		}
+		
+		if (this.clientType != item.clientType) {
+			this.clientType = item.clientType;
+			result = true;
+		}
+		
+		if (this.clientVer.compareTo(item.clientVersion) != 0) {
+			this.clientVer = item.clientVersion;
+			result = true;
+		}
+		
+		if (this.order != item.orderValue) {
+			this.order = item.orderValue;
+			result = true;
+		}
+		return result;
 	}
 
 	/**
@@ -123,11 +186,19 @@ public class LCUserItem implements Serializable{
 			result = msgList.add(item);
 			if (result) {
 				Collections.sort(msgList, LCMessageItem.getComparator());
+				
+				// 若是女士发送，且chat状态为其它，则把 chat状态置为WomanInvite
+				if (item.sendType == SendType.Send
+					&& this.chatType == ChatType.Other)
+				{
+					setChatType(ChatType.WomanInvite);
+				}
 			}
 		}
 		
 		if (result) {
 			item.setUserItem(this);
+			mSendMsgRule.InsertMessage(item);
 		}
 		return result;
 	}
@@ -154,13 +225,44 @@ public class LCUserItem implements Serializable{
 	/**
 	 * 清除所有聊天记录
 	 */
-	public void clearMsgList() {
+	public void clearMsgList() 
+	{
+		// 清除所有聊天记录
 		synchronized (msgList) {
 			for (Iterator<LCMessageItem> iter = msgList.iterator(); iter.hasNext(); ) {
 				LCMessageItem item = iter.next();
 				item.clear();
 			}
 			msgList.clear();
+		}
+		
+		// 清除所有待发消息
+		clearSendingMsgList();
+		
+		// 清除所有发送消息规则
+		mSendMsgRule.Clear();
+	}
+	
+	/**
+	 * 添加待发送消息
+	 * @param item	消息item
+	 */
+	public void addSendingMsg(LCMessageItem item)
+	{
+		synchronized (sendMsgList)
+		{
+			sendMsgList.add(item);
+		}
+	}
+	
+	/**
+	 * 清空待发送消息列表
+	 */
+	private void clearSendingMsgList()
+	{
+		synchronized (sendMsgList)
+		{
+			sendMsgList.clear();
 		}
 	}
 	
@@ -201,7 +303,7 @@ public class LCUserItem implements Serializable{
 	}
 	
 	/**
-	 * 设置聊天状态
+	 * 设置聊天状态(根据会话状态)
 	 * @param eventType		聊天事件
 	 * @return 聊天状态是否改变	
 	 */
@@ -215,8 +317,7 @@ public class LCUserItem implements Serializable{
 			chatType = ChatType.Other;
 			break;
 		case StartCharge:
-			if (this.chatType != ChatType.InChatCharge
-				&& this.chatType != ChatType.InChatUseTryTicket)
+			if (!IsInChat())
 			{
 				chatType = ChatType.InChatCharge;
 			}
@@ -235,30 +336,56 @@ public class LCUserItem implements Serializable{
 			break;
 		}
 		
-		if (chatType != this.chatType)
-		{
-			this.chatType = chatType;
-			result = true;
-		} 
+		result = setChatType(chatType);
 		
 		return result;
 	}
 	
 	/**
-	 * 设置聊天状态 
+	 * 设置聊天状态(根据聊天消息类型)
+	 * @param inviteId	邀请ID 
+	 * @param charge	是否付费
 	 * @param msgType	聊天消息类型
 	 * @return 聊天状态是否改变
 	 */
-	public boolean setChatTypeWithTalkMsgType(boolean charge, TalkMsgType msgType) 
+	public boolean setChatTypeWithTalkMsgType(String inviteId, boolean charge, TalkMsgType msgType) 
 	{
 		boolean result = false;
 		
-		ChatType chatType = getChatTypeWithTalkMsgType(charge, msgType);
+		if (this.inviteId.equals(inviteId))
+		{
+			// 邀请ID没变，之前不是inchat状态才改变当前会话状态
+			UpdateInChatStatus();
+		}
+		else 
+		{
+			// 邀请ID改变，重置会话状态
+			this.inviteId = inviteId;
+			ChatType chatType = getChatTypeWithTalkMsgType(charge, msgType);
+			result = setChatType(chatType);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * 设置聊天状态
+	 * @param chatType	聊天状态
+	 * @return
+	 */
+	public boolean setChatType(ChatType chatType)
+	{
+		boolean result = false;
 		if (chatType != this.chatType) {
 			this.chatType = chatType;
 			result = true;
 		}
 		
+		
+		if (result) {
+			// 通知发送消息规则聊天状态改变
+			mSendMsgRule.ChangeChatType(chatType);
+		}
 		return result;
 	}
 	
@@ -327,61 +454,115 @@ public class LCUserItem implements Serializable{
 	}
 	
 	/**
-	 * 获取比较器
+	 * 判断是否可发送消息返回定义
+	 */
+	public enum CanSendErrType {
+		OK,					// 可以发送
+		UnknowErr,			// 未知错误
+		SendMsgFrequency,	// 发送消息过快
+		NoInChat,			// 非在聊状态
+	}
+	/**
+	 * 判断是否可发送消息 
+	 * @param msgType	消息类型
 	 * @return
 	 */
-	static public Comparator<LCUserItem> getComparator() {
-		Comparator<LCUserItem> comparator = new Comparator<LCUserItem>() {
-			@Override
-			public int compare(LCUserItem lhs, LCUserItem rhs) {
-				// TODO Auto-generated method stub
-				int result = 0;
-				if (lhs != rhs) 
+	public CanSendErrType CanSendMessage(LCMessageItem.MessageType msgType)
+	{
+		CanSendErrType result = CanSendErrType.OK;
+		if (!IsInChat()	// 由于LiveChat服务器不能及时提供在聊状态，把判断是否在聊改为只要有互相发过消息
+			&& (msgType == MessageType.Photo
+					|| msgType == MessageType.Voice
+					|| msgType == MessageType.Video))
+		{
+			result = CanSendErrType.NoInChat; 
+		}
+		else if (!mSendMsgRule.CanSendMessage(msgType)) {
+			result = CanSendErrType.SendMsgFrequency;
+		}
+		return result;
+	}
+	
+	/**
+	 * 是否与该男士在指定会话互相发过消息
+	 * @return
+	 */
+	private boolean HaveTalk(String inviteId)
+	{
+		boolean result = false;
+		synchronized(msgList) 
+		{
+			boolean send = false;
+			boolean recv = false;
+			for (int i = msgList.size() - 1; i >= 0 ; i--) 
+			{
+				LCMessageItem tempItem = msgList.get(i);
+				if (inviteId.equals(tempItem.inviteId))
 				{
-					synchronized (lhs.msgList) 
-					{
-						synchronized (rhs.msgList) 
-						{
-							if (lhs.msgList.size() == 0 && rhs.msgList.size() == 0) {
-								// 两个都没有消息，按名字排序
-								int nameCompareValue = lhs.userName.compareTo(rhs.userName);
-								if (nameCompareValue > 0) {
-									result = 1;
-								}
-								else if (nameCompareValue < 0) {
-									result = -1;
-								}
-							}
-							else if (lhs.msgList.size() > 0 && rhs.msgList.size() > 0) {
-								// 两个都有消息
-								LCMessageItem lMsgItem = lhs.msgList.get(lhs.msgList.size()-1);
-								LCMessageItem rMsgItem = rhs.msgList.get(rhs.msgList.size()-1);
-								
-								// 以最后一条消息的聊天时间倒序排序
-								if (null != lMsgItem && null != rMsgItem) {
-									if (lMsgItem.createTime != rMsgItem.createTime) {
-										result = (lMsgItem.createTime > rMsgItem.createTime ? -1 : 1);
-									}
-								}
-								else {
-									if (null == lMsgItem && null != rMsgItem) {
-										result = 1;
-									}
-									else if (null != lMsgItem && null == rMsgItem) {
-										result = -1;
-									}
-								}
-							}
-							else {
-								// 其中一个有消息
-								result = (lhs.msgList.size() > rhs.msgList.size() ? -1 : 1);
-							}
-						}
+					if (tempItem.sendType == SendType.Recv) {
+						send = true;
+					}
+					else if (tempItem.sendType == SendType.Send) {
+						recv = true;
 					}
 				}
-				return result;
+				
+				if (send && recv) {
+					result = true;
+					break;
+				}
 			}
-		};
-		return comparator;
+		}
+		return result;
+	}
+	
+	/**
+	 * 获取最后一条聊天消息
+	 */
+	public LCMessageItem GetLastTalkMsg()
+	{
+		LCMessageItem msgItem = null;
+		synchronized (msgList)
+		{
+			for (int i = msgList.size()-1; i >= 0; i--)
+			{
+				LCMessageItem item = msgList.get(i);
+				if (null != item
+					&& (item.sendType == SendType.Recv || item.sendType == SendType.Send))
+				{
+					msgItem = item;
+					break;
+				}
+			}
+		}
+		return msgItem;
+	}
+	
+	/**
+	 * 是否inchat状态
+	 * @return
+	 */
+	public boolean IsInChat()
+	{
+		return chatType == ChatType.InChatCharge
+				|| chatType == ChatType.InChatUseTryTicket;
+	}
+	
+	/**
+	 * 更新inchat状态
+	 * @return
+	 */
+	public boolean UpdateInChatStatus()
+	{
+		boolean result = false;
+		if (!IsInChat())
+		{
+			// 本会话有互相发送消息
+			if (HaveTalk(inviteId)) 
+			{
+				result = setChatType(ChatType.InChatCharge);
+			}
+		}
+		return result;
 	}
 }

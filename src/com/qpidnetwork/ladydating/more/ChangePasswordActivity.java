@@ -1,5 +1,6 @@
 package com.qpidnetwork.ladydating.more;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Message;
@@ -7,10 +8,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.qpidnetwork.framework.util.StringUtil;
 import com.qpidnetwork.ladydating.R;
+import com.qpidnetwork.ladydating.authorization.LoginManager;
+import com.qpidnetwork.ladydating.authorization.IAuthorizationCallBack.OperateType;
 import com.qpidnetwork.ladydating.base.BaseActionbarActivity;
 import com.qpidnetwork.ladydating.bean.RequestBaseResponse;
+import com.qpidnetwork.ladydating.home.HomeActivity;
 import com.qpidnetwork.request.OnRequestCallback;
 import com.qpidnetwork.request.RequestJniOther;
 import com.qpidnetwork.view.MaterialTextField;
@@ -20,6 +26,8 @@ public class ChangePasswordActivity extends BaseActionbarActivity{
 	private MaterialTextField etCurPwd;
 	private MaterialTextField etNewPwd;
 	private MaterialTextField etConfPwd;
+	
+	private boolean isModifySuccess = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +51,16 @@ public class ChangePasswordActivity extends BaseActionbarActivity{
 		
 		etConfPwd.setNoPredition();
 		etConfPwd.setHint(getString(R.string.more_confirm_password));
+	}
+	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		//防止更改过程中Home键返回后台，异步问题
+		if(isModifySuccess){
+			jumpToLoginActivity();
+		}
 	}
 
 	@Override
@@ -82,12 +100,30 @@ public class ChangePasswordActivity extends BaseActionbarActivity{
 		super.handleUiMessage(msg);
 		dismissProgressDialog();
 		RequestBaseResponse response = (RequestBaseResponse)msg.obj;
+		String errMsg = StringUtil.getErrorMsg(this, response.errno, response.errmsg);
 		if(response.isSuccess){
-			showDoneToast(getString(R.string.done));
-			finish();
+			if(isActivityVisible()){
+				jumpToLoginActivity();
+			}else{
+				isModifySuccess = true;
+			}
 		}else{
-			showFailedToast(response.errmsg);
+			Toast.makeText(this, getString(R.string.modify_password_fail_tips), Toast.LENGTH_SHORT).show();
 		}
+	}
+	
+	/**
+	 * 修改密码成功，跳转回登陆界面
+	 */
+	private void jumpToLoginActivity(){
+		isModifySuccess = false;
+		Toast.makeText(this, getString(R.string.modify_password_success_tips), Toast.LENGTH_SHORT).show();
+		LoginManager.getInstance().Logout(OperateType.MANUAL);
+		finish();
+		Intent jumpIntent = new Intent(ChangePasswordActivity.this, HomeActivity.class);
+		jumpIntent.putExtra(HomeActivity.NEW_INTENT_LOGOUT, true);
+		jumpIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(jumpIntent);
 	}
 	
 	private void doSubmit(){
@@ -114,6 +150,7 @@ public class ChangePasswordActivity extends BaseActionbarActivity{
 			return;
 		}
 		
+		setProgressDialogCanCancel(false);
 		showProgressDialog(getString(R.string.common_wait_tips));
 		RequestJniOther.ModifyPassword(curPwd, newPwd, new OnRequestCallback() {
 			

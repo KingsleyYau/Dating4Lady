@@ -30,6 +30,15 @@ void ConfigManager::onSynConfigCallback(bool isSuccess, const string& errnum, co
 	if( isSuccess ) {
 		mbFinish = true;
 		mSynConfigItem = item;
+
+		// 更新LiveChat语音host
+		if (NULL != mpHttpRequestManager
+				&& NULL != mpHttpRequestManager->GetHostManager())
+		{
+			HttpRequestHostManager* hostManager = mpHttpRequestManager->GetHostManager();
+			hostManager->SetChatVoiceSite(mSynConfigItem.liveChatVoiceHost);
+			hostManager->SetVideoUploadSite(mSynConfigItem.videoUploadHost);
+		}
 	}
 	mMutex.unlock();
 
@@ -74,18 +83,22 @@ void ConfigManager::Sync() {
 		return;
 	} else {
 		mbRunning = true;
-	}
-	mMutex.unlock();
+		if( mbFinish ) {
+			mbRunning = false;
+			mMutex.unlock();
 
-	if( mbFinish ) {
-		mCallbackListLock.lock();
-		for(ConfigManagerCallbackList::iterator itr = mConfigManagerCallbackList.begin(); itr != mConfigManagerCallbackList.end(); itr++) {
-			(*itr)->onSynConfigCallback(this, true, "", "", mSynConfigItem);
+			mCallbackListLock.lock();
+			for(ConfigManagerCallbackList::iterator itr = mConfigManagerCallbackList.begin(); itr != mConfigManagerCallbackList.end(); itr++) {
+				(*itr)->onSynConfigCallback(this, true, "", "", mSynConfigItem);
+			}
+			mCallbackListLock.unlock();
+		} else {
+			mMutex.unlock();
+
+			mRequestSynConfigTask.Init(mpHttpRequestManager);
+			mRequestSynConfigTask.setCallback(this);
+			mRequestSynConfigTask.Start();
 		}
-		mCallbackListLock.unlock();
-	} else {
-		mRequestSynConfigTask.Init(mpHttpRequestManager);
-		mRequestSynConfigTask.setCallback(this);
-		mRequestSynConfigTask.Start();
 	}
+
 }

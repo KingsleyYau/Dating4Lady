@@ -28,9 +28,9 @@ public class LoginManagerJni {
     
     /**
      * 注销
-     * @return
+     * @param type 0:手动  1：自动
      */
-    static public native void Logout();
+    static public native void Logout(int type);
     
     static public native String GetUser();
     

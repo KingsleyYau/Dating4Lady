@@ -46,10 +46,16 @@ public class RequestJni {
     static public native void SetWebSite(String webSite, String appSite);
 
     /**
-     * 设置公共站点
-     * @param chatVoiceSite	LiveChat语音站域名 ("http://demo.chnlove.com:9901")
+     * 设置翻译站点
+     * @param transSite	翻译站点
      */
-    static public native void SetPublicWebSite(String chatVoiceSite);
+    static public native void SetTransSite(String transSite);
+    
+    /**
+     * 设置 Video上传站点
+     * @param videoUploadSite	Video上传站点
+     */
+    static public native void SetVideoUploadSite(String videoUploadSite);
     
 	/**
 	 * 设置认证
@@ -115,29 +121,29 @@ public class RequestJni {
 	
     /**
      * 获取返回的body总长度（字节）
-     * @param requestId		请求Id
+     * @param task		请求Id
      * @return
      */
-    static public native int GetDownloadContentLength(long requestId);
+    static public native int GetDownloadContentLength(long task);
     
     /**
      * 获取已收的body长度（字节）
-     * @param requestId		请求Id
+     * @param task		请求Id
      * @return
      */
-    static public native int GetRecvLength(long requestId);
+    static public native int GetRecvLength(long task);
     
     /**
      * 获取请求的body总长度（字节）
-     * @param requestId		请求Id
+     * @param task		请求Id
      * @return
      */
-    static public native int GetUploadContentLength(long requestId);
+    static public native int GetUploadContentLength(long task);
     
     /**
      * 获取已发的body长度（字节）
-     * @param requestId		请求Id
+     * @param task		请求Id
      * @return
      */
-    static public native int GetSendLength(long requestId);
+    static public native int GetSendLength(long task);
 }

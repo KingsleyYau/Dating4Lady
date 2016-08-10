@@ -3,6 +3,14 @@ package com.qpidnetwork.livechat;
 import java.io.Serializable;
 import java.util.Comparator;
 
+import com.qpidnetwork.framework.util.Log;
+import com.qpidnetwork.livechat.jni.LiveChatClientListener;
+import com.qpidnetwork.livechat.jni.LiveChatClientListener.LiveChatErrType;
+import com.qpidnetwork.request.RequestJniLivechat.PhotoModeType;
+import com.qpidnetwork.request.RequestJniLivechat.PhotoSizeType;
+import com.qpidnetwork.request.item.LCRecord;
+import com.qpidnetwork.request.item.LCRecord.ToFlag;
+
 /**
  * 一条聊天消息对象
  * @author Samson Fan
@@ -77,6 +85,18 @@ public class LCMessageItem implements Serializable{
 	 */
 	public StatusType statusType;
 	/**
+	 * LiveChatClient错误code
+	 */
+	public LiveChatClientListener.LiveChatErrType errType;
+	/**
+	 * php错误code
+	 */
+	public String errno;
+	/**
+	 * php/LiveChatClient错误描述
+	 */
+	public String errmsg;
+	/**
 	 * 消息类型
 	 */
 	public MessageType msgType;
@@ -100,10 +120,10 @@ public class LCMessageItem implements Serializable{
 	 * 图片item
 	 */
 	private LCPhotoItem photoItem;
-//	/**
-//	 * 微视频item
-//	 */
-//	private LCVideoItem videoItem;
+	/**
+	 * 微视频item
+	 */
+	private LCVideoMsgItem videoItem;
 	/**
 	 * 系统消息item
 	 */
@@ -118,7 +138,8 @@ public class LCMessageItem implements Serializable{
 	static private int mDbTime = 0; 
 	
 	public LCMessageItem() {
-		clear();
+//		clear();
+		clearSelf();
 	}
 	
 	/**
@@ -201,123 +222,132 @@ public class LCMessageItem implements Serializable{
 		return synServerTime;
 	}
 	
-//	/**
-//	 * 使用Record初始化MessageItem
-//	 * @param record
-//	 * @return
-//	 */
-//	public boolean InitWithRecord(
-//			int msgId
-//			, String selfId
-//			, String userId
-//			, String inviteId
-//			, Record record
-//			, LCEmotionManager emotionMgr
-//			, LCVoiceManager voiceMgr
-//			, LCPhotoManager photoMgr
-//			, LCVideoManager videoMgr) 
-//	{
-//		boolean result = false;
-//		this.msgId = msgId;
-//		this.toId = (record.toflag == ToFlag.Receive ? selfId : userId);
-//		this.fromId = (record.toflag == ToFlag.Receive ? userId : selfId);
-//		this.inviteId = inviteId;
-//		this.sendType = (record.toflag == ToFlag.Receive ? SendType.Recv : SendType.Send);
-//		this.statusType = StatusType.Finish;
-//		this.createTime = GetLocalTimeWithServerTime(record.adddate);
-//		
-//		switch(record.messageType) {
-//		case Text: {
-//			if (null != record.textMsg) 
-//			{
-//				LCTextItem textItem = new LCTextItem();
-//				textItem.init(record.textMsg);
-//				setTextItem(textItem);
-//				result = true;
-//			}
-//		}break;
-//		case Invite: {
-//			if (null != record.inviteMsg)
-//			{
-//				LCTextItem textItem = new LCTextItem();
-//				textItem.init(record.inviteMsg);
-//				setTextItem(textItem);
-//				result = true;
-//			}
-//		}break;
-//		case Warning: {
-//			if (null != record.warningMsg)
-//			{
-//				LCWarningItem warningItem = new LCWarningItem();
-//				warningItem.init(record.warningMsg);
-//				setWarningItem(warningItem);
-//				result = true;
-//			}
-//		}break;
-//		case Emotion: {
-//			if (null != record.emotionId)
-//			{
-//				LCEmotionItem emotionItem = emotionMgr.getEmotion(record.emotionId);
-//				setEmotionItem(emotionItem);
-//				result = true;
-//			}
-//		}break;
-//		case Photo: {
-//			if (null != record.photoId)
-//			{
-//				LCPhotoItem photoItem = new LCPhotoItem();
-//				// 男士端发送的为已付费
-//				boolean photoCharge = (this.sendType == SendType.Send ? true : record.photoCharge); 
-//				photoItem.init(
-//						record.photoId
-//						, ""
-//						, record.photoDesc
-//						, photoMgr.getPhotoPath(record.photoId, PhotoModeType.Fuzzy, PhotoSizeType.Large)
-//						, photoMgr.getPhotoPath(record.photoId, PhotoModeType.Fuzzy, PhotoSizeType.Middle)
-//						, photoMgr.getPhotoPath(record.photoId, PhotoModeType.Clear, PhotoSizeType.Original)
-//						, photoMgr.getPhotoPath(record.photoId, PhotoModeType.Clear, PhotoSizeType.Large)
-//						, photoMgr.getPhotoPath(record.photoId, PhotoModeType.Clear, PhotoSizeType.Middle)
-//						, photoCharge);
-//				setPhotoItem(photoItem);
-//				result = true;
-//			}
-//		}break;
-//		case Voice: {
-//			if (null != record.voiceId)
-//			{
-//				LCVoiceItem voiceItem = new LCVoiceItem();
-//				voiceItem.init(record.voiceId
-//						, voiceMgr.getVoicePath(record.voiceId, record.voiceType)
-//						, record.voiceTime, record.voiceType
-//						, ""
-//						, true);
-//				setVoiceItem(voiceItem);
-//				result = true;
-//			}
-//		}break;
-//		case Video: {
-//			if (null != record.videoId)
-//			{
-//				LCVideoItem videoItem = new LCVideoItem();
-//				videoItem.init(
-//						record.videoId
-//						, record.videoSendId
-//						, record.videoDesc
-//						, videoMgr.getVideoPhotoPath(userId, record.videoId, inviteId, VideoPhotoType.Big)
-//						, videoMgr.getVideoPhotoPath(userId, record.videoId, inviteId, VideoPhotoType.Default)
-//						, ""
-//						, videoMgr.getVideoPath(userId, record.videoId, inviteId)
-//						, record.videoCharge);
-//				setVideoItem(videoItem);
-//				result = true;
-//			}
-//		}break;
-//		default: {
-//			Log.e("livechat", String.format("%s::%s() unknow message type", "LCMessageItem", "InitWithRecord"));
-//		}break;
-//		}
-//		return result;
-//	}
+	/**
+	 * 使用Record初始化MessageItem
+	 * @param record
+	 * @return
+	 */
+	public boolean InitWithRecord(
+			int msgId
+			, String selfId
+			, String userId
+			, String inviteId
+			, LCRecord record
+			, LCEmotionManager emotionMgr
+			, LCVoiceManager voiceMgr
+			, LCPhotoManager photoMgr
+			, LCVideoManager videoMgr
+			) 
+	{
+		boolean result = false;
+		this.msgId = msgId;
+		this.toId = (record.toflag == ToFlag.Send ? selfId : userId);
+		this.fromId = (record.toflag == ToFlag.Send ? userId : selfId);
+		this.inviteId = inviteId;
+		this.sendType = (record.toflag == ToFlag.Send ? SendType.Recv : SendType.Send);
+		this.statusType = StatusType.Finish;
+		this.createTime = GetLocalTimeWithServerTime(record.adddate);
+		
+		switch(record.messageType) {
+		case Text: {
+			if (null != record.textMsg) 
+			{
+				LCTextItem textItem = new LCTextItem();
+				textItem.init(record.textMsg);
+				setTextItem(textItem);
+				result = true;
+			}
+		}break;
+		case Invite: {
+			if (null != record.inviteMsg)
+			{
+				LCTextItem textItem = new LCTextItem();
+				textItem.init(record.inviteMsg);
+				setTextItem(textItem);
+				result = true;
+			}
+		}break;
+		case Warning: {
+			if (null != record.warningMsg)
+			{
+				LCWarningItem warningItem = new LCWarningItem();
+				warningItem.init(record.warningMsg);
+				setWarningItem(warningItem);
+				result = true;
+			}
+		}break;
+		case Emotion: {
+			if (null != record.emotionId)
+			{
+				LCEmotionItem emotionItem = emotionMgr.getEmotion(record.emotionId);
+				setEmotionItem(emotionItem);
+				result = true;
+			}
+		}break;
+		case Photo: {
+			if (null != record.photoId)
+			{
+				LCPhotoItem photoItem = null;
+				boolean isMine = (record.toflag == ToFlag.Send);
+				if (isMine) {
+					photoItem = photoMgr.GetSelfPhoto(record.photoId);
+				}
+				else {
+					photoItem = new LCPhotoItem();
+				}
+				
+				if (null != photoItem)
+				{
+					photoItem.init(
+							record.photoId
+							, ""
+							, record.photoDesc
+							, photoMgr.getPhotoPath(record.photoId, PhotoModeType.Fuzzy, PhotoSizeType.Large, isMine)
+							, photoMgr.getPhotoPath(record.photoId, PhotoModeType.Fuzzy, PhotoSizeType.Middle, isMine)
+							, photoMgr.getPhotoPath(record.photoId, PhotoModeType.Clear, PhotoSizeType.Original, isMine)
+							, photoMgr.getPhotoPath(record.photoId, PhotoModeType.Clear, PhotoSizeType.Large, isMine)
+							, photoMgr.getPhotoPath(record.photoId, PhotoModeType.Clear, PhotoSizeType.Middle, isMine)
+							, record.photoCharge);
+					setPhotoItem(photoItem);
+					result = true;
+				}
+			}
+		}break;
+		case Voice: {
+			if (null != record.voiceId)
+			{
+				LCVoiceItem voiceItem = new LCVoiceItem();
+				voiceItem.init(record.voiceId
+						, voiceMgr.getVoicePath(record.voiceId, record.voiceType)
+						, record.voiceTime, record.voiceType
+						, ""
+						, true);
+				setVoiceItem(voiceItem);
+				result = true;
+			}
+		}break;
+		case Video: {
+			if (null != record.videoId)
+			{
+				LCVideoItem videoItem = videoMgr.GetVideo(record.videoId);
+				if (null != videoItem)
+				{
+					LCVideoMsgItem videoMsgItem = new LCVideoMsgItem();
+					videoMsgItem.init(
+							videoItem
+							, record.videoSendId
+							, record.videoCharge);
+					setVideoItem(videoMsgItem);
+					result = true;
+				}
+			}
+		}break;
+		default: {
+			Log.e("livechat", String.format("%s::%s() unknow message type", "LCMessageItem", "InitWithRecord"));
+		}break;
+		}
+		return result;
+	}
 	
 	public void setVoiceItem(LCVoiceItem theVoiceItem) {
 		if (msgType == MessageType.Unknow
@@ -343,17 +373,17 @@ public class LCMessageItem implements Serializable{
 		return photoItem;
 	}
 	
-//	public void setVideoItem(LCVideoItem theVideoItem) {
-//		if (msgType == MessageType.Unknow
-//				&& theVideoItem != null) 
-//		{
-//			videoItem = theVideoItem;
-//			msgType = MessageType.Video;
-//		}
-//	}
-//	public LCVideoItem getVideoItem() {
-//		return videoItem;
-//	}
+	public void setVideoItem(LCVideoMsgItem theVideoItem) {
+		if (msgType == MessageType.Unknow
+				&& theVideoItem != null) 
+		{
+			videoItem = theVideoItem;
+			msgType = MessageType.Video;
+		}
+	}
+	public LCVideoMsgItem getVideoItem() {
+		return videoItem;
+	}
 	
 	public void setTextItem(LCTextItem theTextItem) {
 		if (msgType == MessageType.Unknow
@@ -410,10 +440,7 @@ public class LCMessageItem implements Serializable{
 		return userItem;
 	}
 	
-	/**
-	 * 重置所有成员变量
-	 */
-	public void clear() 
+	public void clearSelf()
 	{
 		msgId = 0;
 		sendType = SendType.Unknow;
@@ -422,17 +449,68 @@ public class LCMessageItem implements Serializable{
 		inviteId = "";
 		createTime = 0;
 		statusType = StatusType.Unprocess;
+		errType = LiveChatErrType.Success;
+		errno = "";
+		errmsg = "";
 		msgType = MessageType.Unknow;
 		textItem = null;
 		warningItem = null;
 		emotionItem = null;
 		voiceItem = null;
 		photoItem = null;
-//		videoItem = null;
+		videoItem = null;
 		systemItem = null;
 		userItem = null;
 	}
+
 	
+	/**
+	 * 重置所有成员变量
+	 */
+	public void clear() 
+	{
+//		msgId = 0;
+//		sendType = SendType.Unknow;
+//		fromId = "";
+//		toId = "";
+//		inviteId = "";
+//		createTime = 0;
+//		statusType = StatusType.Unprocess;
+//		errType = LiveChatErrType.Success;
+//		errno = "";
+//		errmsg = "";
+//		msgType = MessageType.Unknow;
+//		textItem = null;
+//		warningItem = null;
+//		emotionItem = null;
+//		voiceItem = null;
+//		photoItem = null;
+//		videoItem = null;
+//		systemItem = null;
+//		userItem = null;
+	}
+	
+	/**
+	 * 设置消息处理状态为正在处理中
+	 */
+	public void setProcessingStatus()
+	{
+		this.statusType = StatusType.Processing;
+	}
+
+	/**
+	 * 消息处理完成，更新消息状态
+	 * @param errType
+	 * @param errno
+	 * @param errmsg
+	 */
+	public void updateStatus(LiveChatErrType errType, String errno, String errmsg)
+	{
+		this.statusType = LiveChatErrType.Success == errType ? StatusType.Finish : StatusType.Fail;
+		this.errType = errType;
+		this.errno = "";
+		this.errmsg = "";
+	}
 	
 	static public Comparator<LCMessageItem> getComparator() {
 		Comparator<LCMessageItem> comparator = new Comparator<LCMessageItem>() {

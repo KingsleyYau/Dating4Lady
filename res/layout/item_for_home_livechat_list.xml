@@ -5,13 +5,14 @@
     android:layout_height="wrap_content"
     android:minHeight="72dp" >
 
-    <LinearLayout android:id="@+id/masterView"
+    <LinearLayout
+        android:id="@+id/masterView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:minHeight="72dp"
-        android:orientation="horizontal"
         android:layout_gravity="center"
-        android:gravity="left|center" >
+        android:gravity="left|center"
+        android:minHeight="72dp"
+        android:orientation="horizontal" >
 
         <RelativeLayout
             android:layout_width="56dp"
@@ -30,7 +31,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 android:layout_marginBottom="16dp"
-                android:src="@drawable/circle_green_with_white_stroke_bg" />
+                android:background="@drawable/circle_green_with_white_stroke_bg" />
 
             <ImageView
                 android:id="@+id/readFlag"
@@ -76,6 +77,42 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
                     android:src="@drawable/ic_chat_green_18dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llAgeOrCountry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:orientation="horizontal" 
+                android:layout_gravity="bottom"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/age"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:paddingRight="8dp"
+                    android:singleLine="true"
+                    android:textColor="@color/text_color_light"
+                    android:textSize="14sp" />
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/oval_view_grey" />
+
+                <TextView
+                    android:id="@+id/country"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:singleLine="true"
+                    android:textColor="@color/text_color_light"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <TextView

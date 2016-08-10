@@ -47,6 +47,7 @@ class RequestLoginCallback : public LoginManagerCallback {
 						"Ljava/lang/String;"
 						"Ljava/lang/String;"
 						"Ljava/lang/String;"
+						"Ljava/lang/String;"
 
 						"Z"
 						"Z"
@@ -61,6 +62,7 @@ class RequestLoginCallback : public LoginManagerCallback {
 				if( init != NULL ) {
 
 					jstring ladyid = env->NewStringUTF(item.lady_id.c_str());
+					jstring sid = env->NewStringUTF(item.sid.c_str());
 					jstring firstname = env->NewStringUTF(item.firstname.c_str());
 					jstring lastname = env->NewStringUTF(item.lastname.c_str());
 					jstring photo_url = env->NewStringUTF(item.photo_url.c_str());
@@ -68,6 +70,7 @@ class RequestLoginCallback : public LoginManagerCallback {
 
 					jItem = env->NewObject(cls, init,
 							ladyid,
+							sid,
 							firstname,
 							lastname,
 							photo_url,
@@ -81,6 +84,7 @@ class RequestLoginCallback : public LoginManagerCallback {
 							);
 
 					env->DeleteLocalRef(ladyid);
+					env->DeleteLocalRef(sid);
 					env->DeleteLocalRef(firstname);
 					env->DeleteLocalRef(lastname);
 					env->DeleteLocalRef(photo_url);
@@ -199,11 +203,11 @@ JNIEXPORT void JNICALL Java_com_qpidnetwork_request_LoginManagerJni_Login
 /*
  * Class:     com_qpidnetwork_request_LoginManagerJni
  * Method:    Logout
- * Signature: ()V
+ * Signature: (jint)V
  */
 JNIEXPORT void JNICALL Java_com_qpidnetwork_request_LoginManagerJni_Logout
-  (JNIEnv *, jclass cls) {
-	LoginManager::GetInstance().Logout(NORMAL);
+  (JNIEnv *, jclass cls, jint type) {
+	LoginManager::GetInstance().Logout(type);
 }
 
 /*

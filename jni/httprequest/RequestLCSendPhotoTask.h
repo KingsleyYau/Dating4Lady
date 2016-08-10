@@ -30,7 +30,7 @@ public:
 	virtual ~RequestLCSendPhotoTask();
 
 	// set request param
-	void SetParam(const string& targetId, const string& inviteId, const string& photoId);
+	void SetParam(const string& targetId, const string& inviteId, const string& photoId, const string& sid, const string& userId);
 
 	// Implement RequestBaseTask
 	bool HandleCallback(const string& url, bool requestRet, const char* buf, int size);

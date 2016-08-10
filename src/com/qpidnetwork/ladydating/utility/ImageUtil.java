@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileLock;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -21,7 +22,10 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Bitmap.Config;
 import android.graphics.PorterDuff.Mode;
+import android.media.ThumbnailUtils;
 import android.os.Build;
+import android.provider.MediaStore.Video.Thumbnails;
+import android.text.TextUtils;
 
 public class ImageUtil {
 	
@@ -29,14 +33,14 @@ public class ImageUtil {
 	public static Bitmap compressImage(Bitmap image, int sizeLimit) {  
 		  
         ByteArrayOutputStream baos = new ByteArrayOutputStream();  
-        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//质量压缩方法，这�?100表示不压缩，把压缩后的数据存放到baos�?  
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//质量压缩方法，这�?100表示不压缩，把压缩后的数据存放到baos�?  
         int options = 100;  
-        while ( baos.toByteArray().length / 1024 > sizeLimit) {  //循环判断如果压缩后图片是否大�?100kb,大于继续压缩         
+        while ( baos.toByteArray().length / 1024 > sizeLimit) {  //循环判断如果压缩后图片是否大�?100kb,大于继续压缩         
             baos.reset();//重置baos即清空baos  
-            image.compress(Bitmap.CompressFormat.JPEG, options, baos);//这里压缩options%，把压缩后的数据存放到baos�?  
-            options -= 10;//每次都减�?10  
+            image.compress(Bitmap.CompressFormat.JPEG, options, baos);//这里压缩options%，把压缩后的数据存放到baos�?  
+            options -= 10;//每次都减�?10  
         }  
-        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream�?  
+        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream�?  
         Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//把ByteArrayInputStream数据生成图片  
         
         return bitmap;  
@@ -51,7 +55,7 @@ public class ImageUtil {
 		}
 		
         BitmapFactory.Options newOpts = new BitmapFactory.Options();  
-        //�?始读入图片，此时把options.inJustDecodeBounds 设回true�?  
+        //�?始读入图片，此时把options.inJustDecodeBounds 设回true�?  
         newOpts.inJustDecodeBounds = true;  
         Bitmap bitmap = BitmapFactory.decodeFile(srcPath,newOpts);//此时返回bm为空  
           
@@ -60,17 +64,17 @@ public class ImageUtil {
         
         float widthRadio = w/destWidth;
         float heightRadio = h/destHeight;
-        int be = 1;//默认1表示不缩�?
-        if (widthRadio > heightRadio) {//如果宽度比大于高度比，按高缩�?
+        int be = 1;//默认1表示不缩�?
+        if (widthRadio > heightRadio) {//如果宽度比大于高度比，按高缩�?
             be = (int) (heightRadio);  
-        } else {//如果宽度比小于高度比，按宽缩�?  
+        } else {//如果宽度比小于高度比，按宽缩�?  
             be = (int) (widthRadio);  
         }  
         if (be <= 0)  
             be = 1;  
         newOpts.inSampleSize = be;//设置缩放比例  
         newOpts.inJustDecodeBounds = false;
-        //重新读入图片，注意此时已经把options.inJustDecodeBounds 设回false�?  
+        //重新读入图片，注意此时已经把options.inJustDecodeBounds 设回false�?  
         bitmap = BitmapFactory.decodeFile(srcPath, newOpts);  
         return bitmap; 
     }
@@ -87,11 +91,11 @@ public class ImageUtil {
 	    image.compress(Bitmap.CompressFormat.JPEG, 100, baos);  
 	    if( baos.toByteArray().length / 1024 > 1024) {//判断如果图片大于1M,进行压缩避免在生成图片（BitmapFactory.decodeStream）时溢出    
 	        baos.reset();//重置baos即清空baos  
-	        image.compress(Bitmap.CompressFormat.JPEG, 50, baos);//这里压缩50%，把压缩后的数据存放到baos�?  
+	        image.compress(Bitmap.CompressFormat.JPEG, 50, baos);//这里压缩50%，把压缩后的数据存放到baos�?  
 	    }  
 	    ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());  
 	    BitmapFactory.Options newOpts = new BitmapFactory.Options();  
-	    //�?始读入图片，此时把options.inJustDecodeBounds 设回true�?  
+	    //�?始读入图片，此时把options.inJustDecodeBounds 设回true�?  
 	    newOpts.inJustDecodeBounds = true;  
 	    Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, newOpts);  
 	      
@@ -100,10 +104,10 @@ public class ImageUtil {
  
 	    float widthRadio = w/destWidth;
         float heightRadio = h/destHeight;
-        int be = 1;//默认1表示不缩�?
-        if (widthRadio > heightRadio) {//如果宽度比大于高度比，按高缩�?
+        int be = 1;//默认1表示不缩�?
+        if (widthRadio > heightRadio) {//如果宽度比大于高度比，按高缩�?
             be = (int) (heightRadio);  
-        } else {//如果宽度比小于高度比，按宽缩�?  
+        } else {//如果宽度比小于高度比，按宽缩�?  
             be = (int) (widthRadio);  
         }  
         if (be <= 0)  
@@ -111,10 +115,10 @@ public class ImageUtil {
         
 	    newOpts.inSampleSize = be;//设置缩放比例  
 	    newOpts.inJustDecodeBounds = false;
-	    //重新读入图片，注意此时已经把options.inJustDecodeBounds 设回false�?  
+	    //重新读入图片，注意此时已经把options.inJustDecodeBounds 设回false�?  
 	    isBm = new ByteArrayInputStream(baos.toByteArray());  
 	    bitmap = BitmapFactory.decodeStream(isBm, null, newOpts);  
-	    return bitmap;//压缩好比例大小后再进行质量压�?  
+	    return bitmap;//压缩好比例大小后再进行质量压�?  
 	}
 	
 
@@ -248,18 +252,18 @@ public class ImageUtil {
 	}
 	
 	/**
-	 * 读取图片文件，并按照长边缩放�?获取的图�?
+	 * 读取图片文件，并按照长边缩放�?获取的图�?
 	 * @param filePath
 	 * @param reqWidth
 	 * @param reqHeight
 	 * @return
 	 */
 	public static Bitmap decodeAndScaleBitmapFromFile(String filePath, int reqWidth, int reqHeight){
-		/*初步使用inSampleSize方式缩放，防止读取大图直接导致溢�?*/
+		/*初步使用inSampleSize方式缩放，防止读取大图直接导致溢�?*/
 		Bitmap resizeBitmap = null;
 		Bitmap tempBitmap = decodeSampledBitmapFromFile(filePath, reqWidth, reqHeight);
 		if (null != tempBitmap) {
-			/*使用Matrix再处理生成图片，以长边缩�?*/
+			/*使用Matrix再处理生成图片，以长边缩�?*/
 			int bmpWidth  = tempBitmap.getWidth();   
 		    int bmpHeight  = tempBitmap.getHeight(); 
 		    Matrix matrix = new Matrix();
@@ -278,11 +282,11 @@ public class ImageUtil {
 	
 
 	public static Bitmap decodeHeightDependedBitmapFromFile(String filePath,  int reqHeight){
-		/*初步使用inSampleSize方式缩放，防止读取大图直接导致溢�?*/
+		/*初步使用inSampleSize方式缩放，防止读取大图直接导致溢�?*/
 		Bitmap resizeBitmap = null;
 		Bitmap tempBitmap = decodeSampledBitmapFromFile(filePath, reqHeight, reqHeight);
 		if (null != tempBitmap) {
-			/*使用Matrix再处理生成图片，以长边缩�?*/
+			/*使用Matrix再处理生成图片，以长边缩�?*/
 			int bmpWidth  = tempBitmap.getWidth();   
 		    int bmpHeight  = tempBitmap.getHeight(); 
 		    Matrix matrix = new Matrix();    
@@ -296,7 +300,7 @@ public class ImageUtil {
 	
 	public static Bitmap decodeHeightDependedBitmapFromFile(Bitmap inBmp,  int reqHeight){
 
-		/*使用Matrix再处理生成图片，以长边缩�?*/
+		/*使用Matrix再处理生成图片，以长边缩�?*/
 		int bmpWidth  = inBmp.getWidth();   
 	    int bmpHeight  = inBmp.getHeight(); 
 	    Matrix matrix = new Matrix();    
@@ -310,8 +314,8 @@ public class ImageUtil {
 	/**
 	 * 把Bitmap变成圆角
 	 * @param bitmap		待处理的Bitmap
-	 * @param topRadius		顶部圆角的半�?(0：不处理)
-	 * @param bottomRadius	底部圆角的半�?(0：不处理)
+	 * @param topRadius		顶部圆角的半�?(0：不处理)
+	 * @param bottomRadius	底部圆角的半�?(0：不处理)
 	 * @return
 	 */
 	
@@ -332,13 +336,13 @@ public class ImageUtil {
 		    paint.setAntiAlias(true);
 		    paint.setShader(shader);
 		    
-		    // 画顶�?
+		    // 画顶�?
 			RectF topRect = new RectF(0, 0, bitmap.getWidth(), bitmap.getHeight() - bottomRadiusPixel);
 			c.drawRoundRect(topRect, topRadiusPixel, topRadiusPixel, paint);
-			// 画底�?
+			// 画底�?
 			RectF bottomRect = new RectF(0, topRadiusPixel, bitmap.getWidth(), bitmap.getHeight());
 			c.drawRoundRect(bottomRect, bottomRadiusPixel, bottomRadiusPixel, paint);
-			// 画中�?
+			// 画中�?
 			c.drawRect(new RectF(0, topRadiusPixel, bitmap.getWidth(), bitmap.getHeight() - bottomRadiusPixel),  paint);
 		}
 		return desBitmap;
@@ -382,5 +386,24 @@ public class ImageUtil {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * 生成指定Video的缩略图
+	 * @param videoUri
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	public static Bitmap createVideoThumbnail(String videoUri, int width, int height){
+		Bitmap bitmap = null;  
+		if(!TextUtils.isEmpty(videoUri)
+				&& width > 0
+				&& height > 0){
+			// 获取视频的缩略图  
+			bitmap = ThumbnailUtils.createVideoThumbnail(videoUri, Thumbnails.MINI_KIND);  
+			bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, height, ThumbnailUtils.OPTIONS_RECYCLE_INPUT); 
+		}
+		return bitmap;  
 	}
 }

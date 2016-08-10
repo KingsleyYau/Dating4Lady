@@ -10,7 +10,7 @@
 
 using namespace std;
 
-#include "RequestBaseTask.h";
+#include "RequestBaseTask.h"
 
 
 class RequestLCDelCustomTemplateTask;

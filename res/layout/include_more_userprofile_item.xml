@@ -2,18 +2,24 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="96dp"
-    android:background="@drawable/touch_feedback_holo_light"
+    android:background="@color/white"
     android:clickable="true"
     android:minHeight="96dp" 
     android:id="@+id/more_user_profile">
 
-    <ImageView
+    <RelativeLayout 
+        android:layout_width="match_parent"
+    	android:layout_height="96dp"
+    	android:background="@drawable/touch_feedback_holo_light">
+        
+        
+    <com.qpidnetwork.ladydating.customized.view.CircleImageView
         android:id="@+id/ivPhoto"
-        style="@style/Avatar.Man.40dp"
+        android:layout_height="48dp"
+        android:layout_width="48dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
-        android:scaleType="center"
         android:src="@drawable/ic_launcher" />
 
     <LinearLayout
@@ -21,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerInParent="true"
-        android:layout_marginLeft="72dp"
+        android:layout_marginLeft="88dp"
         android:layout_marginRight="16dp"
         android:orientation="vertical" >
 
@@ -32,7 +38,8 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:textColor="@color/text_color_dark"
-            android:textSize="16sp" />
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvDesc"
@@ -50,4 +57,5 @@
         android:layout_height="1dp"
         android:background="@color/listview_divider_grey" />
 
+</RelativeLayout>
 </RelativeLayout>

@@ -5,8 +5,8 @@ import com.qpidnetwork.request.item.LoginItem;
 public interface IAuthorizationCallBack {
 	
 	public enum OperateType{
-		AUTO, //自动
-		MANUAL //手动
+		MANUAL, //手动
+		AUTO //自动
 	}
 	
 	/**

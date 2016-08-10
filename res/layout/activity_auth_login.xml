@@ -2,105 +2,102 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-    
-    <ImageView android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ImageView
         android:layout_width="match_parent"
-        android:src="@drawable/img_cool_360dp_width_1"
-        android:scaleType="centerCrop"/>
-    
-    <LinearLayout android:layout_height="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/img_cool_360dp_width_1" />
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:orientation="vertical"
+        android:layout_height="match_parent"
         android:background="#48000000"
+        android:fitsSystemWindows="true"
         android:gravity="center"
-        android:fitsSystemWindows="true">
-        
-        <TextView android:layout_height="0dp"
+        android:orientation="vertical" >
+
+        <TextView
             android:layout_width="match_parent"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:text="@string/app_name"
+            android:layout_height="0dp"
             android:layout_marginBottom="16dp"
-            android:layout_weight="1"/>
-        
-        <LinearLayout android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/app_name"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:padding="16dp"
-            android:orientation="vertical"
-            android:background="@drawable/rectangle_rounded_angle_white_bg"
-            android:layout_marginLeft="24dp"
-            android:layout_marginRight="24dp">
-            
-            <LinearLayout android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center">
-                
-                <ImageView android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:src="@drawable/ic_perm_contact_cal_grey600_24dp"/>
-                
-                <com.qpidnetwork.ladydating.customized.view.MaterialEditText
-                    android:id="@+id/profile_id"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp"
-                    android:hint="@string/profile_id"
-                    android:text="P580502"/>
-                
-            </LinearLayout>
-            
-            
-            <LinearLayout android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center">
-                
-                <ImageView android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:src="@drawable/ic_lock_grey600_24dp"/>
-                
-                <com.qpidnetwork.ladydating.customized.view.MaterialEditText
-                    android:id="@+id/password"
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp"
-                    android:hint="@string/password"
-                    android:inputType="textPassword"
-                    android:layout_weight="1"
-                    android:text="12345"/>
-                
-                <ImageButton
-                android:id="@+id/passwordVisibility"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_visible_grey600_24dp"
-				android:background="@drawable/touch_holo_light_round_angle"/>
-                
-            </LinearLayout>
-            
-            
-        </LinearLayout>
-        
-        
-        <com.qpidnetwork.ladydating.customized.view.MaterialRaisedButton 
-            style="@style/Button.BlueButton"
-            android:layout_height="48dp"
-            android:layout_width="match_parent"
-            android:id="@+id/login"
-            android:layout_marginTop="16dp"
-            android:focusable="true"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="24dp"
             android:layout_marginRight="24dp"
-            android:layout_marginBottom="16dp"/>
-        
-        
+            android:background="@drawable/rectangle_rounded_angle_white_bg"
+            android:orientation="vertical"
+            android:padding="16dp" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_perm_contact_cal_grey600_24dp" />
+
+                <com.qpidnetwork.ladydating.customized.view.MaterialEditText
+                    android:id="@+id/profile_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:hint="@string/profile_id"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_lock_grey600_24dp" />
+
+                <com.qpidnetwork.ladydating.customized.view.MaterialEditText
+                    android:id="@+id/password"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:hint="@string/password"
+                    android:inputType="textPassword" />
+
+                <ImageButton
+                    android:id="@+id/passwordVisibility"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/touch_holo_light_round_angle"
+                    android:src="@drawable/ic_visible_grey600_24dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.qpidnetwork.ladydating.customized.view.MaterialRaisedButton
+            android:id="@+id/login"
+            style="@style/Button.BlueButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:layout_marginTop="16dp"
+            android:focusable="true" />
     </LinearLayout>
-    
 
 </RelativeLayout>

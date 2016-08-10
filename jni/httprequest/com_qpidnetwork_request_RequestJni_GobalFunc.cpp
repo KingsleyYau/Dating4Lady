@@ -131,10 +131,47 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	InitClassHelper(env, MAN_RECENT_VIEW_LIST_ITEM_CLASS, &jManRecentViewListItem);
 	gJavaItemMap.insert(JavaItemMap::value_type(MAN_RECENT_VIEW_LIST_ITEM_CLASS, jManRecentViewListItem));
 
+	/* 4.My Album */
+	jobject jAlbumListItem;
+	InitClassHelper(env, ALBUM_LIST_ITEM_CLASS, &jAlbumListItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(ALBUM_LIST_ITEM_CLASS, jAlbumListItem));
+
+	jobject jAlbumPhotoItem;
+	InitClassHelper(env, ALBUM_PHOTO_ITEM_CLASS, &jAlbumPhotoItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(ALBUM_PHOTO_ITEM_CLASS, jAlbumPhotoItem));
+
+	jobject jAlbumVideoItem;
+	InitClassHelper(env, ALBUM_VIDEO_ITEM_CLASS, &jAlbumVideoItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(ALBUM_VIDEO_ITEM_CLASS, jAlbumVideoItem));
+
 	/*5.Livechat*/
 	jobject jLCCustomTemplateListItem;
 	InitClassHelper(env, LIVE_CHAT_CUSTOM_TEMPLATE_CLASS, &jLCCustomTemplateListItem);
 	gJavaItemMap.insert(JavaItemMap::value_type(LIVE_CHAT_CUSTOM_TEMPLATE_CLASS, jLCCustomTemplateListItem));
+
+	jobject jLCChatHistoryListItem;
+	InitClassHelper(env, LIVE_CHAT_LADY_CHAT_LIST_CLASS, &jLCChatHistoryListItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(LIVE_CHAT_LADY_CHAT_LIST_CLASS, jLCChatHistoryListItem));
+
+	jobject jLCChatMsgListItem;
+	InitClassHelper(env, LIVE_CHAT_LADY_INVITE_MSG_CLASS, &jLCChatMsgListItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(LIVE_CHAT_LADY_INVITE_MSG_CLASS, jLCChatMsgListItem));
+
+	jobject jLCGetPhotoAlbunListItem;
+	InitClassHelper(env, LIVE_CHAT_GET_PHOTO_LIST_ALBUM_CLASS, &jLCGetPhotoAlbunListItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(LIVE_CHAT_GET_PHOTO_LIST_ALBUM_CLASS, jLCGetPhotoAlbunListItem));
+
+	jobject jLCGetPhotoListItem;
+	InitClassHelper(env, LIVE_CHAT_GET_PHOTO_LIST_PHOTO_CLASS, &jLCGetPhotoListItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(LIVE_CHAT_GET_PHOTO_LIST_PHOTO_CLASS, jLCGetPhotoListItem));
+
+	jobject jLCGetPhotoGroupListItem;
+	InitClassHelper(env, LIVE_CHAT_GET_PHOTO_LIST_GROUP_CLASS, &jLCGetPhotoGroupListItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(LIVE_CHAT_GET_PHOTO_LIST_GROUP_CLASS, jLCGetPhotoGroupListItem));
+
+	jobject jLCGetVideoListItem;
+	InitClassHelper(env, LIVE_CHAT_GET_PHOTO_LIST_VIDEO_CLASS, &jLCGetVideoListItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(LIVE_CHAT_GET_PHOTO_LIST_VIDEO_CLASS, jLCGetVideoListItem));
 
 	/*6.其他协议*/
 	jobject jEmotionConfigItem;
@@ -161,6 +198,14 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	InitClassHelper(env, OTHER_SYN_CONFIG_CLASS, &jSynConfigItem);
 	gJavaItemMap.insert(JavaItemMap::value_type(OTHER_SYN_CONFIG_CLASS, jSynConfigItem));
 
+	jobject jAgentInfoItem;
+	InitClassHelper(env, OTHER_AGENTINFO_CLASS, &jAgentInfoItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(OTHER_AGENTINFO_CLASS, jAgentInfoItem));
+
+	jobject jMyProfileItem;
+	InitClassHelper(env, OTHER_MYPROFILE_CLASS, &jMyProfileItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(OTHER_MYPROFILE_CLASS, jMyProfileItem));
+
 	// 初始化http请求实例
 	requestFinishCallback = NULL;
 	gHttpRequestManager.SetHostManager(&gHttpRequestHostManager);
@@ -181,6 +226,12 @@ bool GetEnv(JNIEnv** env, bool* isAttachThread)
 		iRet = gJavaVM->AttachCurrentThread(env, NULL);
 		*isAttachThread = (iRet == JNI_OK);
 	}
+//	if( *env == NULL ) {
+//		iRet = gJavaVM->AttachCurrentThread(env, NULL);
+//	}
+//	if (iRet == JNI_OK) {
+//		*isAttachThread = true;
+//	}
 
 	return (iRet == JNI_OK);
 }

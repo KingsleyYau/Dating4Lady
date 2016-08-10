@@ -22,9 +22,12 @@ import com.qpidnetwork.ladydating.R;
 import com.qpidnetwork.ladydating.authorization.LoginManager;
 import com.qpidnetwork.ladydating.authorization.LoginParam;
 import com.qpidnetwork.ladydating.base.BaseFragment;
+import com.qpidnetwork.ladydating.customized.view.CircleImageView;
 import com.qpidnetwork.ladydating.customized.view.MaterialDialogAlert;
 import com.qpidnetwork.ladydating.customized.view.MaterialDialogSingleChoice;
 import com.qpidnetwork.ladydating.more.ChangePasswordActivity;
+import com.qpidnetwork.ladydating.more.ContactAgentActivity;
+import com.qpidnetwork.ladydating.more.LadyProfileDetailActivity;
 import com.qpidnetwork.manager.FileCacheManager;
 import com.qpidnetwork.manager.MultiLanguageManager;
 import com.qpidnetwork.manager.MultiLanguageManager.LanguageType;
@@ -36,7 +39,7 @@ public class MoreListFragment extends BaseFragment implements
 
 	// user profile
 	private RelativeLayout mUserProfile;
-	private ImageView ivPhoto;
+	private CircleImageView ivPhoto;
 	private TextView tvName;
 
 	private LinearLayout section1;
@@ -74,9 +77,11 @@ public class MoreListFragment extends BaseFragment implements
 		 */
 		LanguageType type = mMultiLanguageManager.getDefultLanguageChoice();
 		String defaultLanguage = mMultiLanguageManager.getLanguageDescByType(type);
-		section2.addView(createItem(R.drawable.ic_language_grey600_24dp,
-				getString(R.string.Language), defaultLanguage,
-				R.id.more_change_language));
+		if(getResources().getBoolean(R.bool.is_language_set)){
+			section2.addView(createItem(R.drawable.ic_language_grey600_24dp,
+					getString(R.string.Language), defaultLanguage,
+					R.id.more_change_language));
+		}
 		section2.addView(createItem(
 				R.drawable.ic_notifications_none_grey600_24dp,
 				getString(R.string.notification_sound), getString(R.string.on),
@@ -133,7 +138,7 @@ public class MoreListFragment extends BaseFragment implements
 	private void initUserProfile(View v) {
 
 		mUserProfile = (RelativeLayout) v.findViewById(R.id.more_user_profile);
-		ivPhoto = (ImageView) v.findViewById(R.id.ivPhoto);
+		ivPhoto = (CircleImageView) v.findViewById(R.id.ivPhoto);
 		tvName = (TextView) v.findViewById(R.id.tvName);
 		mUserProfile.setOnClickListener(this);
 
@@ -152,7 +157,7 @@ public class MoreListFragment extends BaseFragment implements
 		}
 		
 		mMultiLanguageManager = new MultiLanguageManager(mContext);
-		mPreferenceManager = PreferenceManager.getInstance();
+		mPreferenceManager = new PreferenceManager(getActivity());
 	}
 
 	@Override
@@ -187,7 +192,8 @@ public class MoreListFragment extends BaseFragment implements
 	 * 点击查看用户个人资料
 	 */
 	private void onProfileClick() {
-
+		Intent intent = new Intent(getActivity(), LadyProfileDetailActivity.class);
+		startActivity(intent);
 	}
 
 	/**
@@ -251,12 +257,14 @@ public class MoreListFragment extends BaseFragment implements
 						// TODO Auto-generated method stub
 						if (which > -1) {
 							switch (which) {
-							case 0:
+							case 0:{
 								mPreferenceManager.saveNotificationSwitchSetting(true);
-								break;
-							case 1:
+								onDescriptionReset(R.id.more_notif_setting, getResources().getString(R.string.on));
+							}break;
+							case 1:{
 								mPreferenceManager.saveNotificationSwitchSetting(false);
-								break;
+								onDescriptionReset(R.id.more_notif_setting, getResources().getString(R.string.off));
+							}break;
 							default:
 								break;
 							}
@@ -301,7 +309,8 @@ public class MoreListFragment extends BaseFragment implements
 	 * 联系机构
 	 */
 	private void onContactAgency() {
-
+		Intent intent = new Intent(getActivity(), ContactAgentActivity.class);
+		startActivity(intent);
 	}
 
 	/**

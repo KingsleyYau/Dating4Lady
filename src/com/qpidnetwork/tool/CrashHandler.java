@@ -153,4 +153,49 @@ public class CrashHandler implements UncaughtExceptionHandler {
         }   
         return null;   
     }
+    
+    public void SaveAppVersionFile() {
+    	// 保存应用版本信息
+    	StringBuffer sb = new StringBuffer();  
+    	String versionCode = "";
+	   	try {
+	   		PackageManager pm = mContext.getPackageManager();  
+	        PackageInfo pi = pm.getPackageInfo(mContext.getPackageName(), PackageManager.GET_ACTIVITIES);  
+	        if (pi != null) {
+	        	String versionName = pi.versionName == null ? "null" : pi.versionName;  
+	            versionCode = String.valueOf(pi.versionCode);  
+	            String packagename = pi.packageName == null ? "null" : pi.packageName;
+	             
+	            sb.append("packagename" + " = " + packagename + "\n");
+	            sb.append("versionCode" + " = " + versionCode + "\n");
+	            sb.append("versionName" + " = " + versionName + "\n");
+	        }  
+	    } catch (NameNotFoundException e) {  
+	    } 
+	   	
+	   	// 保存设备信息
+        Field[] fields = Build.class.getDeclaredFields();  
+        for (Field field : fields) {  
+            try {  
+                field.setAccessible(true);  
+                sb.append(field.getName() + " = " + field.get(null).toString() + "\n");  
+            } catch (Exception e) {  
+            }  
+        }
+        
+        sb.append("\n");
+        
+        File dir = new File(FileCacheManager.getInstance().GetCrashInfoPath() + "/version/");
+        dir.mkdirs();
+    	File file = new File(FileCacheManager.getInstance().GetCrashInfoPath() + "/version/" + versionCode);
+    	if( !file.exists() ) {
+    		try {   
+    			file.createNewFile();
+    			FileOutputStream fos = new FileOutputStream(file); 
+                fos.write(sb.toString().getBytes());            
+                fos.close(); 
+    		} catch (Exception e) {  
+    	    } 
+    	}
+    }
 }

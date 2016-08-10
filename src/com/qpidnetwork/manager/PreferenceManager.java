@@ -24,24 +24,25 @@ public class PreferenceManager {
 
 	private Context mContext;
 	private SharedPreferences mSharedPreferences;
-	private static PreferenceManager mPreferenceManager;
+	
+	/*用于多用户设置区分处理*/
+	private String lady_id = "";
 
-	private PreferenceManager(Context context) {
+	public PreferenceManager(Context context) {
 		mContext = context;
 		mSharedPreferences = mContext.getSharedPreferences(
 				PreferenceDefine.QPIDNETWORK_LADY_PREFERENCE_NAME,
 				Context.MODE_PRIVATE);
 	}
-
-	public static PreferenceManager newInstance(Context context) {
-		if (mPreferenceManager == null) {
-			mPreferenceManager = new PreferenceManager(context);
+	
+	/**
+	 * 用于多用户处理操作
+	 * @param userId
+	 */
+	public void setCurrentUserId(String userId){
+		if(!TextUtils.isEmpty(userId)){
+			this.lady_id = userId;
 		}
-		return mPreferenceManager;
-	}
-
-	public static PreferenceManager getInstance() {
-		return mPreferenceManager;
 	}
 
 	private void save(String key, String value) {
@@ -125,15 +126,33 @@ public class PreferenceManager {
 
 	// 存储Notification默认设置
 	public void saveNotificationSwitchSetting(boolean isOn) {
-		save(PreferenceDefine.QPIDNETWORK_LADY_NOTIFICATION_SWITCH, isOn);
+		save(PreferenceDefine.QPIDNETWORK_LADY_NOTIFICATION_SWITCH + lady_id, isOn);
 	}
 
 	public boolean getNotificationSwitchSetting() {
 		boolean value = true;
 		if (mSharedPreferences != null) {
 			value = mSharedPreferences.getBoolean(
-					PreferenceDefine.QPIDNETWORK_LADY_NOTIFICATION_SWITCH, true);
+					PreferenceDefine.QPIDNETWORK_LADY_NOTIFICATION_SWITCH + lady_id, true);
 		}
 		return value;
+	}
+	
+	//存储针对指定男士翻译语言设置
+	public void saveDefaulteTranslateForMan(String manId, String translateLang) {
+		save(PreferenceDefine.QPIDNETWORK_LADY_TRANSLATE_LANG + lady_id + manId, translateLang);
+	}
+	
+	/**
+	 * 翻译语言简称（与同步配置返回翻译语言设置一致）
+	 * @return
+	 */
+	public String getDefaulteTranslateForMan(String manId) {
+		String translateLang = "";
+		if (mSharedPreferences != null) {
+			translateLang = mSharedPreferences.getString(
+					PreferenceDefine.QPIDNETWORK_LADY_TRANSLATE_LANG + lady_id + manId, "");
+		}
+		return translateLang;
 	}
 }

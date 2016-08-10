@@ -1,0 +1,90 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recordPane"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/thin_grey" >
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" >
+
+        <ImageView
+            android:id="@+id/backBtnBg"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/circle_solid_red" />
+
+        <com.qpidnetwork.ladydating.chat.voice.RecordView
+            android:id="@+id/recordView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="visible" />
+
+        <View
+            android:id="@+id/foreRecordBtn"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/circle_solid_red"
+            android:clickable="false"
+            android:elevation="0dp"
+            android:focusable="false" />
+
+        <View
+            android:id="@+id/foreCancelBtn"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/circle_solid_white"
+            android:clickable="false"
+            android:elevation="0dp"
+            android:focusable="false"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvRecord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="@string/livechat_voice_record"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="56dp" >
+
+        <TextView
+            android:id="@+id/tvRecordTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="@string/livechat_voice_record_tips"
+            android:textColor="@color/text_color_grey"
+            android:textSize="18sp" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/price_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
+        android:gravity="center_horizontal"
+        android:text="@string/livechat_voice_record_payment"
+        android:textColor="@color/text_color_grey"
+        android:textSize="14sp" 
+        android:visibility="gone"/>
+
+</RelativeLayout>

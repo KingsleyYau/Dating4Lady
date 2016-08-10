@@ -11,6 +11,8 @@
 #include "RequestVersionCheckTask.h"
 #include "RequestSynConfigTask.h"
 #include "RequestUploadCrashLogTask.h"
+#include "RequestGetAgentInfoTask.h"
+#include "RequestMyProfileTask.h"
 
 #define OS_TYPE "Android"
 
@@ -41,20 +43,21 @@ class RequestModifyPasswordTaskCallback: public IRequestModifyPasswordTaskCallba
 				"JNI::onModifyPasswordCallback( callbackCls : %p, callback : %p, signure : %s )",
 				callbackCls, callback, signure.c_str());
 
-		if (callbackObj != NULL && callback != NULL) {
-			jstring jerrno = env->NewStringUTF(errnum.c_str());
-			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+		if (callbackObj != NULL ) {
+			if( callback != NULL) {
+				jstring jerrno = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
 
-			FileLog("httprequest",
-					"JNI::onModifyPasswordCallback( CallObjectMethod )");
+				FileLog("httprequest",
+						"JNI::onModifyPasswordCallback( CallObjectMethod )");
 
-			env->CallVoidMethod(callbackObj, callback, isSuccess, jerrno,
-					jerrmsg);
+				env->CallVoidMethod(callbackObj, callback, isSuccess, jerrno,
+						jerrmsg);
 
+				env->DeleteLocalRef(jerrno);
+				env->DeleteLocalRef(jerrmsg);
+			}
 			env->DeleteGlobalRef(callbackObj);
-
-			env->DeleteLocalRef(jerrno);
-			env->DeleteLocalRef(jerrmsg);
 		}
 
 		if (iRet == JNI_OK) {
@@ -84,6 +87,10 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_ModifyPassw
 	task->setCallback(&gRequestModifyPasswordTaskCallback);
 	task->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
 
+	jobject obj = env->NewGlobalRef(callback);
+	long id = (long) task;
+	gCallbackMap.Insert(id, obj);
+
 	gRequestMapMutex.lock();
 	gRequestMap.insert(RequestMap::value_type((long)task, true));
 	gRequestMap.insert(RequestMap::value_type((long)request, true));
@@ -91,9 +98,9 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_ModifyPassw
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long) task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 }
 
 /************************* Emotion config ***********************/
@@ -155,11 +162,17 @@ class RequestEmotionConfigCallback: public IRequestEmotionConfigCallback {
 						typeItemIter != emotionConfigItem.typeList.end();
 						typeItemIter++, iTypeIndex++)
 				{
+					jstring jTypeId = env->NewStringUTF(typeItemIter->typeId.c_str());
+					jstring jTypeName = env->NewStringUTF(typeItemIter->typeName.c_str());
+
 					jobject jTypeItem = env->NewObject(jTypeItemCls, typeInit,
 							typeItemIter->toflag,
-							env->NewStringUTF(typeItemIter->typeId.c_str()),
-							env->NewStringUTF(typeItemIter->typeName.c_str())
+							jTypeId,
+							jTypeName
 							);
+
+					env->DeleteLocalRef(jTypeId);
+					env->DeleteLocalRef(jTypeName);
 
 					env->SetObjectArrayElement(jTypeArray, iTypeIndex, jTypeItem);
 					env->DeleteLocalRef(jTypeItem);
@@ -188,12 +201,20 @@ class RequestEmotionConfigCallback: public IRequestEmotionConfigCallback {
 						tagItemIter != emotionConfigItem.tagList.end();
 						tagItemIter++, iTagIndex++)
 				{
+					jstring jTypeId = env->NewStringUTF(tagItemIter->typeId.c_str());
+					jstring jTagId = env->NewStringUTF(tagItemIter->tagId.c_str());
+					jstring jTagName = env->NewStringUTF(tagItemIter->tagName.c_str());
+
 					jobject jTagItem = env->NewObject(jTagItemCls, tagInit,
 							tagItemIter->toflag,
-							env->NewStringUTF(tagItemIter->typeId.c_str()),
-							env->NewStringUTF(tagItemIter->tagId.c_str()),
-							env->NewStringUTF(tagItemIter->tagName.c_str())
+							jTypeId,
+							jTagId,
+							jTagName
 							);
+
+					env->DeleteLocalRef(jTypeId);
+					env->DeleteLocalRef(jTagId);
+					env->DeleteLocalRef(jTagName);
 
 					env->SetObjectArrayElement(jTagArray, iTagIndex, jTagItem);
 					env->DeleteLocalRef(jTagItem);
@@ -226,16 +247,26 @@ class RequestEmotionConfigCallback: public IRequestEmotionConfigCallback {
 						emotionItemIter != emotionConfigItem.manEmotionList.end();
 						emotionItemIter++, iEmotionIndex++)
 				{
+					jstring jFileName = env->NewStringUTF(emotionItemIter->fileName.c_str());
+					jstring jTypeId = env->NewStringUTF(emotionItemIter->typeId.c_str());
+					jstring jTagId = env->NewStringUTF(emotionItemIter->tagId.c_str());
+					jstring jTitle = env->NewStringUTF(emotionItemIter->title.c_str());
+
 					jobject jEmotionItem = env->NewObject(jEmotionItemCls, emotionInit,
-							env->NewStringUTF(emotionItemIter->fileName.c_str()),
+							jFileName,
 							emotionItemIter->price,
 							emotionItemIter->isNew,
 							emotionItemIter->isSale,
 							emotionItemIter->sortId,
-							env->NewStringUTF(emotionItemIter->typeId.c_str()),
-							env->NewStringUTF(emotionItemIter->tagId.c_str()),
-							env->NewStringUTF(emotionItemIter->title.c_str())
+							jTypeId,
+							jTagId,
+							jTitle
 							);
+
+					env->DeleteLocalRef(jFileName);
+					env->DeleteLocalRef(jTypeId);
+					env->DeleteLocalRef(jTagId);
+					env->DeleteLocalRef(jTitle);
 
 					env->SetObjectArrayElement(jManEmotionArray, iEmotionIndex, jEmotionItem);
 					env->DeleteLocalRef(jEmotionItem);
@@ -247,16 +278,26 @@ class RequestEmotionConfigCallback: public IRequestEmotionConfigCallback {
 						emotionItemIter != emotionConfigItem.ladyEmotionList.end();
 						emotionItemIter++, iEmotionIndex++)
 				{
+					jstring jFileName = env->NewStringUTF(emotionItemIter->fileName.c_str());
+					jstring jTypeId = env->NewStringUTF(emotionItemIter->typeId.c_str());
+					jstring jTagId = env->NewStringUTF(emotionItemIter->tagId.c_str());
+					jstring jTitle = env->NewStringUTF(emotionItemIter->title.c_str());
+
 					jobject jEmotionItem = env->NewObject(jEmotionItemCls, emotionInit,
-							env->NewStringUTF(emotionItemIter->fileName.c_str()),
+							jFileName,
 							emotionItemIter->price,
 							emotionItemIter->isNew,
 							emotionItemIter->isSale,
 							emotionItemIter->sortId,
-							env->NewStringUTF(emotionItemIter->typeId.c_str()),
-							env->NewStringUTF(emotionItemIter->tagId.c_str()),
-							env->NewStringUTF(emotionItemIter->title.c_str())
+							jTypeId,
+							jTagId,
+							jTitle
 							);
+
+					env->DeleteLocalRef(jFileName);
+					env->DeleteLocalRef(jTypeId);
+					env->DeleteLocalRef(jTagId);
+					env->DeleteLocalRef(jTitle);
 
 					env->SetObjectArrayElement(jLadyEmotionArray, iEmotionIndex, jEmotionItem);
 					env->DeleteLocalRef(jEmotionItem);
@@ -264,14 +305,17 @@ class RequestEmotionConfigCallback: public IRequestEmotionConfigCallback {
 				// release
 				env->DeleteLocalRef(jEmotionItemCls);
 
+				jstring jPath = env->NewStringUTF(emotionConfigItem.path.c_str());
 				jItem = env->NewObject(cls, init,
 									emotionConfigItem.version,
-									env->NewStringUTF(emotionConfigItem.path.c_str()),
+									jPath,
 									jTypeArray,
 									jTagArray,
 									jManEmotionArray,
 									jLadyEmotionArray
 									);
+				env->DeleteLocalRef(jPath);
+
 				env->DeleteLocalRef(jLadyEmotionArray);
 				env->DeleteLocalRef(jTagArray);
 				env->DeleteLocalRef(jTypeArray);
@@ -349,9 +393,9 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_EmotionConf
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long) task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 }
 
 
@@ -371,27 +415,28 @@ class RequestPhoneInfoTaskCallback : public IRequestPhoneInfoTaskCallback{
 
 		/* real callback java */
 		jobject callbackObj = gCallbackMap.Erase((long) task);
-		jclass callbackCls = env->GetObjectClass(callbackObj);
 
-		string signure = "(ZLjava/lang/String;Ljava/lang/String;)V";
-		jmethodID callback = env->GetMethodID(callbackCls, "OnRequest",
-				signure.c_str());
-		FileLog("httprequest","JNI::onPhoneInfoCallback( callbackCls : %p, callback : %p, signure : %s )",
-				callbackCls, callback, signure.c_str());
+		if(callbackObj != NULL ){
+			jclass callbackCls = env->GetObjectClass(callbackObj);
 
-		if (callbackObj != NULL && callback != NULL) {
-			jstring jerrno = env->NewStringUTF(errnum.c_str());
-			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+			string signure = "(ZLjava/lang/String;Ljava/lang/String;)V";
+			jmethodID callback = env->GetMethodID(callbackCls, "OnRequest",
+					signure.c_str());
+			FileLog("httprequest","JNI::onPhoneInfoCallback( callbackCls : %p, callback : %p, signure : %s )",
+					callbackCls, callback, signure.c_str());
+			if( callback != NULL) {
+				jstring jerrno = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
 
-			FileLog("httprequest","JNI::onPhoneInfoCallback( CallObjectMethod )");
+				FileLog("httprequest","JNI::onPhoneInfoCallback( CallObjectMethod )");
 
-			env->CallVoidMethod(callbackObj, callback, isSuccess, jerrno,
-					jerrmsg);
+				env->CallVoidMethod(callbackObj, callback, isSuccess, jerrno,
+						jerrmsg);
 
+				env->DeleteLocalRef(jerrno);
+				env->DeleteLocalRef(jerrmsg);
+			}
 			env->DeleteGlobalRef(callbackObj);
-
-			env->DeleteLocalRef(jerrno);
-			env->DeleteLocalRef(jerrmsg);
 		}
 
 		if (iRet == JNI_OK) {
@@ -425,6 +470,8 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_PhoneInfo
 	string strSDK = GetPhoneBuildSDKVersion();
 	string strLanguage = GetPhoneLocalLanguage();
 	string strCountry = GetPhoneLocalRegion();
+	FileLog("httprequest","JNI::PhoneInfo( strDensityDpi : %s, strModel : %s, strManufacturer : %s )",
+			strDensityDpi.c_str(), strModel.c_str(), strManufacturer.c_str());
 
 	task->setParams(strModel, strManufacturer, strOS, strRelease, strSDK, strDensityDpi, width, height,
 			JString2String(env, userAccount).c_str(), JString2String(env, verName).c_str(), strLanguage, strCountry, siteId,
@@ -443,9 +490,9 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_PhoneInfo
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long) task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 }
 
 /*************************** Check version ********************************************/
@@ -466,7 +513,13 @@ class RequestVersionCheckTaskCallback : public IRequestVersionCheckTaskCallback{
 			jclass jItemCls = env->GetObjectClass(itr->second);
 			FileLog("httprequest","JNI::onVersionCheckCallback OTHER_CHECK_VERSION_CLASS");
 			jmethodID jItemInit = env->GetMethodID(jItemCls, "<init>", "(ILjava/lang/String;Ljava/lang/String;)V");
-			jItem = env->NewObject(jItemCls, jItemInit, item.apkVersionCode, env->NewStringUTF(item.apkVersionName.c_str()), env->NewStringUTF(item.apkUrl.c_str()));
+
+			jstring jApkVersionName = env->NewStringUTF(item.apkVersionName.c_str());
+			jstring jApkUrl = env->NewStringUTF(item.apkUrl.c_str());
+			jItem = env->NewObject(jItemCls, jItemInit, item.apkVersionCode, jApkVersionName, jApkUrl);
+			env->DeleteLocalRef(jApkVersionName);
+			env->DeleteLocalRef(jApkUrl);
+
 			env->DeleteLocalRef(jItemCls);
 		}
 
@@ -480,18 +533,19 @@ class RequestVersionCheckTaskCallback : public IRequestVersionCheckTaskCallback{
 		signure	+= ";)V";
 		jmethodID callback = env->GetMethodID(callbackCls, "OnVersionCheck", signure.c_str());
 
-		if (callbackObj != NULL && callback != NULL) {
-			jstring jerrno = env->NewStringUTF(errnum.c_str());
-			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+		if (callbackObj != NULL ) {
+			if( callback != NULL) {
+				jstring jerrno = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
 
-			FileLog("httprequest","JNI::onVersionCheckCallback( CallObjectMethod )");
+				FileLog("httprequest","JNI::onVersionCheckCallback( CallObjectMethod )");
 
-			env->CallVoidMethod(callbackObj, callback, isSuccess, jerrno, jerrmsg, jItem);
+				env->CallVoidMethod(callbackObj, callback, isSuccess, jerrno, jerrmsg, jItem);
 
+				env->DeleteLocalRef(jerrno);
+				env->DeleteLocalRef(jerrmsg);
+			}
 			env->DeleteGlobalRef(callbackObj);
-
-			env->DeleteLocalRef(jerrno);
-			env->DeleteLocalRef(jerrmsg);
 		}
 		env->DeleteLocalRef(jItem);
 
@@ -530,9 +584,9 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_VersionChec
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long) task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 }
 
 /************************ Syn config *********************************/
@@ -553,7 +607,7 @@ class RequestSynConfigTaskCallback : public IRequestSynConfigTaskCallback{
 		if(itr != gJavaItemMap.end()){
 			jclass jItemClass = env->GetObjectClass(itr->second);
 			string itemInitString = "(Ljava/lang/String;ILjava/lang/String;ILjava/lang/String;[Ljava/lang/String;"
-					"ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
+					"ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
 			jmethodID jItemInit = env->GetMethodID(jItemClass, "<init>", itemInitString.c_str());
 
 			//languages
@@ -561,12 +615,30 @@ class RequestSynConfigTaskCallback : public IRequestSynConfigTaskCallback{
 			list<string>::const_iterator languageItr;
 			int iLanguageIndex;
 			for(iLanguageIndex=0, languageItr=item.translateLanguage.begin(); languageItr!=item.translateLanguage.end(); iLanguageIndex++, languageItr++){
-				env->SetObjectArrayElement(jLanguages, iLanguageIndex, env->NewStringUTF((*languageItr).c_str()));
+				jstring jLanguage = env->NewStringUTF((*languageItr).c_str());
+				env->SetObjectArrayElement(jLanguages, iLanguageIndex, jLanguage);
+				env->DeleteLocalRef(jLanguage);
 			}
-			jItem = env->NewObject(jItemClass, jItemInit, env->NewStringUTF(item.socketHost.c_str()),
-					item.socketPort, env->NewStringUTF(item.socketVersion.c_str()), item.socketFromId,
-					env->NewStringUTF(item.translateUrl.c_str()), jLanguages, item.apkVersionCode, env->NewStringUTF(item.apkVersionName.c_str()),
-					env->NewStringUTF(item.apkVersionUrl.c_str()), env->NewStringUTF(item.siteUrl.c_str()));
+
+			jstring jSocketHost = env->NewStringUTF(item.socketHost.c_str());
+			jstring jSocketVersion = env->NewStringUTF(item.socketVersion.c_str());
+			jstring jTranslateUrl = env->NewStringUTF(item.translateUrl.c_str());
+			jstring jApkVersionName = env->NewStringUTF(item.apkVersionName.c_str());
+			jstring jApkVersionUrl = env->NewStringUTF(item.apkVersionUrl.c_str());
+			jstring jSiteUrl = env->NewStringUTF(item.siteUrl.c_str());
+			jstring jLiveChatVoiceHost = env->NewStringUTF(item.liveChatVoiceHost.c_str());
+			jItem = env->NewObject(jItemClass, jItemInit, jSocketHost,
+					item.socketPort, jSocketVersion, item.socketFromId,
+					jTranslateUrl, jLanguages, item.apkVersionCode, jApkVersionName,
+					jApkVersionUrl, jSiteUrl, jLiveChatVoiceHost);
+			env->DeleteLocalRef(jSocketHost);
+			env->DeleteLocalRef(jSocketVersion);
+			env->DeleteLocalRef(jTranslateUrl);
+			env->DeleteLocalRef(jApkVersionName);
+			env->DeleteLocalRef(jApkVersionUrl);
+			env->DeleteLocalRef(jSiteUrl);
+			env->DeleteLocalRef(jLiveChatVoiceHost);
+
 			env->DeleteLocalRef(jLanguages);
 		}
 
@@ -580,18 +652,19 @@ class RequestSynConfigTaskCallback : public IRequestSynConfigTaskCallback{
 		signure	+= 	";)V";
 		jmethodID callback = env->GetMethodID(callbackCls, "OnSynConfig", signure.c_str());
 
-		if (callbackObj != NULL && callback != NULL) {
-			jstring jerrno = env->NewStringUTF(errnum.c_str());
-			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+		if (callbackObj != NULL ) {
+			if( callback != NULL) {
+				jstring jerrno = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
 
-			FileLog("httprequest","JNI::onSynConfigCallback( CallObjectMethod )");
+				FileLog("httprequest","JNI::onSynConfigCallback( CallObjectMethod )");
 
-			env->CallVoidMethod(callbackObj, callback, isSuccess, jerrno, jerrmsg, jItem);
+				env->CallVoidMethod(callbackObj, callback, isSuccess, jerrno, jerrmsg, jItem);
 
+				env->DeleteLocalRef(jerrno);
+				env->DeleteLocalRef(jerrmsg);
+			}
 			env->DeleteGlobalRef(callbackObj);
-
-			env->DeleteLocalRef(jerrno);
-			env->DeleteLocalRef(jerrmsg);
 		}
 		env->DeleteLocalRef(jItem);
 
@@ -630,9 +703,9 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_SynConfig
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long) task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 }
 
 /*************************** Upload Crash *********************************/
@@ -658,19 +731,20 @@ class RequestUploadCrashLogTaskCallback : public IRequestUploadCrashLogTaskCallb
 		FileLog("httprequest","JNI::onUploadCrashLogCallback( callbackCls : %p, callback : %p, signure : %s )",
 				callbackCls, callback, signure.c_str());
 
-		if (callbackObj != NULL && callback != NULL) {
-			jstring jerrno = env->NewStringUTF(errnum.c_str());
-			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+		if (callbackObj != NULL ) {
+			if( callback != NULL) {
+				jstring jerrno = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
 
-			FileLog("httprequest","RequestUploadCrashLogTaskCallback::onUploadCrashLogCallback( CallObjectMethod )");
+				FileLog("httprequest","RequestUploadCrashLogTaskCallback::onUploadCrashLogCallback( CallObjectMethod )");
 
-			env->CallVoidMethod(callbackObj, callback, isSuccess, jerrno,
-					jerrmsg);
+				env->CallVoidMethod(callbackObj, callback, isSuccess, jerrno,
+						jerrmsg);
 
+				env->DeleteLocalRef(jerrno);
+				env->DeleteLocalRef(jerrmsg);
+			}
 			env->DeleteGlobalRef(callbackObj);
-
-			env->DeleteLocalRef(jerrno);
-			env->DeleteLocalRef(jerrmsg);
 		}
 
 		if (iRet == JNI_OK) {
@@ -689,17 +763,17 @@ RequestUploadCrashLogTaskCallback gRequestUploadCrashLogTaskCallback;
 JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_UploadCrashLog
   (JNIEnv *env, jclass cls, jstring deviceId, jstring directory, jstring tempDirectory, jobject callback){
 
-	const char *cpDirectory = env->GetStringUTFChars(directory, 0);
-	const char *cpTmpDirectory = env->GetStringUTFChars(tempDirectory, 0);
+	string strDirectory = JString2String(env, directory);
+	string strTmpDirectory = JString2String(env, tempDirectory);
 
-	FileLog("httprequest", "UploadCrashLog ( directory : %s, tmpDirectory : %s ) ", cpDirectory, cpTmpDirectory);
+	FileLog("httprequest", "UploadCrashLog ( directory : %s, tmpDirectory : %s ) ", strDirectory.c_str(), strTmpDirectory.c_str());
 
 	time_t stm = time(NULL);
 	struct tm tTime;
 	localtime_r(&stm, &tTime);
 	char pZipFileName[1024] = {'\0'};
 	snprintf(pZipFileName, sizeof(pZipFileName), "%s/crash-%d-%02d-%02d_[%02d-%02d-%02d].zip", \
-			cpTmpDirectory, tTime.tm_year + 1900, tTime.tm_mon + 1, \
+			strTmpDirectory.c_str(), tTime.tm_year + 1900, tTime.tm_mon + 1, \
 			tTime.tm_mday, tTime.tm_hour, tTime.tm_min, tTime.tm_sec);
 
 	// create zip
@@ -709,7 +783,7 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_UploadCrash
 			0x51, 0x70, 0x69, 0x64, 0x5F, 0x44, 0x61, 0x74, 0x69, 0x6E, 0x67, 0x00
 	}; // Qpid_Dating
 
-	bool bFlag = zip.CreateZipFromDir(cpDirectory, pZipFileName, password, comment);
+	bool bFlag = zip.CreateZipFromDir(strDirectory, pZipFileName, password, comment);
 
 	FileLog("httprequest", "UploadCrashLog ( pZipFileName : %s  zip  : %s ) ", pZipFileName, bFlag?"ok":"fail");
 
@@ -722,8 +796,127 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_UploadCrash
 	task->setParam(JString2String(env, deviceId).c_str(), pZipFileName);
 	task->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
 
-	env->ReleaseStringUTFChars(directory, cpDirectory);
-	env->ReleaseStringUTFChars(tempDirectory, cpTmpDirectory);
+	jobject obj = env->NewGlobalRef(callback);
+	long id = (long) task;
+	gCallbackMap.Insert(id, obj);
+
+	gRequestMapMutex.lock();
+	gRequestMap.insert(RequestMap::value_type((long)task, true));
+	gRequestMap.insert(RequestMap::value_type((long)request, true));
+	gRequestMapMutex.unlock();
+
+	request->SetTask(task);
+	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
+	bool result = request->Start();
+
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
+}
+
+/*************************** GetAgentInfo *********************************/
+class RequestGetAgentInfoTaskCallback : public IRequestGetAgentInfoTaskCallback
+{
+public:
+	RequestGetAgentInfoTaskCallback() {};
+	virtual ~RequestGetAgentInfoTaskCallback() {};
+public:
+	void onGetAgentInfoCallback(bool isSuccess, const string& errnum, const string& errmsg, const AgentInfoItem& item, RequestGetAgentInfoTask* task)
+	{
+		FileLog("httprequest","JNI::onGetAgentInfoCallback( success : %s )", isSuccess ? "true" : "false");
+		/* turn object to java object here */
+		JNIEnv* env;
+		bool isAttachThread;
+		GetEnv(&env, &isAttachThread);
+
+		jobject jItem = NULL;
+		JavaItemMap::iterator itr = gJavaItemMap.find(OTHER_AGENTINFO_CLASS);
+		if(itr != gJavaItemMap.end())
+		{
+			jclass jItemClass = env->GetObjectClass(itr->second);
+			string itemInitString = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;"
+					"Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;"
+					"Ljava/lang/String;Ljava/lang/String;)V";
+			jmethodID jItemInit = env->GetMethodID(jItemClass, "<init>", itemInitString.c_str());
+
+			jstring jName = env->NewStringUTF(item.name.c_str());
+			jstring jId = env->NewStringUTF(item.id.c_str());
+			jstring jCity = env->NewStringUTF(item.city.c_str());
+			jstring jAddr = env->NewStringUTF(item.addr.c_str());
+			jstring jEmail = env->NewStringUTF(item.email.c_str());
+			jstring jTel = env->NewStringUTF(item.tel.c_str());
+			jstring jFax = env->NewStringUTF(item.fax.c_str());
+			jstring jContact = env->NewStringUTF(item.contact.c_str());
+			jstring jPostcode = env->NewStringUTF(item.postcode.c_str());
+			jItem = env->NewObject(
+						jItemClass
+						, jItemInit
+						, jName
+						, jId
+						, jCity
+						, jAddr
+						, jEmail
+						, jTel
+						, jFax
+						, jContact
+						, jPostcode);
+			env->DeleteLocalRef(jName);
+			env->DeleteLocalRef(jId);
+			env->DeleteLocalRef(jCity);
+			env->DeleteLocalRef(jAddr);
+			env->DeleteLocalRef(jEmail);
+			env->DeleteLocalRef(jTel);
+			env->DeleteLocalRef(jFax);
+			env->DeleteLocalRef(jContact);
+			env->DeleteLocalRef(jPostcode);
+		}
+
+		/* real callback java */
+		jobject callbackObj = gCallbackMap.Erase((long) task);
+		jclass callbackCls = env->GetObjectClass(callbackObj);
+
+		string signure = "(JZLjava/lang/String;Ljava/lang/String;";
+		signure	+= 	"L";
+		signure	+= 	OTHER_AGENTINFO_CLASS;
+		signure	+= 	";)V";
+		jmethodID callback = env->GetMethodID(callbackCls, "OnOtherGetAgentInfo", signure.c_str());
+
+		if (callbackObj != NULL ) {
+			if( callback != NULL) {
+				jstring jerrno = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+				jlong requestId = (jlong)task;
+				FileLog("httprequest","JNI::onGetAgentInfoCallback() callbackObj:%p, callback:%p", callbackObj, callback);
+
+				env->CallVoidMethod(callbackObj, callback, requestId, isSuccess, jerrno, jerrmsg, jItem);
+
+				FileLog("httprequest","JNI::onGetAgentInfoCallback() ok");
+				env->DeleteLocalRef(jerrno);
+				env->DeleteLocalRef(jerrmsg);
+			}
+			env->DeleteGlobalRef(callbackObj);
+		}
+		env->DeleteLocalRef(jItem);
+
+		ReleaseEnv(isAttachThread);
+	}
+};
+
+RequestGetAgentInfoTaskCallback gRequestGetAgentInfoTaskCallback;
+
+/*
+ * Class:     com_qpidnetwork_request_RequestJniOther
+ * Method:    GetAgentInfo
+ * Signature: (Lcom/qpidnetwork/request/OnOtherGetAgentInfoCallback;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_GetAgentInfo
+  (JNIEnv *env, jclass cls, jobject callback)
+{
+	// 增加Session超时处理
+	RequestOperator* request = new RequestOperator();
+
+	RequestGetAgentInfoTask* task = new RequestGetAgentInfoTask();
+	task->Init(&gHttpRequestManager);
+	task->setCallback(&gRequestGetAgentInfoTaskCallback);
+	task->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
 
 	jobject obj = env->NewGlobalRef(callback);
 	long id = (long) task;
@@ -736,7 +929,211 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_UploadCrash
 
 	request->SetTask(task);
 	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
-	request->Start();
+	bool result = request->Start();
 
-	return (long) task;
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
+}
+
+/*************************** QueryLadyDetail *********************************/
+class RequestMyProfileTaskCallback : public IRequestMyProfileTaskCallback
+{
+public:
+	RequestMyProfileTaskCallback() {};
+	virtual ~RequestMyProfileTaskCallback() {};
+
+public:
+	virtual void onMyProfileCallback(bool isSuccess, const string& errnum, const string& errmsg, const MyProfileItem& item, RequestMyProfileTask* task)
+	{
+		FileLog("httprequest","JNI::onMyProfileCallback( success : %s )", isSuccess ? "true" : "false");
+		/* turn object to java object here */
+		JNIEnv* env;
+		bool isAttachThread;
+		GetEnv(&env, &isAttachThread);
+
+		jobject jItem = NULL;
+		JavaItemMap::iterator itr = gJavaItemMap.find(OTHER_MYPROFILE_CLASS);
+		if(itr != gJavaItemMap.end())
+		{
+			jclass jItemClass = env->GetObjectClass(itr->second);
+			string itemInitString = "("
+					"Ljava/lang/String;"		// ladyId
+					"Ljava/lang/String;"		// firstname
+					"Ljava/lang/String;"		// lastname
+					"I"							// age
+					"Ljava/lang/String;"		// country
+					"Ljava/lang/String;"		// province
+					"Ljava/lang/String;"		// city
+					"Ljava/lang/String;"		// birthday
+					"I"							// zodiac
+					"Ljava/lang/String;"		// weight
+					"Ljava/lang/String;"		// height
+					"I"							// smoke
+					"I"							// drink
+					"I"							// english
+					"I"							// religion
+					"I"							// education
+					"I"							// profession
+					"I"							// children
+					"I"							// marry
+					"Ljava/lang/String;"		// aboutMe
+					"Ljava/lang/String;"		// manAge1
+					"Ljava/lang/String;"		// manAge2
+					"Ljava/lang/String;"		// lastRefresh
+					"Ljava/lang/String;"		// photoUrl
+					"[Ljava/lang/String;"		// photoUrls
+					"[Ljava/lang/String;"		// thumbUrls
+					")V";
+			jmethodID jItemInit = env->GetMethodID(jItemClass, "<init>", itemInitString.c_str());
+
+			jstring jId = env->NewStringUTF(item.id.c_str());
+			jstring jFirstname = env->NewStringUTF(item.firstname.c_str());
+			jstring jLastname = env->NewStringUTF(item.lastname.c_str());
+			jstring jCountry = env->NewStringUTF(item.country.c_str());
+			jstring jProvince = env->NewStringUTF(item.province.c_str());
+			jstring jCity = env->NewStringUTF(item.city.c_str());
+			jstring jBirthday = env->NewStringUTF(item.birthday.c_str());
+			jstring jWeight = env->NewStringUTF(item.weight.c_str());
+			jstring jHeight = env->NewStringUTF(item.height.c_str());
+			jstring jManAge1 = env->NewStringUTF(item.manAge1.c_str());
+			jstring jManAge2 = env->NewStringUTF(item.manAge2.c_str());
+			jstring jAboutMe = env->NewStringUTF(item.aboutMe.c_str());
+			jstring jPhotoUrl = env->NewStringUTF(item.photoUrl.c_str());
+			jstring jLastRefresh = env->NewStringUTF(item.lastRefresh.c_str());
+
+			jclass jStringCls = env->FindClass("java/lang/String");
+			// photoUrls
+			jobjectArray jPhotoUrlsArray = env->NewObjectArray(item.photoUrls.size(), jStringCls, NULL);
+			if (NULL != jPhotoUrlsArray) {
+				int i = 0;
+				for (list<string>::const_iterator itr = item.photoUrls.begin()
+					; itr != item.photoUrls.end()
+					; itr++, i++)
+				{
+					jstring str = env->NewStringUTF((*itr).c_str());
+					env->SetObjectArrayElement(jPhotoUrlsArray, i, str);
+					env->DeleteLocalRef(str);
+				}
+			}
+
+			// thumbUrls
+			jobjectArray jThumbUrlsArray = env->NewObjectArray(item.thumbUrls.size(), jStringCls, NULL);
+			if (NULL != jThumbUrlsArray) {
+				int i = 0;
+				for (list<string>::const_iterator itr = item.thumbUrls.begin()
+					; itr != item.thumbUrls.end()
+					; itr++, i++)
+				{
+					jstring str = env->NewStringUTF((*itr).c_str());
+					env->SetObjectArrayElement(jThumbUrlsArray, i, str);
+					env->DeleteLocalRef(str);
+				}
+			}
+
+			jItem = env->NewObject(jItemClass, jItemInit
+						, jId
+						, jFirstname
+						, jLastname
+						, item.age
+						, jCountry
+						, jProvince
+						, jCity
+						, jBirthday
+						, item.zodiac
+						, jWeight
+						, jHeight
+						, item.smoke
+						, item.drink
+						, item.english
+						, item.religion
+						, item.education
+						, item.profession
+						, item.children
+						, item.marry
+						, jAboutMe
+						, jManAge1
+						, jManAge2
+						, jLastRefresh
+						, jPhotoUrl
+						, jPhotoUrlsArray
+						, jThumbUrlsArray);
+			env->DeleteLocalRef(jId);
+			env->DeleteLocalRef(jFirstname);
+			env->DeleteLocalRef(jLastname);
+			env->DeleteLocalRef(jCountry);
+			env->DeleteLocalRef(jProvince);
+			env->DeleteLocalRef(jCity);
+			env->DeleteLocalRef(jBirthday);
+			env->DeleteLocalRef(jWeight);
+			env->DeleteLocalRef(jHeight);
+			env->DeleteLocalRef(jManAge1);
+			env->DeleteLocalRef(jManAge2);
+			env->DeleteLocalRef(jAboutMe);
+			env->DeleteLocalRef(jPhotoUrl);
+			env->DeleteLocalRef(jLastRefresh);
+			env->DeleteLocalRef(jPhotoUrlsArray);
+			env->DeleteLocalRef(jThumbUrlsArray);
+		}
+
+		/* real callback java */
+		jobject callbackObj = gCallbackMap.Erase((long) task);
+		jclass callbackCls = env->GetObjectClass(callbackObj);
+
+		string signure = "(JZLjava/lang/String;Ljava/lang/String;";
+		signure	+= 	"L";
+		signure	+= 	OTHER_MYPROFILE_CLASS;
+		signure	+= 	";)V";
+		jmethodID callback = env->GetMethodID(callbackCls, "OnQueryMyProfileDetail", signure.c_str());
+
+		if (callbackObj != NULL ) {
+			if( callback != NULL) {
+				jstring jerrno = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+				jlong requestId = (jlong)task;
+				FileLog("httprequest","JNI::onMyProfileCallback() callbackObj:%p, callback:%p", callbackObj, callback);
+
+				env->CallVoidMethod(callbackObj, callback, requestId, isSuccess, jerrno, jerrmsg, jItem);
+
+				FileLog("httprequest","JNI::onMyProfileCallback() ok");
+				env->DeleteLocalRef(jerrno);
+				env->DeleteLocalRef(jerrmsg);
+			}
+			env->DeleteGlobalRef(callbackObj);
+		}
+		env->DeleteLocalRef(jItem);
+
+		ReleaseEnv(isAttachThread);
+	}
+};
+RequestMyProfileTaskCallback gRequestMyProfileTaskCallback;
+
+/*
+ * Class:     com_qpidnetwork_request_RequestJniOther
+ * Method:    QueryMyPrfile
+ * Signature: (Lcom/qpidnetwork/request/OnQueryMyProfileCallback;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniOther_QueryMyProfile
+  (JNIEnv *env, jclass cls, jobject callback)
+{
+	// 增加Session超时处理
+	RequestOperator* request = new RequestOperator();
+
+	RequestMyProfileTask* task = new RequestMyProfileTask();
+	task->Init(&gHttpRequestManager);
+	task->setCallback(&gRequestMyProfileTaskCallback);
+	task->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
+
+	jobject obj = env->NewGlobalRef(callback);
+	long id = (long) task;
+	gCallbackMap.Insert(id, obj);
+
+	gRequestMapMutex.lock();
+	gRequestMap.insert(RequestMap::value_type((long)task, true));
+	gRequestMap.insert(RequestMap::value_type((long)request, true));
+	gRequestMapMutex.unlock();
+
+	request->SetTask(task);
+	request->SetTaskCallback((ITaskCallback*) &gRequestFinishCallback);
+	bool result = request->Start();
+
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
 }

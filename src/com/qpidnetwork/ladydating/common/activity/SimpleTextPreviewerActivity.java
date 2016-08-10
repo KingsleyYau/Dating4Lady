@@ -1,7 +1,9 @@
 package com.qpidnetwork.ladydating.common.activity;
 
+import com.qpidnetwork.framework.util.UnitConversion;
 import com.qpidnetwork.ladydating.R;
 import com.qpidnetwork.ladydating.base.BaseActionbarActivity;
+import com.qpidnetwork.ladydating.chat.ExpressionImageGetter;
 import com.qpidnetwork.ladydating.utility.ActivityCodeUtil;
 
 import android.content.Context;
@@ -46,7 +48,11 @@ public class SimpleTextPreviewerActivity extends BaseActionbarActivity{
 		
 		text = (TextView) findViewById(R.id.text);
 		
-		if (inputText != null) text.setText(inputText);
+		if (inputText != null){ 
+			ExpressionImageGetter imageGetter = new ExpressionImageGetter(this, UnitConversion.dip2px(
+					this, 28), UnitConversion.dip2px(this, 28));
+			text.setText(imageGetter.getExpressMsgHTML(inputText));
+		}
 		this.setActionbarTitle((inputTitle == null) ? getString(R.string.not_titled) : inputTitle, getResources().getColor(R.color.text_color_dark));
 		this.requestBackIcon(R.drawable.ic_arrow_back_grey600_24dp);
 		

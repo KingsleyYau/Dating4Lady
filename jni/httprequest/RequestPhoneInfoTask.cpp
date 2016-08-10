@@ -71,7 +71,22 @@ void RequestPhoneInfoTask::setParams(const string& model,
 	mHttpEntiy.AddContent(OTHER_REQUEST_HEIGHT, temp);
 
 	if(data.length() > 0){
-		mHttpEntiy.AddContent(OTHER_REQUEST_DATA, data);
+		string strData = "";
+		if(siteid == 0){
+			//CL
+			strData += "P2:";
+		}else if(siteid == 1){
+			//IDA
+			strData += "P3:";
+		}else if(siteid == 4){
+			//CD
+			strData += "P4:";
+		}else if(siteid == 5){
+			//LD
+			strData += "P12:";
+		}
+		strData += data;
+		mHttpEntiy.AddContent(OTHER_REQUEST_DATA, strData);
 	}
 
 	if(versionName.length() > 0){

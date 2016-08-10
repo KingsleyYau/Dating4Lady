@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:wheel="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rl_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" 
+    android:background="@color/black">
+
+    <com.qpidnetwork.ladydating.customized.view.TouchImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.qpidnetwork.ladydating.customized.view.MaterialProgressBar
+        android:id="@+id/progress"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        wheel:matProg_barColor="@color/white"
+        wheel:matProg_progressIndeterminate="true" />
+    
+    <ImageButton
+        android:id="@+id/buttonCancel"
+        android:layout_width="@dimen/actionbar_height"
+        android:layout_height="@dimen/actionbar_height"
+        android:background="@drawable/touch_feedback_holo_dark_circle"
+        android:gravity="center_vertical|center_horizontal"
+        android:src="@drawable/ic_close_white_24dp" 
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"/>
+
+</RelativeLayout>

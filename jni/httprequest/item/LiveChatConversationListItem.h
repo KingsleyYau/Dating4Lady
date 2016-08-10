@@ -25,8 +25,8 @@ class LiveChatConversationListItem
 public:
 	LiveChatConversationListItem()
 	{		inviteId = "";
-		startTime = 0;
-		duringTime = 0;
+		startTime = "";
+		duringTime = "";
 		manId = "";
 		womanName = "";
 		manName = "";
@@ -51,14 +51,14 @@ public:
 				inviteId = root[LC_LADYCHATLIST_INVITEID].asString();
 			}
 
-			if( root[LC_LADYCHATLIST_STARTTIME].isIntegral() )
+			if( root[LC_LADYCHATLIST_STARTTIME].isString() )
 			{
-				startTime = root[LC_LADYCHATLIST_STARTTIME].asInt();
+				startTime = root[LC_LADYCHATLIST_STARTTIME].asString();
 			}
 
-			if( root[LC_LADYCHATLIST_DURINGTIME].isIntegral() )
+			if( root[LC_LADYCHATLIST_DURINGTIME].isString() )
 			{
-				duringTime = root[LC_LADYCHATLIST_DURINGTIME].asInt();
+				duringTime = root[LC_LADYCHATLIST_DURINGTIME].asString();
 			}
 
 			if( root[LC_LADYCHATLIST_MANID].isString() )
@@ -102,8 +102,8 @@ public:
 
 public:
 	string inviteId;
-	long startTime;
-	long duringTime;
+	string startTime;
+	string duringTime;
 	string manId;
 	string womanName;
 	string manName;

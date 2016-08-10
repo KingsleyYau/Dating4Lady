@@ -3,7 +3,7 @@
  *
  *  Created on: 2015-10-12
  *      Author: Samson
- * Description: 查询男士聊天历史
+ * Description: 查询男士历史聊天消息
  */
 
 #include "RequestLCLadyInviteMsgTask.h"
@@ -12,6 +12,7 @@ RequestLCLadyInviteMsgTask::RequestLCLadyInviteMsgTask()
 {
 	// TODO Auto-generated constructor stub
 	mUrl = LC_LADYINVITEMSG_PATH;
+	m_inviteId = "";
 }
 
 RequestLCLadyInviteMsgTask::~RequestLCLadyInviteMsgTask()
@@ -30,6 +31,7 @@ void RequestLCLadyInviteMsgTask::SetParam(const string& inviteId)
 
 	if( inviteId.length() > 0 ) {
 		mHttpEntiy.AddContent(LC_LADYINVITEMSG_INVITEID, inviteId.c_str());
+		m_inviteId = inviteId;
 	}
 
 	FileLog("httprequest", "RequestLCLadyInviteMsgTask::SetParam( "
@@ -86,7 +88,7 @@ bool RequestLCLadyInviteMsgTask::HandleCallback(const string& url, bool requestR
 	}
 
 	if( bContinue && mpCallback != NULL ) {
-		mpCallback->OnLadyInviteMsg(bFlag, errnum, errmsg, dbTime, theList, this);
+		mpCallback->OnLadyInviteMsg(bFlag, errnum, errmsg, dbTime, theList, m_inviteId, this);
 	}
 
 	return bFlag;

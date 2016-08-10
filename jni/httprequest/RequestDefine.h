@@ -48,36 +48,4 @@
 #define COMMON_ERRMSG		"errmsg"
 #define COMMON_INFO			"info"
 
-/* 站点类型定义 */
-#define OTHER_SYNCONFIG_CL				"0"
-#define OTHER_SYNCONFIG_IDA				"1"
-#define OTHER_SYNCONFIG_CD				"4"
-#define OTHER_SYNCONFIG_LA				"5"
-typedef enum {
-	OTHER_SITE_ALL = 0,		// All
-	OTHER_SITE_CL = 1,		// ChnLove
-	OTHER_SITE_IDA = 2,		// iDateAsia
-	OTHER_SITE_CD = 4,		// CharmingDate
-	OTHER_SITE_LA = 8,		// LatamDate
-	OTHER_SITE_UNKNOW = OTHER_SITE_ALL,	// Unknow
-} OTHER_SITE_TYPE;
-inline const char* GetSiteId(OTHER_SITE_TYPE siteType) {
-	const char* siteId = "";
-	switch (siteType) {
-	case OTHER_SITE_CL:
-		siteId = OTHER_SYNCONFIG_CL;
-		break;
-	case OTHER_SITE_IDA:
-		siteId = OTHER_SYNCONFIG_IDA;
-		break;
-	case OTHER_SITE_CD:
-		siteId = OTHER_SYNCONFIG_CD;
-		break;
-	case OTHER_SITE_LA:
-		siteId = OTHER_SYNCONFIG_LA;
-		break;
-	}
-	return siteId;
-};
-
 #endif /* REQUESTDEFINE_H_ */

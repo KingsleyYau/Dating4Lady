@@ -5,22 +5,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.qpidnetwork.ladydating.R;
-import com.qpidnetwork.ladydating.utility.Converter;
-import com.qpidnetwork.ladydating.utility.DeviceUtil;
-import com.qpidnetwork.ladydating.utility.ImageUtil;
-
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import com.qpidnetwork.ladydating.R;
+import com.qpidnetwork.ladydating.utility.Converter;
+import com.qpidnetwork.ladydating.utility.DeviceUtil;
+import com.qpidnetwork.ladydating.utility.ImageUtil;
 
 public class PhonePhotoBrowserAdapter extends BaseAdapter{
 
@@ -73,48 +74,55 @@ public class PhonePhotoBrowserAdapter extends BaseAdapter{
 		holder.photoUri = item.photoUri;
 		holder.position = position;
 		
+
+		//holder.photo.setImageDrawable(context.getResources().getDrawable(R.drawable.default_photo_100dp));
+		holder.photo.setImageDrawable(new ColorDrawable(Color.BLACK));
+		
 		final int viewSize = setItemLayoutSize(holder);
 		
-		if (Build.VERSION.SDK_INT >= 21) holder.touchPoint.setBackgroundResource(R.drawable.rectangle_ripple_holo_light);
+		if (Build.VERSION.SDK_INT >= 21) 
+			holder.touchPoint.setBackgroundResource(R.drawable.rectangle_ripple_holo_light);
 		
-		/**
-		 * this trick will load image smoothly.
-		 */
-		new AsyncTask<ViewHolder, Void, SoftReference<Bitmap>>(){
-			
-			private ViewHolder holder;
-
-			@Override
-			protected SoftReference<Bitmap> doInBackground(ViewHolder... params) {
-				// TODO Auto-generated method stub
-				holder = params[0];
-				if (softReferenceMap.containsKey(holder.photoUri) &&
-					softReferenceMap.get(holder.photoUri).get() != null)
-					return softReferenceMap.get(holder.photoUri);
+		if (softReferenceMap.containsKey(holder.photoUri) &&
+				softReferenceMap.get(holder.photoUri).get() != null){
+			holder.photo.setImageBitmap(softReferenceMap.get(item.photoUri).get());
+		}else{
+			holder.photo.setImageDrawable(new ColorDrawable(Color.BLACK));
+			/**
+			 * this trick will load image smoothly.
+			 */
+			new AsyncTask<ViewHolder, Void, SoftReference<Bitmap>>(){
 				
-				Bitmap bmp = ImageUtil.decodeSampledBitmapFromFile(holder.photoUri, viewSize, viewSize);
-				softReferenceMap.put(holder.photoUri,  new SoftReference<Bitmap>(bmp));
-				return softReferenceMap.get(holder.photoUri);
-			}
-			
-			@Override
-			protected void onPostExecute(SoftReference<Bitmap> softRefecence){
-				super.onPostExecute(softRefecence);
-				if (holder.position != position) return;
-				holder.photo.setImageBitmap(softRefecence.get());
-			}
-			
-		}.execute(holder);
+				private ViewHolder holder;
 
-		
-		
-		Log.v("getView", position + "");
+				@Override
+				protected SoftReference<Bitmap> doInBackground(ViewHolder... params) {
+					// TODO Auto-generated method stub
+					holder = params[0];
+					if (softReferenceMap.containsKey(holder.photoUri) &&
+						softReferenceMap.get(holder.photoUri).get() != null)
+						return softReferenceMap.get(holder.photoUri);
+					
+					Bitmap bmp = ImageUtil.decodeSampledBitmapFromFile(holder.photoUri, viewSize, viewSize);
+					softReferenceMap.put(holder.photoUri,  new SoftReference<Bitmap>(bmp));
+					return softReferenceMap.get(holder.photoUri);
+				}
+				
+				@Override
+				protected void onPostExecute(SoftReference<Bitmap> softRefecence){
+					super.onPostExecute(softRefecence);
+					if (holder.position != position) return;
+					holder.photo.setImageBitmap(softRefecence.get());
+				}
+				
+			}.execute(holder);
+		}
 		
 		return convertView;
 	}
 	
 	private int setItemLayoutSize(ViewHolder holder){
-		int size = (DeviceUtil.getScreenSize().x - Converter.dp2px(4)) / 2;
+		int size = (DeviceUtil.getScreenSize().x - Converter.dp2px(4)) / 3;
 		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)holder.photo.getLayoutParams();
 		params.height = size;
 		params.width = size;
@@ -142,6 +150,4 @@ public class PhonePhotoBrowserAdapter extends BaseAdapter{
 			convertView.setTag(this);
 		}
 	}
-	
-
 }

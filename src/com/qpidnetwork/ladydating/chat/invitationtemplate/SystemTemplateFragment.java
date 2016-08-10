@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.qpidnetwork.framework.util.StringUtil;
 import com.qpidnetwork.ladydating.R;
 import com.qpidnetwork.ladydating.base.BaseListViewFragment;
 import com.qpidnetwork.ladydating.bean.RequestBaseResponse;
@@ -31,6 +32,14 @@ public class SystemTemplateFragment extends BaseListViewFragment implements List
 	private InviteTemplateManager mInviteTemplateManager;
 	
 	private InviteTemplateMode mTemplateMode = InviteTemplateMode.EDIT_MODE;//定义模板的使用场景
+	
+	public static SystemTemplateFragment getInstance(InviteTemplateMode mode){
+		SystemTemplateFragment fragment = new SystemTemplateFragment();
+		Bundle bundle = new Bundle();
+		bundle.putInt(ChatInvitationTemplateActivity.TEMPLATE_MODE, mode.ordinal());
+		fragment.setArguments(bundle);
+		return fragment;
+	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -56,7 +65,7 @@ public class SystemTemplateFragment extends BaseListViewFragment implements List
 		
 		//关闭上拉刷新功能
 		getRefreshLayout().setCanPullUp(false);
-		setEmptyText("No system Templates now.");
+		setEmptyText(getResources().getString(R.string.system_template_list_null));
 		getSystemTemplates();
 	}
 	
@@ -78,6 +87,10 @@ public class SystemTemplateFragment extends BaseListViewFragment implements List
 	@Override
 	public void handleUiMessage(Message msg) {
 		RequestBaseResponse response = (RequestBaseResponse)msg.obj;
+		String errMsg = response.errmsg;
+		if(getActivity() != null){
+			errMsg = StringUtil.getErrorMsg(getActivity(), response.errno, response.errmsg);
+		}
 		switch (msg.what) {
 		case GET_SYSTEM_TEMPLATES_CALLBACK:{
 			getProgressBar().setVisibility(View.GONE);
@@ -89,7 +102,7 @@ public class SystemTemplateFragment extends BaseListViewFragment implements List
 					adpater.notifyDataSetChanged();
 				}
 			}else{
-				Toast.makeText(homeActivity, response.errmsg, Toast.LENGTH_LONG).show();
+				Toast.makeText(homeActivity, errMsg, Toast.LENGTH_LONG).show();
 			}
 			onRefreshComplete();
 		}break;

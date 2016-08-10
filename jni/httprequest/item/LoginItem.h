@@ -25,6 +25,11 @@ public:
 				lady_id = root[AUTHORIZATION_LADY_ID].asString();
 			}
 
+			/* sid */
+			if( root[AUTHORIZATION_SESSIONID].isString() ) {
+				sid = root[AUTHORIZATION_SESSIONID].asString();
+			}
+
 			/* 用户first name */
 			if( root[AUTHORIZATION_FIRSTNAME].isString() ) {
 				firstname = root[AUTHORIZATION_FIRSTNAME].asString();
@@ -75,6 +80,7 @@ public:
 	/**
 	 * 登录成功结构体
 	 * @param lady_id			女士id
+	 * @param sid				用于LiveChat登录等
 	 * @param firstname			用户first name
 	 * @param lastname			用户last name
 	 * @param photo_url			头像URL
@@ -88,6 +94,7 @@ public:
 	 */
 	LoginItem() {
 		lady_id = "";
+		sid = "";
 		firstname = "";
 		lastname = "";
 		photo_url = "";
@@ -105,6 +112,7 @@ public:
 	}
 
 	string lady_id;
+	string sid;
 	string firstname;
 	string lastname;
 	string photo_url;

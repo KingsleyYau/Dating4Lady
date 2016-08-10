@@ -41,8 +41,7 @@ bool RequestSynConfigTask::HandleCallback(const string& url, bool requestRet, co
 	if(requestRet){
 		Json::Value data;
 		if(HandleResult(buf, size, errnum, errmsg, &data, NULL, &bContinue)){
-			synConfigItem.Parsing(data);
-			isSuccess = true;
+			isSuccess = synConfigItem.Parsing(data);
 		}else{
 			errnum = LOCAL_ERROR_CODE_TIMEOUT;
 			errmsg = LOCAL_ERROR_CODE_TIMEOUT_DESC;

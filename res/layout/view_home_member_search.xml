@@ -38,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="Age"
+                android:text="@string/search_item_age"
                 android:textColor="@color/text_color_dark"
                 android:textSize="16sp" />
 
@@ -48,7 +48,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="72dp"
                 android:gravity="center_vertical"
-                android:text="18"
+                android:text="@string/search_item_age_begin"
                 android:textColor="@color/text_color_light"
                 android:textSize="16sp" />
 
@@ -68,7 +68,7 @@
                 android:layout_height="match_parent"
                 android:layout_toRightOf="@+id/layoutAge"
                 android:gravity="center_vertical"
-                android:text="99"
+                android:text="@string/search_item_age_end"
                 android:textColor="@color/text_color_light"
                 android:textSize="16sp" />
         </RelativeLayout>

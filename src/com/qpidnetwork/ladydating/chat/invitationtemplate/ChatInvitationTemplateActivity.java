@@ -1,5 +1,8 @@
 package com.qpidnetwork.ladydating.chat.invitationtemplate;
 
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +10,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -16,21 +21,21 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import com.qpidnetwork.ladydating.R;
-import com.qpidnetwork.ladydating.base.BaseFragmentPagerAdapter;
 import com.qpidnetwork.ladydating.base.BaseTabbableActionbarActivity;
 import com.qpidnetwork.ladydating.bean.RequestBaseResponse;
 import com.qpidnetwork.ladydating.chat.invitationtemplate.InviteTemplateManager.InviteTemplateMode;
-import com.qpidnetwork.ladydating.common.activity.SimpleTextEditorActivity;
 import com.qpidnetwork.ladydating.customized.view.MaterialDialogAlert;
 import com.qpidnetwork.request.OnRequestCallback;
 
 public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivity implements OnClickListener{
 	
 	public static final String TEMPLATE_MODE = "templateMode";
+	public static final String TEMPLATE_CONTENT = "templateContent";
 	private static final int SUMMIT_TEMPLATE_CALLBACK = 0;
 	
+	private static final int EDIT_TEMPLATE_RESULT = 1002;
 	
-	BaseFragmentPagerAdapter pageAdapter;
+	ChatInvitePagerAdapter pageAdapter;
 	private String mAddTemplateContent;
 	private InviteTemplateManager mInviteTemplateManager;
 	private InviteTemplateMode mTemplateMode = InviteTemplateMode.EDIT_MODE;//定义模板的使用场景
@@ -50,14 +55,13 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		Bundle bundle = getIntent().getExtras();
-		if((bundle!=null)&&(bundle.containsKey(TEMPLATE_MODE))){
-			mTemplateMode = InviteTemplateMode.values()[bundle.getInt(TEMPLATE_MODE)];
-		}
 		
 		this.setActionbarTitle(getString(R.string.invitation_template), getResources().getColor(R.color.text_color_dark));
 		this.requestBackIcon(R.drawable.ic_arrow_back_grey600_24dp);
 		mInviteTemplateManager = InviteTemplateManager.newInstance();
+		
+		// 统计（默认为0页）
+		onAnalyticsPageSelected(0);
 	}
 	
 	
@@ -90,8 +94,8 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 			dismissProgressDialog();
 			if (response .isSuccess){
 				showDoneToast(getString(R.string.done));
-				if((pageAdapter != null) && (pageAdapter.getItem(0) != null)){
-					((PersonalTemplateFragment)(pageAdapter.getItem(0))).getPersonalTemplates();
+				if((pageAdapter != null) && (pageAdapter.getFragment(0) != null)){
+					((PersonalTemplateFragment)(pageAdapter.getFragment(0))).getPersonalTemplates();
 				}
 			}else{
 				MaterialDialogAlert dialog = new MaterialDialogAlert(this);
@@ -136,21 +140,19 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 	@Override
 	public void onPageSelected(int arg0) {
 		// TODO Auto-generated method stub
-		
+		// 统计
+		onAnalyticsPageSelected(arg0);
 	}
 
 	@Override
 	protected ViewPager setupViewPager(ViewPager viewPager) {
-		// TODO Auto-generated method stub
-		pageAdapter = new BaseFragmentPagerAdapter(this.getSupportFragmentManager());
-		Bundle bundle = new Bundle();
-		bundle.putInt(TEMPLATE_MODE, mTemplateMode.ordinal());
-		Fragment personalFragment = new PersonalTemplateFragment();
-		personalFragment.setArguments(bundle);
-		Fragment systemFragment = new SystemTemplateFragment();
-		systemFragment.setArguments(bundle);
-		pageAdapter.addFragment(personalFragment, getString(R.string.personal_templeates));
-		pageAdapter.addFragment(systemFragment, getString(R.string.system_templates));
+		Bundle bundle = getIntent().getExtras();
+		if((bundle!=null)&&(bundle.containsKey(TEMPLATE_MODE))){
+			mTemplateMode = InviteTemplateMode.values()[bundle.getInt(TEMPLATE_MODE)];
+		}
+		
+		pageAdapter = new ChatInvitePagerAdapter(this, new String[]{
+			getString(R.string.personal_templeates) , getString(R.string.system_templates)});
 		viewPager.setAdapter(pageAdapter);
 		return viewPager;
 	}
@@ -170,14 +172,10 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 		case android.R.id.home:
 			finish();
 			break;
-		case R.id.add:
-			SimpleTextEditorActivity.InputParams params = new SimpleTextEditorActivity.InputParams();
-			params.setTitle(getString(R.string.add_new_template));
-			params.setMinLength(20);
-			params.setMaxLength(160);
-			params.setHint(getString(R.string.type_your_template_here));
-			SimpleTextEditorActivity.launch(this, params);
-			break;
+		case R.id.add:{
+			Intent intent = new Intent(this, InviteTemplateEditActivity.class);
+			startActivityForResult(intent, EDIT_TEMPLATE_RESULT);
+		}break;
 		}
 	}
 
@@ -190,9 +188,9 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 
 	private void onSimpleTextEditorActivityResult(Intent data){
 		if (data.getExtras() == null ||
-				!data.getExtras().containsKey(SimpleTextEditorActivity.OutputParams.KEY_OUTPUT_PARAMS)) return;
-		SimpleTextEditorActivity.OutputParams item = (SimpleTextEditorActivity.OutputParams)data.getSerializableExtra(SimpleTextEditorActivity.OutputParams.KEY_OUTPUT_PARAMS);
-		mAddTemplateContent = item.getOutputText();
+				!data.getExtras().containsKey(InviteTemplateEditActivity.EDIT_TEMPALTE_CONTENT)) 
+			return;
+		mAddTemplateContent = data.getStringExtra(InviteTemplateEditActivity.EDIT_TEMPALTE_CONTENT);
 //		doSubmitTemplate(item.getOutputText());
 		
 	}
@@ -219,7 +217,7 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 		if (resultCode != RESULT_OK) 
 			return;
 		
-		if (SimpleTextEditorActivity.ACTIVITY_CODE == requestCode){
+		if (EDIT_TEMPLATE_RESULT == requestCode){
 			onSimpleTextEditorActivityResult(data);
 			return;
 		}
@@ -231,8 +229,9 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 	 */
 	public void onTemplateChoosed(String tempContent){
 		Intent intent = new Intent();
-		intent.putExtra("tempcontent", tempContent);
+		intent.putExtra(TEMPLATE_CONTENT, tempContent);
 		setResult(RESULT_OK, intent);
+		finish();
 	}
 
 
@@ -246,5 +245,57 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 		default:
 			break;
 		}
+	}
+	
+	private class ChatInvitePagerAdapter extends FragmentPagerAdapter {
+		private String[] titles;
+		private HashMap<Integer, WeakReference<Fragment>> mPageReference;
+
+		public ChatInvitePagerAdapter(FragmentActivity activity, String[] titles) {
+			super(activity.getSupportFragmentManager());
+			this.titles = titles;
+			mPageReference = new HashMap<Integer, WeakReference<Fragment>>();
+		}
+
+		public Fragment getFragment(int position) {
+			Fragment fragment = null;
+			if (mPageReference.containsKey(position)) {
+				fragment = mPageReference.get(position).get();
+			}
+			return fragment;
+		}
+
+		@Override
+		public int getCount() {
+			return 2;
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			Fragment fragment = null;
+			if (mPageReference.containsKey(position)) {
+				fragment = mPageReference.get(position).get();
+			}
+			if (fragment == null) {
+				if(position == 0){
+					fragment = PersonalTemplateFragment.getInstance(mTemplateMode);
+				}else{
+					fragment = SystemTemplateFragment.getInstance(mTemplateMode);
+				}
+				fragment.setHasOptionsMenu(true);
+				mPageReference.put(position, new WeakReference<Fragment>(
+						fragment));
+			}
+			return fragment;
+		}
+		
+	    @Override
+	    public CharSequence getPageTitle(int position) {
+	    	if(titles != null && titles.length > position){
+	    		return titles[position];
+	    	}else{
+	    		return "";
+	    	}
+	    }
 	}
 }

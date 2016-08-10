@@ -41,8 +41,8 @@ public class ManSearcherWindow extends PopupWindow implements View.OnClickListen
 	
 	public Callback callback;
 	public MaterialDialogSingleChoice countryChooser;
-	public int selectedCountry = 0;
-	public Integer miMin = 0;
+	public int selectedCountry = Country.Unknow.ordinal();
+	public Integer miMin = 18;
 	public Integer miMax = 99;
 	
 	public interface Callback {

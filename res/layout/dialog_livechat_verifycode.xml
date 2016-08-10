@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:id="@+id/llContent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    
+    <TextView 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_color_dark"
+        android:textSize="16sp"
+        android:text="@string/livechat_verifycode_dialog_title"/>
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp">
+        <com.qpidnetwork.ladydating.customized.view.MaterialEditText
+	        android:id="@+id/etVerifyCode"
+	        android:layout_width="0dp"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:layout_marginRight="16dp"/>
+        <ImageView
+            android:id="@+id/ivVerifyCode"
+            android:layout_width="100dp"
+            android:layout_height="30dp"/>
+    </LinearLayout>
+    
+    <Button
+        android:id="@+id/btnOk"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:layout_gravity="right|bottom"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:background="@drawable/touch_holo_light_round_angle"
+        android:textColor="@color/blue"
+        android:textSize="16sp"
+        android:minWidth="64dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:text="@string/ok"/>
+    
+
+</LinearLayout>

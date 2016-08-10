@@ -15,6 +15,9 @@
 #include <common/md5.h>
 #include <common/command.h>
 #include <common/KZip.h>
+#include "RequestBaseTask.h"
+
+#define VERSIONCODE_KEY "versioncode"
 
 /*
  * Class:     com_qpidnetwork_request_RequestJni
@@ -23,16 +26,16 @@
  */
 JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetLogDirectory
   (JNIEnv *env, jclass, jstring directory) {
-	const char *cpDirectory = env->GetStringUTFChars(directory, 0);
+	string strDirectory = JString2String(env, directory);
 
-	KLog::SetLogDirectory(cpDirectory);
-	HttpClient::SetLogDirectory(cpDirectory);
-	CrashHandler::GetInstance()->SetLogDirectory(cpDirectory);
+	KLog::SetLogDirectory(strDirectory);
+	HttpClient::SetLogDirectory(strDirectory);
+	CrashHandler::GetInstance()->SetLogDirectory(strDirectory);
 
-	FileLog("httprequest", "Jni::SetLogDirectory ( directory : %s ) ", cpDirectory);
+	GetPhoneInfo();
+
+	FileLog("httprequest", "Jni::SetLogDirectory ( directory : %s ) ", strDirectory.c_str());
 	FileLog("httprequest", "Jni::SetLogDirectory ( Android CPU ABI : %s ) ", GetPhoneCpuAbi().c_str());
-
-	env->ReleaseStringUTFChars(directory, cpDirectory);
 }
 
 /*
@@ -42,10 +45,9 @@ JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetLogDirectory
  */
 JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetVersionCode
   (JNIEnv *env, jclass cls, jstring version) {
-	const char *cpVersion = env->GetStringUTFChars(version, 0);
-	gHttpRequestManager.SetVersionCode("", cpVersion);
-	CrashHandler::GetInstance()->SetVersion(cpVersion);
-	env->ReleaseStringUTFChars(version, cpVersion);
+	string strVersion = JString2String(env, version);
+	gHttpRequestManager.SetVersionCode(VERSIONCODE_KEY, strVersion);
+	CrashHandler::GetInstance()->SetVersion(strVersion);
 }
 
 /*
@@ -55,13 +57,11 @@ JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetVersionCode
  */
 JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetCookiesDirectory
   (JNIEnv *env, jclass, jstring directory) {
-	const char *cpDirectory = env->GetStringUTFChars(directory, 0);
+	string strDirectory = JString2String(env, directory);
 
-	HttpClient::SetCookiesDirectory(cpDirectory);
+	HttpClient::SetCookiesDirectory(strDirectory);
 
-	FileLog("httprequest", "Jni::SetCookiesDirectory ( directory : %s ) ", cpDirectory);
-
-	env->ReleaseStringUTFChars(directory, cpDirectory);
+	FileLog("httprequest", "Jni::SetCookiesDirectory ( directory : %s ) ", strDirectory.c_str());
 }
 
 /*
@@ -71,27 +71,34 @@ JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetCookiesDirecto
  */
 JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetWebSite
   (JNIEnv *env, jclass cls, jstring webSite, jstring appSite) {
-	const char *cpWebSite = env->GetStringUTFChars(webSite, 0);
-	const char *cpAppSite = env->GetStringUTFChars(appSite, 0);
+	string strWebSite = JString2String(env, webSite);
+	string strAppSite = JString2String(env, appSite);
 
-	gHttpRequestHostManager.SetWebSite(cpWebSite);
-	gHttpRequestHostManager.SetAppSite(cpAppSite);
-
-	env->ReleaseStringUTFChars(webSite, cpWebSite);
-	env->ReleaseStringUTFChars(appSite, cpAppSite);
+	gHttpRequestHostManager.SetWebSite(strWebSite);
+	gHttpRequestHostManager.SetAppSite(strAppSite);
 }
 
 /*
  * Class:     com_qpidnetwork_request_RequestJni
- * Method:    SetPublicWebSite
+ * Method:    SetTransSite
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetPublicWebSite
-  (JNIEnv *env, jclass cls, jstring chatVoiceSite)
+JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetTransSite
+  (JNIEnv *env, jclass cls, jstring transSite)
 {
-	const char *cpChatVoiceSite = env->GetStringUTFChars(chatVoiceSite, 0);
-	gHttpRequestHostManager.SetChatVoiceSite(cpChatVoiceSite);
-	env->ReleaseStringUTFChars(chatVoiceSite, cpChatVoiceSite);
+	string strTransSite = JString2String(env, transSite);
+	gHttpRequestHostManager.SetTransSite(strTransSite);
+}
+
+/*
+ * Class:     com_qpidnetwork_request_RequestJni
+ * Method:    SetVideoUploadSite
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetVideoUploadSite
+  (JNIEnv *env, jclass cls, jstring videoUploadSite){
+	string strVideoUploadSite = JString2String(env, videoUploadSite);
+	gHttpRequestHostManager.SetVideoUploadSite(strVideoUploadSite);
 }
 
 /*
@@ -101,11 +108,9 @@ JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetPublicWebSite
  */
 JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetAuthorization
   (JNIEnv *env, jclass, jstring user, jstring password) {
-	const char *cpUser = env->GetStringUTFChars(user, 0);
-	const char *cpPassword = env->GetStringUTFChars(password, 0);
-	gHttpRequestManager.SetAuthorization(cpUser, cpPassword);
-	env->ReleaseStringUTFChars(user, cpUser);
-	env->ReleaseStringUTFChars(password, cpPassword);
+	string strUser = JString2String(env, user);
+	string strPassword = JString2String(env, password);
+	gHttpRequestManager.SetAuthorization(strUser, strPassword);
 }
 
 /*
@@ -125,9 +130,8 @@ JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_CleanCookies
  */
 JNIEXPORT jstring JNICALL Java_com_qpidnetwork_request_RequestJni_GetCookies
   (JNIEnv *env, jclass, jstring site) {
-	const char *cpSite = env->GetStringUTFChars(site, 0);
-	string cookies = HttpClient::GetCookies(cpSite);
-	env->ReleaseStringUTFChars(site, cpSite);
+	string strSite = JString2String(env, site);
+	string cookies = HttpClient::GetCookies(strSite);
 	return env->NewStringUTF(cookies.c_str());
 }
 
@@ -206,9 +210,8 @@ JNIEXPORT jstring JNICALL Java_com_qpidnetwork_request_RequestJni_GetDeviceId
  */
 JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetDeviceId
   (JNIEnv *env, jclass, jstring deviceId) {
-	const char *cpDeviceId = env->GetStringUTFChars(deviceId, 0);
-	CrashHandler::GetInstance()->SetDeviceId(cpDeviceId);
-	env->ReleaseStringUTFChars(deviceId, cpDeviceId);
+	string strDeviceId = JString2String(env, deviceId);
+	CrashHandler::GetInstance()->SetDeviceId(strDeviceId);
 }
 
 /*
@@ -217,16 +220,23 @@ JNIEXPORT void JNICALL Java_com_qpidnetwork_request_RequestJni_SetDeviceId
  * Signature: (J)IV
  */
 JNIEXPORT jint JNICALL Java_com_qpidnetwork_request_RequestJni_GetDownloadContentLength
-  (JNIEnv *env, jclass cls, jlong requestId)
+  (JNIEnv *env, jclass cls, jlong task)
 {
 	jint jiContentLength = 0;
-	const HttpRequest* request = gHttpRequestManager.GetRequestById(requestId);
-	if (NULL != request) {
+	if(gRequestMap.find(task) != gRequestMap.end()){
+		const RequestBaseTask* baseTask = task;
 		int iContentLength = 0;
 		int iRecvLength = 0;
-		request->GetRecvDataCount(iContentLength, iRecvLength);
+		baseTask->GetRecvDataCount(iContentLength, iRecvLength);
 		jiContentLength = iContentLength;
 	}
+//	const HttpRequest* request = gHttpRequestManager.GetRequestById(requestId);
+//	if (NULL != request) {
+//		int iContentLength = 0;
+//		int iRecvLength = 0;
+//		request->GetRecvDataCount(iContentLength, iRecvLength);
+//		jiContentLength = iContentLength;
+//	}
 	return jiContentLength;
 }
 
@@ -236,16 +246,23 @@ JNIEXPORT jint JNICALL Java_com_qpidnetwork_request_RequestJni_GetDownloadConten
  * Signature: (J)IV
  */
 JNIEXPORT jint JNICALL Java_com_qpidnetwork_request_RequestJni_GetRecvLength
-  (JNIEnv *env, jclass cls, jlong requestId)
+  (JNIEnv *env, jclass cls, jlong task)
 {
 	jint jiRecvLength = 0;
-	const HttpRequest* request = gHttpRequestManager.GetRequestById(requestId);
-	if (NULL != request) {
+	if(gRequestMap.find(task) != gRequestMap.end()){
+		const RequestBaseTask* baseTask = task;
 		int iContentLength = 0;
 		int iRecvLength = 0;
-		request->GetRecvDataCount(iContentLength, iRecvLength);
+		baseTask->GetRecvDataCount(iContentLength, iRecvLength);
 		jiRecvLength = iRecvLength;
 	}
+//	const HttpRequest* request = gHttpRequestManager.GetRequestById(requestId);
+//	if (NULL != request) {
+//		int iContentLength = 0;
+//		int iRecvLength = 0;
+//		request->GetRecvDataCount(iContentLength, iRecvLength);
+//		jiRecvLength = iRecvLength;
+//	}
 	return jiRecvLength;
 }
 
@@ -255,16 +272,23 @@ JNIEXPORT jint JNICALL Java_com_qpidnetwork_request_RequestJni_GetRecvLength
  * Signature: (J)IV
  */
 JNIEXPORT jint JNICALL Java_com_qpidnetwork_request_RequestJni_GetUploadContentLength
-  (JNIEnv *env, jclass cls, jlong requestId)
+  (JNIEnv *env, jclass cls, jlong task)
 {
 	jint jiContentLength = 0;
-	const HttpRequest* request = gHttpRequestManager.GetRequestById(requestId);
-	if (NULL != request) {
+	if(gRequestMap.find(task) != gRequestMap.end()){
+		const RequestBaseTask* baseTask = task;
 		int iContentLength = 0;
 		int iSendLength = 0;
-		request->GetSendDataCount(iContentLength, iSendLength);
+		baseTask->GetSendDataCount(iContentLength, iSendLength);
 		jiContentLength = iContentLength;
 	}
+//	const HttpRequest* request = gHttpRequestManager.GetRequestById(requestId);
+//	if (NULL != request) {
+//		int iContentLength = 0;
+//		int iSendLength = 0;
+//		request->GetSendDataCount(iContentLength, iSendLength);
+//		jiContentLength = iContentLength;
+//	}
 	return jiContentLength;
 }
 
@@ -274,15 +298,22 @@ JNIEXPORT jint JNICALL Java_com_qpidnetwork_request_RequestJni_GetUploadContentL
  * Signature: (J)IV
  */
 JNIEXPORT jint JNICALL Java_com_qpidnetwork_request_RequestJni_GetSendLength
-  (JNIEnv *env, jclass cls, jlong requestId)
+  (JNIEnv *env, jclass cls, jlong task)
 {
 	jint jiSendLength = 0;
-	const HttpRequest* request = gHttpRequestManager.GetRequestById(requestId);
-	if (NULL != request) {
+	if(gRequestMap.find(task) != gRequestMap.end()){
+		const RequestBaseTask* baseTask = task;
 		int iContentLength = 0;
 		int iSendLength = 0;
-		request->GetSendDataCount(iContentLength, iSendLength);
+		baseTask->GetSendDataCount(iContentLength, iSendLength);
 		jiSendLength = iSendLength;
 	}
+//	const HttpRequest* request = gHttpRequestManager.GetRequestById(requestId);
+//	if (NULL != request) {
+//		int iContentLength = 0;
+//		int iSendLength = 0;
+//		request->GetSendDataCount(iContentLength, iSendLength);
+//		jiSendLength = iSendLength;
+//	}
 	return jiSendLength;
 }

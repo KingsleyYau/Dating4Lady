@@ -7,7 +7,6 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -20,7 +19,7 @@ import com.qpidnetwork.ladydating.customized.view.PullToRefreshViewBase.OnPullRe
 public abstract class BaseListViewFragment extends BaseFragment implements OnPullRefreshListener{
 	
 	/*默认一页30条*/
-	protected PageBean pageBean = new PageBean(30);
+	protected PageBean pageBean = new PageBean(6);
 	
 	private PullToRefreshViewBase refreshLayout;
 	private ProgressBar progressBar;
@@ -47,6 +46,14 @@ public abstract class BaseListViewFragment extends BaseFragment implements OnPul
         return rootView;
     }
 	
+	/**
+	 * 避免列表初始化更新过程中滑动加载更多或则上拉刷新冲突问题
+	 */
+	public void setIsRefreshing(){
+		if(refreshLayout != null){
+			refreshLayout.setIsRefreshing();
+		}
+	}
 	
 	/**
 	 * Second step

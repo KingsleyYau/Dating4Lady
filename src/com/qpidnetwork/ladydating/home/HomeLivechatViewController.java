@@ -11,9 +11,9 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 
 import com.qpidnetwork.ladydating.R;
-import com.qpidnetwork.ladydating.chat.OutgoingChatInvitationActivity;
 import com.qpidnetwork.ladydating.chat.invitationtemplate.ChatInvitationTemplateActivity;
 import com.qpidnetwork.ladydating.chat.invitationtemplate.InviteTemplateManager.InviteTemplateMode;
+import com.qpidnetwork.ladydating.chat.invite.OutgoingChatInvitationActivity;
 import com.qpidnetwork.ladydating.customized.view.MaterialAppBar;
 import com.qpidnetwork.ladydating.customized.view.MaterialDropDownMenu;
 import com.qpidnetwork.ladydating.utility.Converter;
@@ -111,6 +111,12 @@ public class HomeLivechatViewController implements MaterialDropDownMenu.OnClickC
 		case R.id.expand:
 			homeActivity.scrollToLeftEdge();
 			break;
+		case R.id.search:{
+			Intent intent = new Intent(homeActivity, ContactSearchActivity.class);
+			homeActivity.startActivity(intent);
+			homeActivity.overridePendingTransition(R.anim.anim_donot_animate,
+					R.anim.anim_donot_animate);
+		}break;
 		}
 	}
 	
@@ -134,6 +140,8 @@ public class HomeLivechatViewController implements MaterialDropDownMenu.OnClickC
 	
 	private void openOutgoingInvitationList(){
 		homeActivity.startActivity(new Intent(homeActivity, OutgoingChatInvitationActivity.class));
+//		Intent intent = new Intent(homeActivity, ChatActivity.class);
+//		homeActivity.startActivity(intent);
 	}
 	
 	private void openInvitationTemplateManager(){

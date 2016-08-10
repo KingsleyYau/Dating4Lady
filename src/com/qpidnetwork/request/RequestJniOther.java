@@ -73,6 +73,7 @@ public class RequestJniOther {
 	 */
 	static public native long SynConfig(OnSynConfigCallback callback);
 
+
 	/**
 	 * 上传错误日志
 	 * 
@@ -88,4 +89,17 @@ public class RequestJniOther {
 	public static native long UploadCrashLog(String deviceId, String directory,
 			String tmpDicectory, OnRequestCallback callback);
 
+	/**
+	 * 获取机构信息
+	 * @param callback
+	 * @return
+	 */
+	public static native long GetAgentInfo(OnOtherGetAgentInfoCallback callback);
+	
+	/**
+	 * 查询个人资料
+	 * @param callback
+	 * @return
+	 */
+	public static native long QueryMyProfile(OnQueryMyProfileCallback callback);
 }

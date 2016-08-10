@@ -30,9 +30,9 @@ public class SimpleTextEditorActivity extends BaseActionbarActivity{
 		((FragmentActivity) context).startActivityForResult(intent, ACTIVITY_CODE);
 	}
 	
-	public static class OutputParams implements Serializable{
+	public class OutputParams implements Serializable{
 			
-		public static String KEY_OUTPUT_PARAMS = "KEY_OUTPUT_PARAMS";
+		public static final String KEY_OUTPUT_PARAMS = "KEY_OUTPUT_PARAMS";
 		private static final long serialVersionUID = 2852650345855285729L;
 
 		private String outputText;
@@ -47,9 +47,9 @@ public class SimpleTextEditorActivity extends BaseActionbarActivity{
 			
 	}
 	
-	public static class InputParams implements Serializable{
+	public class InputParams implements Serializable{
 		
-		public static String KEY_INPUT_PARAMS = "KEY_INPUT_PARAMS";
+		public static final String KEY_INPUT_PARAMS = "KEY_INPUT_PARAMS";
 		private static final long serialVersionUID = -4358247741279734431L;
 		
 		public String title;

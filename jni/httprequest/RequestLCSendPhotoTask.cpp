@@ -12,6 +12,8 @@ RequestLCSendPhotoTask::RequestLCSendPhotoTask()
 {
 	// TODO Auto-generated constructor stub
 	mUrl = LC_LADYSENDPHOTO_PATH;
+	mSiteType = WebSite;
+	mHttpEntiy.SetGetMethod(true);
 }
 
 RequestLCSendPhotoTask::~RequestLCSendPhotoTask()
@@ -24,7 +26,7 @@ void RequestLCSendPhotoTask::SetCallback(IRequestLCSendPhotoCallback* pCallback)
 	mpCallback = pCallback;
 }
 
-void RequestLCSendPhotoTask::SetParam(const string& targetId, const string& inviteId, const string& photoId)
+void RequestLCSendPhotoTask::SetParam(const string& targetId, const string& inviteId, const string& photoId, const string& sid, const string& userId)
 {
 	mHttpEntiy.Reset();
 
@@ -40,14 +42,26 @@ void RequestLCSendPhotoTask::SetParam(const string& targetId, const string& invi
 		mHttpEntiy.AddContent(LC_LADYSENDPHOTO_PHOTOID, photoId.c_str());
 	}
 
+	if (!sid.empty()) {
+		mHttpEntiy.AddContent(LC_USER_SID, sid.c_str());
+	}
+
+	if (!userId.empty()) {
+		mHttpEntiy.AddContent(LC_USER_ID, userId.c_str());
+	}
+
 	FileLog("httprequest", "RequestLCSendPhotoTask::SetParam( "
 			"targetId: %s, "
 			"inviteId: %s, "
-			"photoId: %s"
+			"photoId: %s, "
+			"sid:%s, "
+			"userId:%s"
 			")",
 			targetId.c_str(),
 			inviteId.c_str(),
-			photoId.c_str()
+			photoId.c_str(),
+			sid.c_str(),
+			userId.c_str()
 			);
 }
 

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#333333"
+    android:padding="3dp" 
+    android:gravity="center_vertical">
+
+    <ImageView
+        android:id="@+id/notificationImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dip"
+        android:src="@android:drawable/stat_sys_download" />
+
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dip"
+        android:orientation="vertical">
+	    <TextView
+	       android:id="@+id/notificationTitle"
+	       android:layout_width="wrap_content"
+	       android:layout_height="wrap_content"
+	       android:text="@string/more_apk_download_notification"
+	       android:maxLines="2"
+	       android:ellipsize="end"
+	       android:textColor="#FFFFFF" />
+	    <RelativeLayout 
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content">
+	        <Button 
+	            android:id="@+id/btnCancel"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/cancel"
+	            android:background="@null"
+	            android:layout_alignParentRight="true"
+	            android:layout_marginRight="8dp"/>
+	        <Button
+	            android:id="@+id/btnRetry" 
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_toLeftOf="@+id/btnCancel"
+	            android:background="@null"
+	            android:layout_marginRight="8dp"
+	            android:text="@string/retry"/>
+	    </RelativeLayout>
+    </LinearLayout>
+    
+</LinearLayout>

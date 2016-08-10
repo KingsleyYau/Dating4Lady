@@ -1,122 +1,268 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">Qpid Dating Lady</string>
+    <!-- common -->
+    <string name="common_wait_tips">等待中&#8230;</string>
+    <string name="common_btn_upgrade">升級</string>
+    <string name="common_done">完成!</string>
+    <string name="common_failed">失敗!</string>
+    <string name="common_downloading">升級</string>
+    <string name="common_btn_yes">好</string>
+    <string name="common_btn_no">暫不</string>
     
     <!-- Title strings -->
-    <string name="action_search">Search</string>
-    <string name="action_contacts">My contacts</string>
-    <string name="fragment_title_gantlemen">男士列表</string>
-    <string name="fragment_title_my_favortes">我的收藏</string>
-    <string name="fragment_title_my_albums">我的相册</string>
+    <string name="action_search">搜尋</string>
+    <string name="action_contacts">我的聯絡人</string>
+    <string name="fragment_title_gantlemen">男士</string>
+    <string name="fragment_title_my_favortes">我的最愛</string>
+    <string name="fragment_title_my_albums">我的相冊</string>
     <string name="fragment_title_more">更多</string>
     
     
     <!-- UI strings -->
-    <string name="x_years_old">%s Yers old</string>
-    <string name="loading">Loding&#8230;</string>
-    <string name="retry">Retry</string>
-    <string name="no_more_items">No more items.</string>
-    <string name="no_items">No items</string>
-    <string name="Videos">Videos</string>
-    <string name="Photos">Photos</string>
-    <string name="photo_album">Photo album</string>
-    <string name="video_album">Video album</string>
-    <string name="create_album">Create Album</string>
-    <string name="edit_album">Edit album</string>
-    <string name="album_name">Album name</string>
-    <string name="describe_you_photo">Describe your photo</string>
-    <string name="describe_you_video">Describe your video</string>
-    <string name="album_description">Album description</string>
-    <string name="photo_browser">Photo browser</string>
-    <string name="video_browser">Video browser</string>
-    <string name="upload_photo">Upload photo</string>
-    <string name="upload_video">Upload video</string>
-    <string name="video">Video</string>
-    <string name="photo">Photo</string>
-    <string name="thumbnail">Thumbnail</string>
-    <string name="add">Add</string>
-    <string name="done">Done</string>
-    <string name="delete">Delete</string>
+    <string name="x_years_old">%s 嵗</string>
+    <string name="loading">裝載中&#8230;</string>
+    <string name="processing">處理中&#8230;</string>
+    <string name="retry">重試</string>
+    <string name="no_more_items">已到底部。</string>
+    <string name="no_items">沒有項目</string>
+    <string name="Videos">視訊</string>
+    <string name="Photos">照片</string>
+    <string name="photo_album">照片相冊</string>
+    <string name="video_album">視訊相冊</string>
+    <string name="create_album">創建相冊</string>
+    <string name="edit_album">編輯相冊</string>
+    <string name="album_name">相冊名稱</string>
+    <string name="describe_you_photo">照片描述</string>
+    <string name="describe_you_video">視訊描述</string>
+    <string name="album_description">相冊描述</string>
+    <string name="photo_browser">照片瀏覽</string>
+    <string name="video_browser">視訊瀏覽</string>
+    <string name="upload_photo">上載照片</string>
+    <string name="upload_video">上載視訊</string>
+    <string name="video">視訊</string>
+    <string name="photo">圖片</string>
+    <string name="thumbnail">預覽圖</string>
+    <string name="add">新增</string>
+    <string name="done">完成</string>
+    <string name="delete">刪除</string>
+    <string name="deleting">刪除中</string>
     
-    <string name="go">Go</string>
-    <string name="please_enter_member_id">Please enter member Id</string>
-    <string name="not_titled">Not titled</string>
-    <string name="items_require_your_action">Require you aciton</string>
-    <string name="items">Items</string>
-    <string name="select_album_type">Selec album type</string>
-    <string name="submit">Submit</string>
-    <string name="submiting">Submiting</string>
-    <string name="delete_album">Delete album</string>
-    <string name="under_review">Under review</string>
-    <string name="approved">Approved</string>
-    <string name="edition_required">Edition required</string>
-    <string name="rejected">Rejected</string>
-    <string name="seconds">Seconds</string>
-    <string name="english_letter_and_space_onley_between_12_to_25_characters">English letters and space only, between 12 to 25 characters.</string>
-    <string name="this_video_maybe_corrupted_or_is_malformed_please_choose_another_video">This video maybe corrupt or is malformed, please choose another video.</string>
-    <string name="photo_description_re_edition_user_message">Your photo description does not meet our content policy, please edit and submit again.</string>
-    <string name="your_photo_description_has_not_been_changed_yet">Your photo description has not been changed yet.</string>
-    <string name="this_item_did_not_successfully_uploaded">This item did not successfully uploaded.</string>
-    <string name="length_of_the_video_should_be_between_8_18_seconds_please_choose_another_video">Length of the video should be between 8 &#8211; 18 seconds, please choose another video.</string>
-    <string name="the_video_resolution_must_be_heigher_than_720px_please_choose_another_video">The video resolution must be higher than 720 pixels, please choose another video.</string>
-    <string name="the_video_thumbnail_resolution_must_be_heigher_than_720px_please_choose_another_photo">The video thumbnail resolution must be higher than 720 pixels, please choose another photo.</string>
-    <string name="the_photo_resolution_must_be_heigher_than_800px_please_choose_another_photo">The photo resolution must be higher than 800 pixels, please choose another photo.</string>
-    <string name="your_video_description_has_not_been_changed_yet">Your video description has not been changed yet.</string>
-    <string name="text_editor">Text editor</string>
-	<string name="require_at_least_x_characters">Require at least %s characters.</string>
-	<string name="you_did_not_make_any_changes_to_the_text_yet">You did not make any changes to the text yet.</string>
-	<string name="incorrect_format">Incorrect format.</string>
-	<string name="add_new_template">Add new template</string>
-	<string name="type_your_template_here">Type your template here</string>
-	<string name="failed_to_submit_template_would_you_like_to_retry">Failed to submit template, would you like to retry?</string>
+    <string name="go">前進</string>
+    <string name="please_enter_member_id">請輸入會員ID</string>
+    <string name="not_titled">未定標題</string>
+    <string name="items_require_your_action">需要您進一步操作</string>
+    <string name="items">項</string>
+    <string name="select_album_type">選擇相冊類型</string>
+    <string name="submit">提交</string>
+    <string name="select">选择</string>
+    <string name="submiting">提交中</string>
+    <string name="delete_album">刪除相冊</string>
+    <string name="under_review">審核中</string>
+    <string name="approved">審核通過</string>
+    <string name="edition_required">待編輯</string>
+    <string name="rejected">已拒絕</string>
+    <string name="seconds">秒</string>
+    <string name="english_letter_and_space_onley_between_12_to_25_characters">僅限英文字母和空格，12至25個字之間。</string>
+    <string name="this_video_maybe_corrupted_or_is_malformed_please_choose_another_video">該視訊可能受到損壞或格式不符合要求，請選擇另一個視訊。</string>
+    <string name="photo_description_re_edition_user_message">照片描述不符合我們的内容政策，請編輯后重新提交。</string>
+    <string name="your_photo_description_has_not_been_changed_yet">您沒有對照片描述做任何變更。</string>
+    <string name="this_item_did_not_successfully_uploaded">該項沒有上載成功，請重試。</string>
+    <string name="length_of_the_video_should_be_between_8_15_seconds_please_choose_another_video">視訊長度應為8至15秒，請選擇其它視訊。</string>
+    <string name="the_video_resolution_must_be_heigher_than_720px_please_choose_another_video">視訊寬高必須大於720像素，請選擇另一個視訊。</string>
+    <string name="the_video_thumbnail_resolution_must_be_heigher_than_720px_please_choose_another_photo">視訊預覽圖必須大於720像素，請選擇另一張照片。</string>
+    <string name="the_photo_resolution_must_be_heigher_than_800px_please_choose_another_photo">照片寬高大小必須大於800像素，請選擇另一張照片。</string>
+    <string name="the_photo_type_must_be_jpg">照片格式必須為JPG.</string>
+    <string name="your_video_description_has_not_been_changed_yet">您沒有對視訊描述做任何變更。</string>
+    <string name="text_editor">文字編輯器</string>
+	<string name="require_at_least_x_characters">必須多於%s個字。</string>
+	<string name="you_did_not_make_any_changes_to_the_text_yet">您沒有對文字作任何改變。</string>
+	<string name="incorrect_format">格式錯誤。</string>
+	<string name="add_new_template">新增模板</string>
+	<string name="this_message_template_is_under_review">該模板正在審核中。</string>
+	<string name="this_message_template_is_rejected">該模板已被拒絕。</string>
+	<string name="this_message_template_is_approved">該模板已審核通過。</string>
+	
+	<string name="type_your_template_here">在此錄入您的模板</string>
+	<string name="failed_to_submit_template_would_you_like_to_retry">模板沒有提交成功，是否重試？</string>
+	<string name="delete_custom_template_confirm_tips">是否確定刪除該模板？</string>
     
-    <string name="change_password">Change password</string>
-	<string name="Language">Language</string>
-	<string name="notification_sound">Notification sound</string>
-	<string name="clean_cache">Clean cache</string>
-	<string name="check_update">Check update</string>
-	<string name="version">Version $s</string>
-	<string name="contact_agency">Contact agency</string>  
-	<string name="on">On</string>
-	<string name="off">Off</string>  
-	<string name="optional">Optional</string>
+    <string name="change_password">變更密碼</string>
+	<string name="Language">語言</string>
+	<string name="notification_sound">通知聲音</string>
+	<string name="clean_cache">清除緩存</string>
+	<string name="check_update">更新</string>
+	<string name="version">版本號 %s</string>
+	<string name="contact_agency">聯絡機構</string>  
+	<string name="on">啓用</string>
+	<string name="off">關閉</string>  
+	<string name="optional">可選項</string>
 
-    <string name="online">在线</string>
-    <string name="all">所有</string>
-    <string name="recent_visitors">最近访问</string>
-    <string name="outging_invitation">Outgoing invitation</string>
-    <string name="invitation_template">Invitation templates</string>
-    <string name="chat">Chat</string>
-    <string name="search_criteria">Search criteria</string>
-    <string name="country">Country</string>
-    <string name="search">Search</string>
-    <string name="search_by_id">Search by ID</string>
-    <string name="member_id">Member ID</string>
-    <string name="with_photo">With photo</string>
-    <string name="system_templates">System templates</string>
-    <string name="personal_templeates">Personal templates</string>
+    <string name="online">在綫</string>
+    <string name="all">全部</string>
+    <string name="recent_visitors">最近造訪者</string>
+    <string name="outging_invitation">發出的邀請</string>
+    <string name="invitation_template">邀請模板</string>
+    <string name="chat">聊天</string>
+    <string name="search_criteria">搜尋條件</string>
+    <string name="country">國籍</string>
+    <string name="search">搜尋</string>
+    <string name="search_by_id">使用ID搜尋</string>
+    <string name="member_id">會員ID</string>
+    <string name="with_photo">含有照片</string>
+    <string name="system_templates">系統模板</string>
+    <string name="personal_templeates">個人模板</string>
+    <string name="profile_id_x_not_found">會員ID：%s 未被找到。</string>
+    <string name="search_man_not_match">未找到匹配條件的男士。</string>
+    <string name="no_recent_visitors">最近沒有造訪過您的資料。</string>
+    <string name="no_online_members_at_the_moment">目前沒有在綫上的會員。</string>
+    <string name="your_favorite_list_is_empty">您尚未收錄任何男士至最愛列表。</string>
+
     
     
-    <string name="profile_id">Profile ID</string>
-    <string name="password">Password</string>
-    <string name="login">Login</string>
+    <string name="profile_id">會員ID</string>
+    <string name="password">密碼</string>
+    <string name="login">登入</string>
+    <string name="logout">登出</string>
+    <string name="logining">正在登入&#8230;</string>
     
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
+    <string name="ok">好</string>
+    <string name="cancel">取消</string>
+    
+    <!-- empty description -->
+    <string name="personal_template_list_null">您目前沒有新增任何模板。</string>
+    <string name="system_template_list_null">目前沒有系統模板。</string>
+    <string name="outing_invite_list_null">目前您尚未發出任何邀請。</string>
+    <string name="livechat_contact_list_null">您目前沒有聯絡人。</string>
+    <string name="livechat_contact_search_null">未搜尋到任何東西。</string>
+    
+    <!-- Album -->
+    <string name="album_gridview_detail_photo_title">照片標題</string>
+    
+    <!-- include -->
+    <string name="include_search_description">輸入會員</string>
+    
+    <!-- search -->
+   <string name="search_item_age">年齡</string> 
+   <string name="search_item_age_begin">18</string> 
+   <string name="search_item_age_end">99</string> 
+    
+    <!-- Live chat -->
+    <string name="livechat_voice_record">按住\n説話</string>
+    <string name="livechat_voice_record_tips">00:00</string>
+    <string name="livechat_voice_record_payment">0.3 credits for each voice message sent.</string>
+    <string name="livechat_voice_record_speak">請説話</string>
+    <string name="livechat_voice_record_cancel">松手取消</string>
+    <string name="livechat_type_message_here">在此輸入消息</string>
+    <string name="livechat_chat_history">聊天歷史</string>
+    <string name="livechat_chat_translate_setting">翻譯設定</string>
+    <string name="livechat_chat_translate_setting_title">把收到的消息翻譯為</string>
+    <string name="livechat_chat_translate_setting_notrans">不翻譯</string>
+    <string name="livechat_emotion_preview_title">表情預覽</string>
+    <string name="livechat_emotion_preview_price">%s credits</string>
+    <string name="livechat_download_photo_fail">圖片裝載失敗</string>
+    <string name="livechat_download_voice_fail">語音消息裝載失敗</string>
+    <string name="livechat_lady_illeage_message">您的消息含有非法信息，將不被發送。</string>
+    <string name="send_error_text_normal">該消息未能成功發送。</string>
+    <string name="send_error_man_offline">該男士已不在綫上。</string>
+    <string name="common_send_email">Send mail</string> 
+    <string name="livechat_download_emotion_fail">表情裝載失敗。</string>
+    <string name="emf_private_photo_tips">This is lady\'s private photo.\n%1$d credit for viewing this photo.</string>
+    <string name="livechat_saved_origional_image">照片已保存至您的相冊。</string>
+    <string name="livechat_chat_history_detail">詳情(%s)</string>
+    <string name="livechat_chat_history_title">聊天歷史</string>
+    <string name="livechat_send_invitemsg_frequently">請勿頻繁地發送邀請給同一個男士會員。</string>
+    <string name="livechat_send_textmsg_frequently">請勿頻繁發送消息。</string>
+    <string name="livechat_send_emotion_frequently">請勿頻繁地發送高級表情。</string>
+    <string name="livechat_send_voice_frequently">請勿頻繁地發送語音消息。</string>
+    <string name="livechat_send_photo_frequently">請勿頻繁地發送照片。</string>
+    <string name="livechat_send_video_frequently">請勿頻繁地發送視頻。</string>
+    <string name="livechat_photo_already_send">該照片已發送過給該男士，請勿重復發送同一張照片給男士。</string>
+    <string name="livechat_original_text_message">原文：%s</string>
+    <string name="livechat_translate_text_message">譯文：%s</string>
+    <string name="livechat_translate_text_error_tips">消息翻譯失敗。</string>
+    <string name="livechat_translating">翻譯中&#8230;</string>
+    <string name="livechat_verifycode_dialog_title">請輸入驗證碼</string>
+    <string name="livechat_translate_offline_unbind">由於您的翻譯當前不在綫或未邦定，您暫時無法聊天，請聯係您的翻譯。</string>
+    <string name="livechat_can_not_send_photo_before_the_conversation_has_started">請勿在會話開始前發送照片。</string>
+    <string name="livechat_can_not_send_video_before_the_conversation_has_started">請勿在會話開始前發送視頻。</string>
+    <string name="livechat_can_not_send_voice_message_before_the_conversation_has_started">請勿在會話開始前發送語音。</string>
+    <string name="livechat_kickoff_by_sever_update">由於網站目前正在維護，您已經斷開連接。</string>
+    <string name="livechat_kickoff_by_other">您的帳號已在別處登錄，您已退出登錄</string>
+    <string name="contact_search_filter_hint">姓名或會員ID</string>
+    <string name="livechat_photo_view_identify">查看了您的照片\"%s\".</string>
+    <string name="livechat_chat_history_agencyId">機構ID</string>
+    <string name="livechat_chat_history_translateId">翻譯人員ID</string>
+    <string name="livechat_chat_history_translateName">翻譯人員姓名</string>
+    <string name="livechat_chat_history_createTime">聊天開始時間</string>
+    <string name="livechat_chat_history_duration">聊天時長</string>
+    <string name="livechat_private_photo_full_download_error">未能成功裝載照片。</string>
+    <string name="livechat_album_list_null">您尚未上載任何照片至此相冊。</string>
+    <string name="livechat_send_invite_success">聊天邀請已成功發出。</string>
+    
+    <string name="livechat_send_photo_error_unknow">傳送照片過程中遇到未知錯誤，請稍候再試。</string>
+    <string name="livechat_send_photo_error_noverify">此照片可能被刪除或為審核通過。</string>
+    <string name="livechat_send_photo_error_unpermit">您目前沒有權限發送照片。請與貴機構聯絡。</string>
+    <string name="livechat_send_photo_error_unread">您已發出3張照片，請在男士查看了你的照片后發送。</string>
+    
+    <string name="livechat_send_video_error_unknow">傳送視訊過程中遇到未知錯誤，請稍候再試。</string>
+    <string name="livechat_send_video_error_noverify">此視訊檔案可能被刪除或為審核通過。</string>
+    <string name="livechat_send_video_error_unpermit">您目前沒有權限發送視訊檔案。請與貴機構聯絡。</string>
+    <string name="livechat_send_video_error_unread">您已發出3個視訊檔案，請在男士查看了你的視訊后發送。</string>
+    
+    <string name="livechat_text_notsupported_error">對方不支持文本聊天。</string>
+    <string name="livechat_emotion_notsupported_error">對方不支持高級表情聊天。</string>
+    <string name="livechat_voice_notsupported_error">對方不支持語音聊天.</string>
+    <string name="livechat_photo_notsupported_error">對方不支持圖片聊天.</string>
+    <string name="livechat_record_voice_too_short">錄音時間過短!</string>
+    
+    <string-array name="livechat_msg_in_type">
+        <item name="received_system_message">您收到一條系統消息。</item>
+        <item name="send_a_photo">您發送了一張照片。</item>
+        <item name="send_a_premium_sticker">您發送了一個高級表情。</item>
+        <item name="send_a_voice_message">您發送了條語音信息。</item>
+        <item name="receive_a_photo">%s給您發送了一張照片。</item>
+        <item name="receive_a_premium_sticker">%s給您發送了一個高級表情。</item>
+        <item name="receive_a_voice_message">%s給您發送了一條語音信息。</item>
+        <item name="send_a_video">您發送了一個視訊檔。</item>
+        <item name="receive_a_video">%s給你發送了一個視訊檔。</item>
+    </string-array>
+    
+    <!-- more -->
+    <string name="more_view_your_profile">查看詳細資料</string>
+    <string name="more_title_change_psw">修改密碼</string>
+    <string name="more_current_password">當前密碼</string>
+    <string name="more_new_password">新密碼</string>
+    <string name="more_confirm_password">確認密碼</string>
+    <string name="more_clean_cache_tips">您確定要清除緩存嗎？</string>
+    <string name="more_clean_cache_finish_tips">緩存清除成功！</string>
+    <string name="more_check_version_progress">升級中&#8230;</string>
+    <string name="more_check_version_isnewest_tips">沒有更新的版本。</string>
+    <string name="more_check_version_needupgrade_tips">發現新版本，是否立即更新？</string>
+    <string name="more_apk_download_notification">下載中…</string>
+    <string name="apk_update_downloading">下載中: %s.com</string>
+    <string name="apk_update_downloaded">%s.com 下載成功。</string>
+    <string name="apk_download_fail">未能成功下載新版本。</string>
+    <string name="contact_agency_description"><![CDATA[如果您有任何疑問，請聯係您的機構：<p><xliff:g id="agentName">%1$s</xliff:g></p>電話：<xliff:g id="agentName">%2$s</xliff:g>]]></string>
+    <string name="more_title_my_profile">我的資料</string>
+    
+    <!-- crash log -->
+    <string name="Crash_report_detected">發現了程式意外終止日誌</string>
+    <string name="Do_you_want_report_an_incident_to_help_us_for_app_improvement">程式意外終止日誌可以幫助我們將程式做得更出色，您希望回報這些意外終止日誌嗎？</string>
+    <string name="Remember_my_choise">記住我的選擇</string>
     
     
     <!-- error message -->
     <string name="required">Required</string>
-    <string name="login_id_or_password_incorrect">Login id or password incorrect.</string>
+    <string name="login_id_or_password_incorrect">帳號或密碼錯誤</string>
+    <string name="online_manlist_error">未能連接互聯網。</string>
+    <string name="modify_password_success_tips">密碼已更新成功，請使用新密碼重新登入。</string>
+    <string name="modify_password_fail_tips">密碼未能成功更新，請稍候再試。</string>
     
     <!-- language setting -->
     <string-array name="languagelist">
-		<item>英文</item>
-		<item>繁体中文</item>
+		<item>English</item>
+		<item>傳統中文</item>
 		<item>取消</item>
-    </string-array>
+    </string-array> 
     
-    
-
 </resources>

@@ -308,8 +308,11 @@ public class ImageUtil {
 		    }else{
 		    	matrix.postScale(scaleHeight, scaleHeight);
 		    }
-		    resizeBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, bmpWidth, bmpHeight, matrix, false);  
-		    tempBitmap.recycle();
+		    resizeBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, bmpWidth, bmpHeight, matrix, false);
+		    if(resizeBitmap != tempBitmap){
+		    	//解决createBitmap 与原图一样，回收导致recycled异常
+		    	tempBitmap.recycle();
+		    }
 		}
 	    return resizeBitmap;
 	}
@@ -327,7 +330,10 @@ public class ImageUtil {
 		    float scaleHeight = (float) reqHeight / bmpHeight; 
 		    matrix.postScale(scaleHeight, scaleHeight);
 		    resizeBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, bmpWidth, bmpHeight, matrix, false);  
-		    tempBitmap.recycle();
+		    if(resizeBitmap != tempBitmap){
+		    	//解决createBitmap 与原图一样，回收导致recycled异常
+		    	tempBitmap.recycle();
+		    }
 		}
 	    return resizeBitmap;
 	}
@@ -340,8 +346,11 @@ public class ImageUtil {
 	    Matrix matrix = new Matrix();    
 	    float scaleHeight = (float) reqHeight / bmpHeight; 
 	    matrix.postScale(scaleHeight, scaleHeight);
-	    Bitmap resizeBitmap = Bitmap.createBitmap(inBmp, 0, 0, bmpWidth, bmpHeight, matrix, false);  
-	    inBmp.recycle();
+	    Bitmap resizeBitmap = Bitmap.createBitmap(inBmp, 0, 0, bmpWidth, bmpHeight, matrix, false); 
+	    if(resizeBitmap != inBmp){
+	    	//解决createBitmap 与原图一样，回收导致recycled异常
+	    	inBmp.recycle();
+	    }
 	    return resizeBitmap;
 	}
 	

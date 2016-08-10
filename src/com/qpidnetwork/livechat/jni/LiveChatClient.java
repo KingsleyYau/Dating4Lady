@@ -43,7 +43,12 @@ public class LiveChatClient {
 	public enum UserStatusType {
 		USTATUS_UNKNOW,				// 未知
 		USTATUS_OFFLINE_OR_HIDDEN,	// 离线或隐身
-		USTATUS_ONLINE,		// 在线
+		USTATUS_ONLINE,				// 在线
+		USTATUS_HIDDEN,				// 隐身
+		USTATUS_BIND,				// 绑定翻译
+		USTATUS_UNBIND,				// 没有绑定翻译
+		USTATUS_VIDEOOPEN,			// 视频开放
+		USTATUS_VIDEOCLOSE,			// 视频关闭
 	}
 	
 	/**
@@ -76,10 +81,10 @@ public class LiveChatClient {
 	 * @param sexType		性别
 	 * @return
 	 */
-	static public boolean Login(String user, String password, String deviceId, ClientType clientType, UserSexType sexType) {
-		return Login(user, password, deviceId, clientType.ordinal(), sexType.ordinal());
+	static public boolean Login(String user, String password, String deviceId, ClientType clientType) {
+		return Login(user, password, deviceId, clientType.ordinal());
 	}
-	static protected native boolean Login(String user, String password, String deviceId, int clientType, int sexType);
+	static protected native boolean Login(String user, String password, String deviceId, int clientType);
 	
 	/**
 	 * 注销并断开连接
@@ -165,7 +170,7 @@ public class LiveChatClient {
 	static public native boolean SendVoice(String userId, String voiceId, int length, int ticket);
 	
 	/**
-	 * 发送图片消息
+	 * 女士发送图片消息
 	 * @param userId	对方用户ID
 	 * @param inviteId	邀请ID
 	 * @param photoId	图片ID
@@ -175,7 +180,7 @@ public class LiveChatClient {
 	 * @param ticket	票根
 	 * @return
 	 */
-	static public native boolean SendPhoto(String userId, String inviteId, String photoId, String sendId, boolean charget, String photoDesc, int ticket);
+	static public native boolean SendLadyPhoto(String userId, String inviteId, String photoId, String sendId, boolean charget, String photoDesc, int ticket);
 	
 	/**
 	 * 显示图片
@@ -189,6 +194,19 @@ public class LiveChatClient {
 	 * @return
 	 */
 	static public native boolean ShowPhoto(String userId, String inviteId, String photoId, String sendId, boolean charget, String photoDesc, int ticket);
+	
+	/**
+	 * 女士发送视频消息
+	 * @param userId	对方用户ID
+	 * @param inviteId	邀请ID
+	 * @param videoId	视频ID
+	 * @param sendId	发送ID
+	 * @param charget	是否已扣费
+	 * @param videoDesc	视频描述
+	 * @param ticket	票根
+	 * @return
+	 */
+	static public native boolean SendLadyVideo(String userId, String inviteId, String videoId, String sendId, boolean charget, String videoDesc, int ticket);
 	
 	/**
 	 * 获取用户信息

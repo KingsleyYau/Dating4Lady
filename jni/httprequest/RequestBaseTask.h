@@ -32,6 +32,11 @@ public:
 	void Init(HttpRequestManager *pHttpRequestManager);
 	void SetErrcodeHandler(ErrcodeHandler* pErrcodeHandler);
 
+	// 获取下载总数据量及已收数据字节数
+	void GetRecvDataCount(int& total, int& recv) const;
+	// 获取上传总数据量及已收数据字节数
+	void GetSendDataCount(int& total, int& send) const;
+
 	// Implement from BaseTask
 	bool Start();
 	void Stop();
@@ -50,10 +55,6 @@ protected:
 	void onSuccess(long requestId, string path, const char* buf, int size);
 	void onFail(long requestId, string path);
 
-	// 获取下载总数据量及已收数据字节数
-	void GetRecvDataCount(int& total, int& recv) const;
-	// 获取上传总数据量及已收数据字节数
-	void GetSendDataCount(int& total, int& send) const;
 	// 获取 Content-Type
 	string GetContentType() const;
 
