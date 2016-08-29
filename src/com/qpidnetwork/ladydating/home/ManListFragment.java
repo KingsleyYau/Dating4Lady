@@ -594,7 +594,11 @@ public class ManListFragment extends BaseListViewFragment implements
 	 * 获取在线男士Ids列表
 	 */
 	private void queryOnlineManlist() {
-		mLiveChatManager.SearchOnlineMan(18, 99);
+		if(!mLiveChatManager.SearchOnlineMan(18, 99)){
+			RequestBaseResponse response = new RequestBaseResponse(false, "",
+					"", new String[0]);
+			sendUiMessage(ONLINE_MANLIST_CALLBACK, response);
+		};
 	}
 
 	/**

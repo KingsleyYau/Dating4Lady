@@ -2,7 +2,7 @@ package com.qpidnetwork.request.item;
 
 import java.io.Serializable;
 
-import com.qpidnetwork.request.RequestJniAlbum.ReviewReason;
+import com.qpidnetwork.request.RequestJniAlbum.PhotoReviewReason;
 import com.qpidnetwork.request.RequestJniAlbum.ReviewStatus;
 
 /**
@@ -33,8 +33,8 @@ public class AlbumPhotoItem implements Serializable{
 		this.url = url;
 		this.reviewStatus = (reviewStatus >= ReviewStatus.Unknown.ordinal() && reviewStatus <= ReviewStatus.ReviewD.ordinal())
 				? ReviewStatus.values()[reviewStatus]:ReviewStatus.Unknown;
-		this.reviewReason = (reviewReason >= ReviewReason.REASON_OTHERS.ordinal() && reviewReason <= ReviewReason.REASON_REVISED_COVERANDDESC_NOSTANDARD.ordinal())
-				? ReviewReason.values()[reviewReason]:ReviewReason.REASON_OTHERS;
+		this.reviewReason = (reviewReason >= PhotoReviewReason.PHOTO_REASON_OTHERS.ordinal() && reviewReason <= PhotoReviewReason.PHOTO_REASON_REVISED_COVERANDDESC_NOSTANDARD.ordinal())
+				? PhotoReviewReason.values()[reviewReason]:PhotoReviewReason.PHOTO_REASON_OTHERS;
 	}
 	
 	public String id;
@@ -42,7 +42,7 @@ public class AlbumPhotoItem implements Serializable{
 	public String thumbUrl;
 	public String url;
 	public ReviewStatus reviewStatus;
-	public ReviewReason reviewReason;
+	public PhotoReviewReason reviewReason;
 	
 
 }

@@ -43,6 +43,9 @@ public abstract class LiveChatClientListener {
 		FrequencyMagicIcon,		// 小高表发送过快
 		MagicIconError,			// 小高表异常
 		WomanActiveChatLimit,	// 女士发送邀请过快
+		SubjectException,		//主题异常
+		SubjectExistException,  //主题存在异常
+		SubjectNotExistException,//主题不存在异常
 		
 		// 客户端定义的错误
 		ProtocolError,			// 协议解析失败（服务器返回的格式不正确）

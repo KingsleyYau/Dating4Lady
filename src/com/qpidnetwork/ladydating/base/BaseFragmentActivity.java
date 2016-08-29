@@ -184,8 +184,12 @@ public abstract class BaseFragmentActivity extends AnalyticsFragmentActivity {
 	}
 	
 	protected void hideKeyboard() {
-	    InputMethodManager inputMethodManager = (InputMethodManager)  getSystemService(INPUT_METHOD_SERVICE);
-	    inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+		try{
+			InputMethodManager inputMethodManager = (InputMethodManager)  getSystemService(INPUT_METHOD_SERVICE);
+			inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	protected Handler mHandler = new UiHandler(this) {

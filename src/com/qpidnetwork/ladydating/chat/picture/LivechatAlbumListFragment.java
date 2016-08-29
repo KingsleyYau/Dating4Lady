@@ -14,7 +14,9 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -45,6 +47,7 @@ public class LivechatAlbumListFragment extends BaseFragment implements LiveChatM
 	private HorizontalScrollTabbar mTitlebar;
 	private ViewPager mViewPager;
 	private MaterialProgressBar progress;
+	private ImageView imgRefresh;
 	
 	private LivechatAlbumAdapter mViewPagerAdapter;
 	private LiveChatManager mLiveChatManager;
@@ -70,6 +73,19 @@ public class LivechatAlbumListFragment extends BaseFragment implements LiveChatM
 		mTitlebar = (HorizontalScrollTabbar)view.findViewById(R.id.titleBar);
 		mViewPager = (ViewPager)view.findViewById(R.id.viewPager);
 		progress = (MaterialProgressBar)view.findViewById(R.id.progress);
+		imgRefresh = (ImageView)view.findViewById(R.id.imgRefresh);
+		imgRefresh.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if(mLiveChatManager != null){
+					progress.setVisibility(View.VISIBLE);
+					imgRefresh.setVisibility(View.GONE);
+					mLiveChatManager.ClearAndGetPhotoList();
+				}
+			}
+		});
 		return view;
 	}
 	
@@ -149,6 +165,7 @@ public class LivechatAlbumListFragment extends BaseFragment implements LiveChatM
 		// TODO Auto-generated method stub
 		super.handleUiMessage(msg);
 		progress.setVisibility(View.GONE);
+		imgRefresh.setVisibility(View.VISIBLE);
 		RequestBaseResponse response = (RequestBaseResponse)msg.obj;
 		String errMsg = response.errmsg;
 		if(getActivity() != null){

@@ -65,12 +65,14 @@
     <string name="english_letter_and_space_onley_between_12_to_25_characters">僅限英文字母和空格，12至25個字之間。</string>
     <string name="this_video_maybe_corrupted_or_is_malformed_please_choose_another_video">該視訊可能受到損壞或格式不符合要求，請選擇另一個視訊。</string>
     <string name="photo_description_re_edition_user_message">照片描述不符合我們的内容政策，請編輯后重新提交。</string>
+    <string name="video_description_re_edition_user_message">視頻描述或縮略圖不符合我們的内容政策，請編輯后重新提交。</string>
     <string name="your_photo_description_has_not_been_changed_yet">您沒有對照片描述做任何變更。</string>
     <string name="this_item_did_not_successfully_uploaded">該項沒有上載成功，請重試。</string>
     <string name="length_of_the_video_should_be_between_8_15_seconds_please_choose_another_video">視訊長度應為8至15秒，請選擇其它視訊。</string>
     <string name="the_video_resolution_must_be_heigher_than_720px_please_choose_another_video">視訊寬高必須大於720像素，請選擇另一個視訊。</string>
     <string name="the_video_thumbnail_resolution_must_be_heigher_than_720px_please_choose_another_photo">視訊預覽圖必須大於720像素，請選擇另一張照片。</string>
     <string name="the_photo_resolution_must_be_heigher_than_800px_please_choose_another_photo">照片寬高大小必須大於800像素，請選擇另一張照片。</string>
+    <string name="the_photo_resolution_too_large">照片太大，請選擇另一張照片.</string>
     <string name="the_photo_type_must_be_jpg">照片格式必須為JPG.</string>
     <string name="your_video_description_has_not_been_changed_yet">您沒有對視訊描述做任何變更。</string>
     <string name="text_editor">文字編輯器</string>
@@ -136,7 +138,7 @@
     <string name="livechat_contact_search_null">未搜尋到任何東西。</string>
     
     <!-- Album -->
-    <string name="album_gridview_detail_photo_title">照片標題</string>
+
     
     <!-- include -->
     <string name="include_search_description">輸入會員</string>
@@ -213,6 +215,7 @@
     <string name="livechat_emotion_notsupported_error">對方不支持高級表情聊天。</string>
     <string name="livechat_voice_notsupported_error">對方不支持語音聊天.</string>
     <string name="livechat_photo_notsupported_error">對方不支持圖片聊天.</string>
+    <string name="livechat_video_notsupported_error">對方不支持小視頻聊天.</string>
     <string name="livechat_record_voice_too_short">錄音時間過短!</string>
     
     <string-array name="livechat_msg_in_type">
@@ -226,6 +229,55 @@
         <item name="send_a_video">您發送了一個視訊檔。</item>
         <item name="receive_a_video">%s給你發送了一個視訊檔。</item>
     </string-array>
+    
+    <!-- Album -->
+    <string name="album_gridview_detail_photo_title">照片標題</string>
+    <string name="album_add_photo">增加照片</string>
+    <string name="album_add_video">增加視頻</string>
+    <string name="album_no_photo">此相冊沒有照片。</string>
+    <string name="album_no_video">此相冊沒有視頻。</string>
+    <string name="album_delete_dialog">不能刪除含有照片或視頻的相冊。</string>
+    <string name="album_list_error">發生了錯誤，請重試。</string>
+    <string name="album_creating">創建中</string>
+    <string name="album_edit_processing">處理中</string>
+    <string name="album_deleting">刪除中</string>
+    <string name="album_create_edit_error_existed">相冊名稱已被使用，請使用其他名稱。</string>
+    <string name="album_create_normal_error">發生了錯誤，請稍後再試。</string>
+    <string name="album_edit_normal_error">發生了錯誤，請稍後再試。</string>
+    <string name="album_delete_normal_error">發生了錯誤，請稍後再試。</string>
+    <string name="album_photolist_update_error">發生了錯誤，請稍後再試。</string>
+    <string name="album_videolist_update_error">發生了錯誤，請稍後再試。</string>
+    <string name="album_photo_summitting">正在提交</string>
+    <string name="album_photo_over_thirty_error">相冊已滿，請上傳至其他相冊。</string>
+    <string name="album_photo_no_permission_error">上傳失敗，請聯係閣下的機構。</string>
+    <string name="album_photo_existed_error">上傳失敗，不能上傳重複的照片。</string>
+    <string name="album_photo_normal_error">上傳失敗，是否重試？</string>
+    <string name="album_photo_eidt_notexist_error">不能編輯該照片，照片不存在。</string>
+    <string name="album_photo_size_or_format_error">圖片格式不符合規範 (JPG, 720-1080px)</string>
+    <string name="album_photo_edit_status_error">不能編輯該照片，照片不存在。</string>
+    <string name="album_video_upload_tips">%s is uploading. You can check the notification bar to get the progress.</string>
+    <string name="album_video_upload_overflow_failed">\"%s\" 上傳失敗，相冊已滿。</string>
+    <string name="album_video_upload_thumb_exist_failed">\"%s\" 上傳失敗，封面已存在。</string>
+    <string name="album_video_upload_video_exist_failed">\"%s\" 上傳失敗，視頻已存在。</string>
+    <string name="album_video_upload_thumb_format_failed">\"%s\" 上傳失敗，請檢查視頻封面。</string>
+    <string name="album_video_upload_normal_failed">\"%s\" 上傳失敗，是否重試？</string>
+    <string name="album_video_upload_success_notify">\"%s\" 上傳成功。</string>
+    <string name="album_video_uploading_notify">正在上傳：\"%s\"</string>
+    <string name="album_video_edit_thumb_exist_failed">編輯失敗，封面已存在。</string>
+    <string name="album_video_edit_thumb_format_failed">編輯失敗，封面格式不規範（JPG, 720px-1080px）</string>
+    <string name="album_video_edit_video_notexist_failed">編輯失敗，視頻不存在。</string>
+    <string name="album_video_edit_status_error">編輯失敗，視頻已被拒絕。</string>
+    <string name="album_video_edit_normal_failed">編輯失敗，是否重試？</string>
+    <string name="album_video_preview_not_exist">暫時不能播放此視頻，視頻正在處理中。</string>
+    <string name="album_video_size_too_large">視頻不能超過40M。請選擇其他視頻。</string>
+    <string name="album_photo_size_error">圖片尺寸不符合規範 (800px-3200px)</string>
+    <string name="album_video_size_error">視頻尺寸不符合規範 (800px-3200px)</string>
+    <string name="album_video_reviewstatus_exception_error">視頻狀態無效，請聯絡閣下的機構。</string>
+    <string name="album_video_thumbnail_checking">檢查中</string>
+    <string name="album_detail_title_pass">通過審核的</string>
+    <string name="album_detail_title_under_review">審核中的</string>
+    <string name="album_detail_title_required_edit">需要編輯的</string>
+    <string name="album_detail_title_rejected">被拒絕的</string>
     
     <!-- more -->
     <string name="more_view_your_profile">查看詳細資料</string>

@@ -64,12 +64,14 @@
     <string name="english_letter_and_space_onley_between_12_to_25_characters">English letters and space only, between 12 to 25 characters.</string>
     <string name="this_video_maybe_corrupted_or_is_malformed_please_choose_another_video">This video maybe corrupt or is malformed, please choose another video.</string>
     <string name="photo_description_re_edition_user_message">Your photo description does not meet our content policy, please edit and submit again.</string>
+    <string name="video_description_re_edition_user_message">Your video description or video thumbnail does not meet our content policy, please edit and submit again.</string>
     <string name="your_photo_description_has_not_been_changed_yet">Your photo description has not been changed yet.</string>
     <string name="this_item_did_not_successfully_uploaded">This item did not successfully uploaded.</string>
     <string name="length_of_the_video_should_be_between_8_15_seconds_please_choose_another_video">Length of the video should be between 8 &#8211; 15 seconds, please choose another video.</string>
     <string name="the_video_resolution_must_be_heigher_than_720px_please_choose_another_video">The video resolution must be higher than 720 pixels, please choose another video.</string>
     <string name="the_video_thumbnail_resolution_must_be_heigher_than_720px_please_choose_another_photo">The video thumbnail resolution must be higher than 720 pixels, please choose another photo.</string>
     <string name="the_photo_resolution_must_be_heigher_than_800px_please_choose_another_photo">The photo resolution must be higher than 800 pixels, please choose another photo.</string>
+    <string name="the_photo_resolution_too_large">The photo resolution is too large, please choose another photo.</string>
     <string name="the_photo_type_must_be_jpg">The photo format must be JPG.</string>
     <string name="your_video_description_has_not_been_changed_yet">Your video description has not been changed yet.</string>
     <string name="text_editor">Text editor</string>
@@ -145,18 +147,19 @@
     <string name="album_creating">Creating</string>
     <string name="album_edit_processing">Processing</string>
     <string name="album_deleting">Deleting</string>
-    <string name="album_create_edit_error_existed">Album name is taken, please use another name.</string>
-    <string name="album_create_normal_error">Something happened. Please try again later.</string>
-    <string name="album_edit_normal_error">Something happened. Please try again later.</string>
-    <string name="album_delete_normal_error">Something happened. Please try again later.</string>
-    <string name="album_photolist_update_error">Something happened. Pull down to refresh again.</string>
-    <string name="album_videolist_update_error">Something happened. Pull down to refresh again.</string>
+    <string name="album_create_edit_error_existed">Album name is used, please choose another name.</string>
+    <string name="album_create_normal_error">Error occurred. Please try again later.</string>
+    <string name="album_edit_normal_error">Error occurred. Please try again later.</string>
+    <string name="album_delete_normal_error">Error occurred. Please try again later.</string>
+    <string name="album_photolist_update_error">Error occurred, please to refresh.</string>
+    <string name="album_videolist_update_error">Error occurred, please refresh again.</string>
     <string name="album_photo_summitting">Submitting</string>
     <string name="album_photo_over_thirty_error">Failed. Album is full (30 items).</string>
     <string name="album_photo_no_permission_error">Failed uploading your photo. Please contact your agency.</string>
     <string name="album_photo_existed_error">Failed uploading your photo, please do not upload duplicated photos.</string>
     <string name="album_photo_normal_error">Troubles occurred. Would you like to try again?</string>
     <string name="album_photo_eidt_notexist_error">Could not edit this photo, it maybe deleted.</string>
+    <string name="album_photo_size_or_format_error">The photo is too large or the width/height is too long.</string>
     <string name="album_photo_edit_status_error">Could not edit this photo, it maybe deleted.</string>
     <string name="album_video_upload_tips">%s is uploading. You can check the notification bar to get the progress.</string>
     <string name="album_video_upload_overflow_failed">Failed uploading \"%s\", album is full.</string>
@@ -166,20 +169,21 @@
     <string name="album_video_upload_normal_failed">Failed uploading \"%s\". Retry?</string>
     <string name="album_video_upload_success_notify">Successfully uploaded \"%s\".</string>
     <string name="album_video_uploading_notify">Uploading \"%s\"</string>
-    <string name="album_video_edit_thumb_exist_failed">Edit failed. The video thumb photo already exists.</string>
-    <string name="album_video_edit_thumb_format_failed">Edit failed. The video thumb photo must be jpg and width or height between 720 and 1080.</string>
-    <string name="album_video_edit_video_notexist_failed">Edit failed. The video not exists.</string>
-    <string name="album_video_edit_status_error">The video status is rejested.Please check it.</string>
-    <string name="album_video_edit_normal_failed">Edit failed. Please click the retry to upload again.</string>
-    <string name="album_video_preview_not_exist">This video is being processed.Can\'t play now, please try again later.</string>
+    <string name="album_video_edit_thumb_exist_failed">Failed, cover photo already exists.</string>
+    <string name="album_video_edit_thumb_format_failed">Failed, cover photo must be jpg and size must be between 720px and 1080px.</string>
+    <string name="album_video_edit_video_notexist_failed">Failed. Video not exists.</string>
+    <string name="album_video_edit_status_error">The video status is rejested.</string>
+    <string name="album_video_edit_normal_failed">Failed. Would you like to retry?</string>
+    <string name="album_video_preview_not_exist">This video is being processed. Can\'t play now, please try again later.</string>
     <string name="album_video_size_too_large">Size of the video should be lower than 40M, please choose another video.</string>
-    <string name="album_photo_size_error">The size of photo is invalid(The width and height must be between 800 and 3200).</string>
-    <string name="album_video_size_error">The size of thumb photo is invalid(The width and height must be between 800 and 3200).</string>
+    <string name="album_photo_size_error">The size of photo is invalid (800px-3200px).</string>
+    <string name="album_video_size_error">The size of video is invalid (800px-3200px).</string>
+    <string name="album_video_reviewstatus_exception_error">Invalid video status, please contact your agancy.</string>
     <string name="album_video_thumbnail_checking">Checking</string>
-    <string name="album_detail_title_pass">PAST</string>
-    <string name="album_detail_title_under_review">UNDER_REVIEW</string>
-    <string name="album_detail_title_required_edit">REQUIRED_EDIT</string>
-    <string name="album_detail_title_rejected">REJECTED</string>
+    <string name="album_detail_title_pass">Pass</string>
+    <string name="album_detail_title_under_review">Pending approval</string>
+    <string name="album_detail_title_required_edit">Edition required</string>
+    <string name="album_detail_title_rejected">Rejected</string>
     
     <!-- include -->
     <string name="include_search_description">Enter lady\&apos;s ID</string>
@@ -260,6 +264,7 @@
     <string name="livechat_emotion_notsupported_error">The recipient\'s device does not support animating stickers.</string>
     <string name="livechat_voice_notsupported_error">The recipient\'s device does not support voice messages.</string>
     <string name="livechat_photo_notsupported_error">The recipient\'s device does not support photo exchanges.</string>
+    <string name="livechat_video_notsupported_error">The recipient\'s device does not support short video exchanges.</string>
     
     <string name="livechat_record_voice_too_short">message is too short!</string>
     

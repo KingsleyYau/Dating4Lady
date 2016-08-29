@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -185,7 +186,7 @@ public class AlbumPreviewFragment extends BaseFragment implements ImageViewLoade
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		if(v.getId()==R.id.videoButton){//浏览器查看
-			Uri uri = Uri.parse(albumVideoItem.thumbUrl);
+			Uri uri = Uri.parse(albumVideoItem.url);
 			Intent intent = new Intent(Intent.ACTION_VIEW);
 			intent.setDataAndType(uri, "video/mpeg4");
 			if(getActivity() != null
@@ -213,6 +214,8 @@ public class AlbumPreviewFragment extends BaseFragment implements ImageViewLoade
 		        	 
 	                URL obj = new URL(url);
 	                HttpURLConnection conn = (HttpURLConnection)obj.openConnection();
+	                conn.setRequestProperty("Authorization", "Basic " + new String(Base64.encode("test:5179".getBytes(), Base64.DEFAULT)));
+	                conn.connect();
 	                if(conn.getResponseCode() == 200){
 	                	isContain = true;
 	                }

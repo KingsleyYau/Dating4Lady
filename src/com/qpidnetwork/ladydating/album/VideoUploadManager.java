@@ -51,7 +51,6 @@ private static VideoUploadManager mVideoUploadManager;
 	}
 	
 	private void initNotificationReceiver(){
-		Log.i("hunter", "VideoUploadManager initNotificationReceiver");
 		mBroadcastReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {

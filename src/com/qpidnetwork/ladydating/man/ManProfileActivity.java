@@ -27,8 +27,10 @@ import com.qpidnetwork.livechat.LiveChatManager;
 import com.qpidnetwork.livechat.LiveChatManagerMessageListener;
 import com.qpidnetwork.livechat.jni.LiveChatClientListener.LiveChatErrType;
 import com.qpidnetwork.manager.WebsiteManager;
+import com.qpidnetwork.request.OnQueryManDetailCallback;
 import com.qpidnetwork.request.OnRequestCallback;
 import com.qpidnetwork.request.RequestJniMan;
+import com.qpidnetwork.request.item.ManDetailItem;
 
 public class ManProfileActivity extends BaseWebViewActivity implements LiveChatManagerMessageListener{
 	
@@ -44,6 +46,7 @@ public class ManProfileActivity extends BaseWebViewActivity implements LiveChatM
 	private static final int ADD_FAVORITE_CALLBACK = 1;
 	private static final int REMOVE_FAVORITE_CALLBACK = 2;
 	private static final int SEND_INVITE_CALLBACK = 3;
+	private static final int QUERY_MAN_DETAIL_CALLBACK = 4;
 	
 	private static final int RESULT_INVITE_TEMPLATE = 1001;
 	
@@ -51,6 +54,7 @@ public class ManProfileActivity extends BaseWebViewActivity implements LiveChatM
 	private String mManName = "";
 	private String mManPhotoUrl = "";
 	private LiveChatManager mLivechChatManager;
+	private ManDetailItem mManDetail;
 	
 	public static void launchManProfileActivity(Context context, String manId, String manName, String photoUrl){
 		Intent intent = new Intent(context, ManProfileActivity.class);
@@ -66,6 +70,7 @@ public class ManProfileActivity extends BaseWebViewActivity implements LiveChatM
 		initData();
 		mLivechChatManager = LiveChatManager.getInstance();
 		loadManProfile();
+		QueryManDetail();
 	}
 	
 	private void initData(){
@@ -106,6 +111,25 @@ public class ManProfileActivity extends BaseWebViewActivity implements LiveChatM
 		loadUrl(url);
 	}
 	
+	/**
+	 * 获取男士详情，用于点击看大图，图片Url获取
+	 */
+	private void QueryManDetail(){
+		if(!TextUtils.isEmpty(mManId)){
+			RequestJniMan.QueryManDetail(mManId, new OnQueryManDetailCallback() {
+				
+				@Override
+				public void OnQueryManDetail(boolean isSuccess, String errno,
+						String errmsg, ManDetailItem item) {
+					Message msg = Message.obtain();
+					msg.what = QUERY_MAN_DETAIL_CALLBACK;
+					RequestBaseResponse response = new RequestBaseResponse(isSuccess, errno, errmsg, item);
+					msg.obj = response;
+					sendUiMessage(msg);
+				}
+			});
+		}
+	}
 	
 	@Override
 	protected boolean dealOverrideUrl(String url) {
@@ -126,8 +150,9 @@ public class ManProfileActivity extends BaseWebViewActivity implements LiveChatM
 			DelFavorite();
 			bFlag = true;
 		}else if( url.contains(VIEW_MANPHOTO_URL) ) {
-			if(!TextUtils.isEmpty(mManPhotoUrl)){
-				ManPhotoPreviewActivity.launchManPhotoPreviewActivity(this, mManPhotoUrl);
+			if(mManDetail != null
+					&& !TextUtils.isEmpty(mManDetail.photo_big_url)){
+				ManPhotoPreviewActivity.launchManPhotoPreviewActivity(this, mManDetail.photo_big_url);
 			}
 			bFlag = true;
 		}
@@ -202,6 +227,11 @@ public class ManProfileActivity extends BaseWebViewActivity implements LiveChatM
 				Toast.makeText(this, errMsg, Toast.LENGTH_SHORT).show();
 			}else{
 				Toast.makeText(this, getResources().getString(R.string.livechat_send_invite_success), Toast.LENGTH_SHORT).show();
+			}
+		}break;
+		case QUERY_MAN_DETAIL_CALLBACK:{
+			if(response.isSuccess){
+				mManDetail = (ManDetailItem)response.body;
 			}
 		}break;
 		default:

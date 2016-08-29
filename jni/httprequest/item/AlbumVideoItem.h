@@ -19,7 +19,7 @@ public:
 		videoUrl = "";
 		videoProcessStatus = PROCESS_STATUS_UNKNOWN;
 		reviewStatus = UNKNOWN;
-		reviewReason = REASON_OTHERS;
+		reviewReason = VIDEO_REASON_OTHERS;
 	}
 	~AlbumVideoItem(){
 
@@ -68,17 +68,50 @@ public:
 					reviewStatus = REVISED;
 				}
 			}
-			if(root[ALBUM_VIDEO_REVIEWREASON].isInt()){
-				int temp = REASON_OTHERS;
-				if(reviewStatus == REVISED){
-					//打回时在拒绝基础上处理
-					temp = REASON_OTHERS + root[ALBUM_VIDEO_REVIEWREASON].asInt();
-				}else if(reviewStatus == REJESTED){
-					temp = root[ALBUM_VIDEO_REVIEWREASON].asInt();
+			if(root[ALBUM_VIDEO_REVIEWREASON].isString()){
+				string reviewReasonStr = root[ALBUM_PHOTO_REVIEWREASON].asString();
+				if(reviewStatus == REJESTED){
+					if(reviewReasonStr == "1"){
+						reviewReason =  VIDEO_REASON_NON_SELF;
+					}else if(reviewReasonStr == "2"){
+						reviewReason =  VIDEO_REASON_SIMILAR_VIDEOSHOW;
+					}else if(reviewReasonStr == "3"){
+						reviewReason =  VIDEO_REASON_FACIAL_BLUR;
+					}else if(reviewReasonStr == "4"){
+						reviewReason =  VIDEO_REASON_VIDEO_UPSIDE_DOWN;
+					}else if(reviewReasonStr == "5"){
+						reviewReason =  VIDEO_REASON_APPEARANCE_NOT_MATCH;
+					}else if(reviewReasonStr == "6"){
+						reviewReason =  VIDEO_REASON_FACE_PHOTO_NOMATCH;
+					}else if(reviewReasonStr == "7"){
+						reviewReason =  VIDEO_REASON_EXIST_SIMILAR_SHORTVIDEO;
+					}else if(reviewReasonStr == "8"){
+						reviewReason =  VIDEO_REASON_VIDEO_TOO_SHORT;
+					}else if(reviewReasonStr == "9"){
+						reviewReason =  VIDEO_REASON_VIDEO_PIX_NOMATCH;
+					}else if(reviewReasonStr == "10"){
+						reviewReason =  VIDEO_REASON_VIDEO_BLUR;
+					}else if(reviewReasonStr == "11"){
+						reviewReason =  VIDEO_REASON_VIDEO_VOICE_NOMATCH;
+					}else if(reviewReasonStr == "12"){
+						reviewReason =  VIDEO_REASON_VIDEO_CONTAIN_TEXTORWATERMARK;
+					}else if(reviewReasonStr == "13"){
+						reviewReason =  VIDEO_REASON_VIDEO_CONTAIN_CONTACTINFO;
+					}else if(reviewReasonStr == "14"){
+						reviewReason =  VIDEO_REASON_VIDEO_PROFILE_NOMATCH;
+					}else if(reviewReasonStr == "15"){
+						reviewReason =  VIDEO_REASON_VIDEO_SITE_NOMATCH;
+					}
+				}else if(reviewStatus == REVISED){
+					if(reviewReasonStr == "1"
+							|| reviewReasonStr == "0"){
+						reviewReason =  VIDEO_REASON_REVISED_DESC_NOSTANDARD;
+					}else if(reviewReasonStr == "2"){
+						reviewReason =  VIDEO_REASON_REVISED_COVER_NOSTANDARD;
+					}else if(reviewReasonStr == "3"){
+						reviewReason =  VIDEO_REASON_REVISED_COVERANDDESC_NOSTANDARD;
+					}
 				}
-				reviewReason = ((REASON_NON_SELF <= temp && temp <= REASON_VIDEO_TOO_SHORT)
-						||(REASON_REVISED_DESC_NOSTANDARD <= temp && temp <= REASON_REVISED_COVERANDDESC_NOSTANDARD)
-						? (REVIEWREASON)temp : REASON_OTHERS);
 			}
 		}
 	}
@@ -91,7 +124,7 @@ public:
 	string videoUrl;
 	VIDEOPROCESSSTATUS videoProcessStatus;
 	REVIEWSTATUS reviewStatus;
-	REVIEWREASON reviewReason;
+	VIDEOREVIEWREASON reviewReason;
 };
 
 #endif/*_ALBUMVIDEOITEM_H*/

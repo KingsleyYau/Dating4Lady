@@ -36,10 +36,21 @@ int ReviewStatusToInt(REVIEWSTATUS type){
 	return value;
 }
 
-int ReviewReasonToInt(REVIEWREASON type){
+int PhotoReviewReasonToInt(PHOTOREVIEWREASON type){
 	int value = 0;
-	for(int i=0; i<_countof(ReviewReason); i++){
-		if(type == ReviewReason[i]){
+	for(int i=0; i<_countof(PhotoReviewReason); i++){
+		if(type == PhotoReviewReason[i]){
+			value = i;
+			break;
+		}
+	}
+	return value;
+}
+
+int VideoReviewReasonToInt(VIDEOREVIEWREASON type){
+	int value = 0;
+	for(int i=0; i<_countof(VideoReviewReason); i++){
+		if(type == VideoReviewReason[i]){
 			value = i;
 			break;
 		}

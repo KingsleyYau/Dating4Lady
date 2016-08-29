@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Message;
@@ -201,6 +202,22 @@ public class EditPhotoActivity extends BaseActionbarActivity implements OnEditAl
 			dialog.show();
 			return false;
 	    }
+	    
+	    long filesize = 0;
+	    try{
+	    	filesize = FileUtil.getFileSize(photoUri);
+	    }catch(Exception e){
+	    	e.printStackTrace();
+	    }
+	    if( filesize > 4000000){
+	    	//照片不能大于4M
+	    	MaterialDialogAlert dialog = new MaterialDialogAlert(this);
+			dialog.setMessage(getString(R.string.the_photo_resolution_too_large));
+			dialog.addButton(dialog.createButton(getString(R.string.ok), this, IDs.photo_error_dialog_button_ok));
+			dialog.addButton(dialog.createButton(getString(R.string.cancel), null));
+			dialog.show();
+			return false;
+	    }
 		
 	    this.photoUri = photoUri;
 	    photo.setScaleType(ScaleType.CENTER_CROP);
@@ -270,8 +287,10 @@ public class EditPhotoActivity extends BaseActionbarActivity implements OnEditAl
 	}
 	
 	/**
-	 * 照片宽/高必须在800-3200之间（太小或则尺寸过于异常时）
+	 * 照片宽/高必须在800-2048之间（太小或则尺寸过于异常时）
 	 */
+	private static final int THUMB_MIN_LENGTH = 800;
+	private static final int THUMB_MAX_LENGTH = 2048;
 	private void OptimizePhotoBeforeSend(){
 		new Thread(new Runnable() {
 			
@@ -283,34 +302,58 @@ public class EditPhotoActivity extends BaseActionbarActivity implements OnEditAl
 					BitmapFactory.Options opts = new BitmapFactory.Options();
 					opts.inJustDecodeBounds = true;
 					BitmapFactory.decodeFile(photoUri, opts);
-					if(opts.outHeight < 800 || opts.outHeight <800){
+					if(opts.outHeight < THUMB_MIN_LENGTH || opts.outHeight < THUMB_MIN_LENGTH){
 						isCanSend = false;
 					}
 					
 					//计算缩放可能性
-					int inSampleSize = 1;
+					float scale = 1;
+					int offsetx = 0;
+					int offsety = 0;
+					int width = 0;
+					int height = 0;
 					if(isCanSend){
-						 while(opts.outWidth/inSampleSize > 3200
-								 || opts.outHeight/inSampleSize >3200){
-							 inSampleSize *= 2;
-						 }
-						 if(opts.outWidth/inSampleSize < 800
-								 || opts.outHeight/inSampleSize < 800){
-							 isCanSend = false;
-						 }
-					}
-					
-					//按照指定比例缩放后可用
-					if(isCanSend){
-						opts.inSampleSize = inSampleSize;
-						opts.inJustDecodeBounds = false;
-						Bitmap tempBitmap = BitmapFactory.decodeFile(photoUri, opts);
-						if(tempBitmap !=  null){
-							photoUri = FileCacheManager.getInstance().GetTempPath() + System.currentTimeMillis() + ".jpg";
-							FileUtil.writeBitmapToFile(tempBitmap, photoUri);
-							tempBitmap.recycle();
-						}else{
-							isCanSend = false;
+						float widthScale = ((float)THUMB_MAX_LENGTH)/opts.outWidth;
+						float heightScale = ((float)THUMB_MAX_LENGTH)/opts.outHeight;
+						Bitmap tempBitmap = BitmapFactory.decodeFile(photoUri, null);
+						if(widthScale < 1 
+								|| heightScale < 1){
+							if(widthScale < 1 && heightScale >= 1){
+								//宽度过大
+								offsetx = (opts.outWidth - THUMB_MAX_LENGTH)/2;
+								width = THUMB_MAX_LENGTH;
+								height = tempBitmap.getHeight();
+							}else if(widthScale >= 1 && heightScale < 1){
+								//高度过大
+								offsety = 0;
+								height = THUMB_MAX_LENGTH;
+								width = tempBitmap.getWidth();
+							}else if(widthScale < 1 && heightScale < 1){
+								//宽高都过大,按照短边缩放，长边切
+								scale = widthScale > heightScale ? widthScale : heightScale;
+								if(widthScale > heightScale){
+									offsety = 0;
+									height = (int)(THUMB_MAX_LENGTH/widthScale);
+									width = tempBitmap.getWidth();
+								}else{
+									width = (int)(THUMB_MAX_LENGTH/heightScale);
+									offsetx = (opts.outWidth - width)/2;
+									height = tempBitmap.getHeight();
+								}
+							}
+							
+							//需要缩放处理
+							Matrix matrix = new Matrix();
+							matrix.postScale(scale, scale);
+							Bitmap resizeBitmap = Bitmap.createBitmap(tempBitmap, offsetx, offsety, width, height, matrix, true);
+							if(resizeBitmap !=  null){
+								photoUri = FileCacheManager.getInstance().GetTempPath() + System.currentTimeMillis() + ".jpg";
+								FileUtil.writeBitmapToFile(resizeBitmap, photoUri);
+								tempBitmap.recycle();
+								resizeBitmap.recycle();
+							}else{
+								isCanSend = false;
+							}
 						}
 					}
 					
@@ -389,6 +432,10 @@ public class EditPhotoActivity extends BaseActionbarActivity implements OnEditAl
 						&& response.errno.equals("4021")){
 					//4021  照片不存在
 					showConfirmNotifyDialog(this.getResources().getString(R.string.album_photo_eidt_notexist_error));
+				}else if(!TextUtils.isEmpty(response.errno)
+						&& response.errno.equals("4036")){
+					//4036  图片大小或格式不符
+					showConfirmNotifyDialog(this.getResources().getString(R.string.album_photo_size_or_format_error));
 				}else{
 					//4016  上传照片失败(移动照片)
 					//4018  添加照片失败(插库异常)

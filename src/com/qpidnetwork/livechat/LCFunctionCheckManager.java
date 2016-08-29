@@ -114,7 +114,9 @@ public class LCFunctionCheckManager {
 		boolean isSupported = true;
 		String userId = item.getUserItem().userId;
 		FunctionType type = LCMessageHelper.getFunctionTypeByMsgType(item.msgType);
-		Log.i("LCFunctionCheckManager", "localCheckFunctionSupport userId: " + item.getUserItem().userId + " msgType: " + item.msgType.ordinal() + " Function type:" + type.ordinal());
+		if(type != null){
+			Log.i("LCFunctionCheckManager", "localCheckFunctionSupport userId: " + item.getUserItem().userId + " msgType: " + item.msgType.ordinal() + " Function type:" + type.ordinal());
+		}
 		if(!TextUtils.isEmpty(userId) && type != null ){
 			LiveChatTalkUserListItem ladyInfo = mUserInfoManager.getLadyInfo(userId);
 			Log.i("LCFunctionCheckManager", "localCheckFunctionSupport ladyInfo: " + ladyInfo);

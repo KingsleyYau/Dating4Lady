@@ -1,6 +1,7 @@
 package com.qpidnetwork.framework.util;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
@@ -146,4 +147,26 @@ public class FileUtil {
 		
 		return false;
 	}
+	
+	 /**
+	  * 获取指定文件大小
+	  * 
+	  * @param f
+	  * @return
+	  * @throws Exception
+	  */
+	 public static long getFileSize(String filePath) throws Exception {
+		 long size = 0;
+		 File file = new File(filePath);
+		 if (file.exists()) {
+			 FileInputStream fis = new FileInputStream(file);
+			 if(fis != null){
+				 size = fis.available();
+			 }
+		 } else {
+			 file.createNewFile();
+			 Log.e("获取文件大小", "文件不存在!");
+		 }
+		 return size;
+	 }
 }

@@ -122,27 +122,29 @@ public class AlbumDetailActivity extends BaseActionbarActivity implements OnDele
 				// TODO Auto-generated method stub
 				String action = intent.getAction();
 				switch (action) {
-				case EDIT_ALBUM_REFRESH:
+				case EDIT_ALBUM_REFRESH:{
 					String albumName = intent.getStringExtra(INPUT_ALBUM_NAME);
 					if(!TextUtils.isEmpty(albumName)){
 						setActionBarName(albumName);
 					}
 					showAutoDismissToast(StikyToastType.DONE, "Done");
-					break;
-				case EDIT_ALBUM_PHOTO_REFRESH:
+				}break;
+				case EDIT_ALBUM_PHOTO_REFRESH:{
 					AlbumPhotoListFragment photoFragment = (AlbumPhotoListFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentReplacement);
+					QpidApplication.updateAlbumsNeed = true;
 					if(photoFragment!=null){
 						photoFragment.QueryAlbumItem();
 						showAutoDismissToast(StikyToastType.DONE, "Done");
 					}
-					break;
-				case EDIT_ALBUM_VIDEO_REFRESH:
+				}break;
+				case EDIT_ALBUM_VIDEO_REFRESH:{
 					AlbumVideoListFragment videofragment = (AlbumVideoListFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentReplacement);
+					QpidApplication.updateAlbumsNeed = true;
 					if(videofragment!=null){
 						videofragment.QueryAlbumItem();
 						showAutoDismissToast(StikyToastType.DONE, "Done");
 					}
-					break;
+				}break;
 				default:
 					break;
 				}

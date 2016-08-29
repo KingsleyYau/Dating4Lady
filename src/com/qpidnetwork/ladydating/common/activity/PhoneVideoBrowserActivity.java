@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -94,6 +95,10 @@ public class PhoneVideoBrowserActivity extends BaseFragmentActivity{
 				videoItem.videoUri = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATA));
 				videoItem.duraion = cursor.getInt(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION))/1000;
 				videoItem.size = cursor.getInt(cursor.getColumnIndex(MediaStore.Video.VideoColumns.SIZE));
+			}else{
+				MediaPlayer mp = MediaPlayer.create(this, Uri.parse(videoPath));
+				videoItem.duraion = mp.getDuration()/1000;
+				mp.release();
 			}
 		}catch(Exception e){
 			e.printStackTrace();

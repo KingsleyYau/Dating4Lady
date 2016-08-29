@@ -32,4 +32,14 @@
         android:visibility="gone"
         wheel:matProg_barColor="@color/blue_color"
         wheel:matProg_progressIndeterminate="true" />
+	<ImageView 
+	    android:id="@+id/imgRefresh"
+	    android:layout_width="48dp"
+	    android:layout_height="48dp"
+	    android:background="@drawable/oval_view_transparent_dark"
+	    android:src="@drawable/ic_refresh_white_24dp"
+	    android:layout_gravity="bottom|right"
+	    android:layout_marginRight="8dp"
+	    android:layout_marginBottom="8dp"
+	    android:clickable="true"/>
 </FrameLayout>

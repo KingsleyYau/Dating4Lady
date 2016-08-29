@@ -1897,6 +1897,14 @@ public class LiveChatManager
 		mPhotoMgr.GetPhotoList(mSelfInfo.mSid, mSelfInfo.mUserId);
 	}
 	
+	/**
+	 * 刷新时先清除本地缓存
+	 */
+	public void ClearAndGetPhotoList(){
+		mPhotoMgr.clearPhotoList();
+		GetPhotoList();
+	}
+	
 	// ---------------- 语音操作函数(Voice) ----------------
 	/**
 	 * 发送语音（包括获取语音验证码(livechat)、上传语音文件(livechat)、发送语音(livechat)）
@@ -2207,6 +2215,14 @@ public class LiveChatManager
 	public void GetVideoList()
 	{
 		mVideoMgr.GetVideoList(mSelfInfo.mUserId, mSelfInfo.mSid);
+	}
+	
+	/**
+	 * 清除并刷新视频列表
+	 */
+	public void ClearAndGetVideoList(){
+		mVideoMgr.clearVideoList();
+		GetVideoList();
 	}
 	
 	@Override

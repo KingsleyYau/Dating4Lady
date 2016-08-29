@@ -92,6 +92,9 @@ public class LCMessageHelper {
 		case Photo:
 			functionType = FunctionType.CHAT_PRIVATEPHOTO;
 			break;
+		case Video:
+			functionType = FunctionType.CHAT_SHORTVIDEO;
+			break;
 
 		default:
 			break;
@@ -113,6 +116,9 @@ public class LCMessageHelper {
 			break;
 		case Photo:
 			message = context.getString(R.string.livechat_photo_notsupported_error);
+			break;
+		case Video:
+			message = context.getString(R.string.livechat_video_notsupported_error);
 			break;
 
 		default:

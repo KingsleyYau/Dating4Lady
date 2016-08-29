@@ -17,7 +17,7 @@ public:
 		photoThumbUrl = "";
 		photoUrl = "";
 		reviewStatus = UNKNOWN;
-		reviewReason = REASON_OTHERS;
+		reviewReason = PHOTO_REASON_OTHERS;
 	}
 	~AlbumPhotoItem(){
 
@@ -52,17 +52,31 @@ public:
 					reviewStatus = REVISED;
 				}
 			}
-			if(root[ALBUM_PHOTO_REVIEWREASON].isInt()){
-				int temp = REASON_OTHERS;
-				if(reviewStatus == REVISED){
-					//打回时在拒绝基础上处理
-					temp = REASON_OTHERS + root[ALBUM_PHOTO_REVIEWREASON].asInt();
-				}else if(reviewStatus == REJESTED){
-					temp = root[ALBUM_PHOTO_REVIEWREASON].asInt();
+			if(root[ALBUM_PHOTO_REVIEWREASON].isString()){
+				string reviewReasonStr = root[ALBUM_PHOTO_REVIEWREASON].asString();
+				if(reviewReasonStr == "A"){
+					reviewReason =  PHOTO_REASON_NON_SELF;
+				}else if(reviewReasonStr == "B"){
+					reviewReason =  PHOTO_REASON_SIMILAR_PHOTO;
+				}else if(reviewReasonStr == "C"){
+					reviewReason =  PHOTO_REASON_FACIAL_BLUR;
+				}else if(reviewReasonStr == "D"){
+					reviewReason =  PHOTO_REASON_PHOTO_UPSIDE_DOWN;
+				}else if(reviewReasonStr == "E"){
+					reviewReason =  PHOTO_REASON_APPEARANCE_NOT_MATCH;
+				}else if(reviewReasonStr == "F"){
+					reviewReason =  PHOTO_REASON_FACE_PROFILEPHOTO_NOMATCH;
+				}else if(reviewReasonStr == "G"){
+					reviewReason =  PHOTO_REASON_PHOTO_CONTAIN_TEXTORWATERMARK;
+				}else if(reviewReasonStr == "1"){
+					reviewReason =  PHOTO_REASON_REVISED_DESC_NOSTANDARD;
+				}else if(reviewReasonStr == "2"){
+					reviewReason =  PHOTO_REASON_REVISED_COVER_NOSTANDARD;
+				}else if(reviewReasonStr == "3"){
+					reviewReason =  PHOTO_REASON_REVISED_COVERANDDESC_NOSTANDARD;
+				}else{
+					reviewReason =  PHOTO_REASON_OTHERS;
 				}
-				reviewReason = ((REASON_NON_SELF <= temp && temp <= REASON_VIDEO_TOO_SHORT)
-						||(REASON_REVISED_DESC_NOSTANDARD <= temp && temp <= REASON_REVISED_COVERANDDESC_NOSTANDARD)
-						? (REVIEWREASON)temp : REASON_OTHERS);
 			}
 		}
 	}
@@ -73,7 +87,7 @@ public:
 	string photoThumbUrl;
 	string photoUrl;
 	REVIEWSTATUS reviewStatus;
-	REVIEWREASON reviewReason;
+	PHOTOREVIEWREASON reviewReason;
 };
 
 #endif/*_ALBUMPHOTOITEM_H*/

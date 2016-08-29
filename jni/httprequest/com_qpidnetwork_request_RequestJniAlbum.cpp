@@ -435,7 +435,7 @@ class RequestAlbumPhotoListTaskCallback : public IRequestAlbumPhotoListTaskCallb
 					jstring jPhotoThumbUrl = env->NewStringUTF(itr->photoThumbUrl.c_str());
 					jstring jPhotoUrl = env->NewStringUTF(itr->photoUrl.c_str());
 					int reviewStatus = ReviewStatusToInt(itr->reviewStatus);
-					int reviewReason = ReviewReasonToInt(itr->reviewReason);
+					int reviewReason = PhotoReviewReasonToInt(itr->reviewReason);
 
 					jobject item = env->NewObject(cls, init,
 							jPhotoId,
@@ -738,7 +738,7 @@ class RequestAlbumVideoListTaskCallback : public IRequestAlbumVideoListTaskCallb
 					jstring jvideoUrl = env->NewStringUTF(itr->videoUrl.c_str());
 					int videoProcessStatus = VideoProcessStatusToInt(itr->videoProcessStatus);
 					int reviewStatus = ReviewStatusToInt(itr->reviewStatus);
-					int reviewReason = ReviewReasonToInt(itr->reviewReason);
+					int reviewReason = VideoReviewReasonToInt(itr->reviewReason);
 
 					jobject item = env->NewObject(cls, init,
 							jvideoId,

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 
 import com.qpidnetwork.framework.util.FileUtil;
 import com.qpidnetwork.ladydating.R;
+import com.qpidnetwork.ladydating.album.EditPhotoActivity.IDs;
 import com.qpidnetwork.ladydating.base.BaseActionbarActivity;
 import com.qpidnetwork.ladydating.bean.RequestBaseResponse;
 import com.qpidnetwork.ladydating.common.activity.PhonePhotoBrowserActivity;
@@ -40,8 +42,9 @@ import com.qpidnetwork.ladydating.utility.ImageUtil;
 import com.qpidnetwork.manager.FileCacheManager;
 import com.qpidnetwork.request.OnEditAlbumVideoCallback;
 import com.qpidnetwork.request.RequestJniAlbum;
-import com.qpidnetwork.request.RequestJniAlbum.ReviewReason;
+import com.qpidnetwork.request.RequestJniAlbum.VideoReviewReason;
 import com.qpidnetwork.request.item.AlbumVideoItem;
+import com.qpidnetwork.tool.ImageViewLoader;
 
 public class EditVideoActivity extends BaseActionbarActivity implements OnEditAlbumVideoCallback{
 
@@ -80,6 +83,8 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 	private static String ALBUM_NAME = "ALBUM_NAME";
 	private static String ALBUM_VIDEO_TITLE = "ALBUM_VIDEO_TITLE";
 	private static String ALBUM_VIDEO_REVIEW_REASON = "ALBUM_VIDEO_REVIEW_REASON";
+	private static String ALBUM_VIDEO_THUMB_URL = "ALBUM_VIDEO_THUMB_URL";
+	private static String ALBUM_VIDEO_ID = "ALBUM_VIDEO_ID";
 	
 	/**
 	 * @param context
@@ -97,6 +102,8 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 			intent.putExtra(ALBUM_NAME, albumName);
 			intent.putExtra(ALBUM_VIDEO_TITLE, albumVideoItem.title);
 			intent.putExtra(ALBUM_VIDEO_REVIEW_REASON, albumVideoItem.reviewReason.ordinal());
+			intent.putExtra(ALBUM_VIDEO_THUMB_URL, albumVideoItem.thumbUrl);
+			intent.putExtra(ALBUM_VIDEO_ID, albumVideoItem.id);
 			((FragmentActivity) context).startActivity(intent);
 		}
 	}
@@ -135,9 +142,11 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 	
 	private String videoUri;//视频路径
 	
-	private ReviewReason mReviewReason = ReviewReason.REASON_OTHERS;
+	private VideoReviewReason mReviewReason = VideoReviewReason.VIDEO_REASON_OTHERS;
 	private Point attachmentViewSize;
-	private String thumbnailUri;
+	private String thumbnailUri;//重新选择的图片本地地址
+	private String mThumbnailSrcUri;//原有上传的需要修正的封面图
+	private String mVideoId = "";
 
 	
 	@Override
@@ -157,7 +166,15 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 		}
 		
 		if(extras.containsKey(ALBUM_VIDEO_REVIEW_REASON)){
-			mReviewReason = ReviewReason.values()[extras.getInt(ALBUM_VIDEO_REVIEW_REASON)];
+			mReviewReason = VideoReviewReason.values()[extras.getInt(ALBUM_VIDEO_REVIEW_REASON)];
+		}
+		
+		if(extras.containsKey(ALBUM_VIDEO_THUMB_URL)){
+			mThumbnailSrcUri = extras.getString(ALBUM_VIDEO_THUMB_URL);
+		}
+		
+		if(extras.containsKey(ALBUM_VIDEO_ID)){
+			mVideoId = extras.getString(ALBUM_VIDEO_ID);
 		}
 		
 		editionMessage = (TextView) findViewById(R.id.editionMessage);
@@ -171,31 +188,19 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 		
 		videoView.setImageDrawable(DrawableUtil.getDrawable(R.drawable.ic_add_white_48dp, getResources().getColor(R.color.blue)));
 		thumbView.setImageDrawable(DrawableUtil.getDrawable(R.drawable.ic_add_white_48dp, getResources().getColor(R.color.blue)));
+		thumbView.setOnClickListener(this);
+		videoView.setOnClickListener(this);
 		setupAttachmentViewSize();
+		
+		//action bar
+		this.requestBackIcon(R.drawable.ic_arrow_back_grey600_24dp);
+		this.setActionbarTitle(getString(R.string.upload_video), getResources().getColor(R.color.text_color_dark));
 		
 		if (editType == EditType.ADD){
 			editionMessage.setVisibility(View.GONE);
 			videoView.setOnClickListener(this);
 			findViewById(R.id.videoViewContainer).setVisibility(View.VISIBLE);
 			VideoItem videoItem = (VideoItem) extras.getParcelable(PhoneVideoBrowserFragment.SELECT_VIDEO_ITEM);
-			
-			//根据打回原因分别处理可编辑项目
-			if(mReviewReason == ReviewReason.REASON_REVISED_DESC_NOSTANDARD){
-				//描述不規範,仅能修改描述
-				thumbView.setClickable(false);
-			}else if(mReviewReason == ReviewReason.REASON_REVISED_COVER_NOSTANDARD){
-				//仅能修改缩略图
-				videoDescription.setFocusable(false);
-				videoDescription.setEnabled(false);
-			}else if(mReviewReason == ReviewReason.REASON_REVISED_COVERANDDESC_NOSTANDARD){
-				//封面及描述均不規範,均可修改
-			}else{
-				//其他错误不能修改
-				thumbView.setClickable(false);
-				videoDescription.setFocusable(false);
-				videoDescription.setEnabled(false);
-			}
-			
 			if(videoItem!=null){
 				verifyVideo(videoItem);
 			}
@@ -203,15 +208,44 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 			editionMessage.setVisibility(View.VISIBLE);
 			findViewById(R.id.videoViewContainer).setVisibility(View.GONE);
 			((TextView)findViewById(R.id.thumbRequirementDeclare)).setText(R.string.required);
+			
+			//根据打回原因分别处理可编辑项目
+			if(mReviewReason == VideoReviewReason.VIDEO_REASON_REVISED_DESC_NOSTANDARD){
+				//描述不規範,仅能修改描述
+				thumbView.setClickable(false);
+			}else if(mReviewReason == VideoReviewReason.VIDEO_REASON_REVISED_COVER_NOSTANDARD){
+				//仅能修改缩略图
+				videoDescription.getEditText().setFocusable(false);
+				videoDescription.getEditText().setEnabled(false);
+			}else if(mReviewReason == VideoReviewReason.VIDEO_REASON_REVISED_COVERANDDESC_NOSTANDARD){
+				//封面及描述均不規範,均可修改
+			}else{
+				//其他错误不能修改
+				thumbView.setClickable(false);
+				videoDescription.getEditText().setFocusable(false);
+				videoDescription.getEditText().setEnabled(false);
+				
+				//修改状态与审核修改原因不符，异常处理
+				MaterialDialogAlert dialog = new MaterialDialogAlert(this);
+				dialog.setMessage(getString(R.string.album_video_reviewstatus_exception_error));
+				dialog.addButton(dialog.createButton(this.getString(R.string.ok), new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						finish();
+					}
+				}));
+				dialog.setCancelable(false);
+				dialog.show();
+				return;
+			}
+			thumbView.setScaleType(ScaleType.CENTER);
+			if(!TextUtils.isEmpty(mThumbnailSrcUri)){
+				String localPath = FileCacheManager.getInstance().CacheImagePathFromUrl(mThumbnailSrcUri);
+				new ImageViewLoader(this).DisplayImage(thumbView, mThumbnailSrcUri, localPath, null);
+			}
 		}
-		
-		//action bar
-		this.requestBackIcon(R.drawable.ic_arrow_back_grey600_24dp);
-		this.setActionbarTitle(getString(R.string.upload_video), getResources().getColor(R.color.text_color_dark));
-		
-		thumbView.setOnClickListener(this);
-		videoView.setOnClickListener(this);
-
 	}
 	
 	private void setupAttachmentViewSize(){
@@ -243,13 +277,10 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 			dialog.show();
 			return false;
 		}else{
-			if(createVideoThumbnail(videoItem.videoUri)){
+			Bitmap tempBitmap = createVideoThumbnail(videoItem.videoUri);
+			if(tempBitmap != null){
 				videoView.setScaleType(ScaleType.CENTER_CROP);
-				String localPath = FileCacheManager.getInstance().CacheVideoThumbnailFromVideoUri(videoItem.videoUri);
-				Bitmap bitmap = BitmapFactory.decodeFile(localPath, null);
-				if(bitmap != null){
-					videoView.setImageBitmap(bitmap);
-				}
+				videoView.setImageBitmap(tempBitmap);
 				thumbView.setScaleType(ScaleType.CENTER);
 				thumbView.setImageDrawable(DrawableUtil.getDrawable(R.drawable.ic_add_white_48dp, getResources().getColor(R.color.blue)));
 				durationView.setVisibility(View.VISIBLE);
@@ -267,23 +298,15 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 	
 	
 	
-	private boolean createVideoThumbnail(String videoUri){
-		if(TextUtils.isEmpty(thumbnailUri)){
-			//本来无需要生成
-			Bitmap bmp = ThumbnailUtils.createVideoThumbnail(videoUri, ThumbnailKind.RawKind);
-			
-			if (bmp == null){
-				return false;
-			}else{
-				if (bmp.getHeight() < 720 || bmp.getWidth() < 720) 
-					return false;
-				thumbnailUri = FileCacheManager.getInstance().GetTempPath() + System.currentTimeMillis() + ".jpg";
-				boolean saved = FileUtil.writeBitmapToFile(bmp, thumbnailUri, 100, Bitmap.CompressFormat.JPEG);
-				bmp.recycle();
-				return saved;
-			}
+	private Bitmap createVideoThumbnail(String videoUri){
+		Bitmap bmp = ThumbnailUtils.createVideoThumbnail(videoUri, ThumbnailKind.RawKind);
+		if(bmp != null 
+				&&(bmp.getHeight() >= 720 && bmp.getWidth() >= 720)){
+			thumbnailUri = FileCacheManager.getInstance().GetTempPath() + System.currentTimeMillis() + ".jpg";
+			FileUtil.writeBitmapToFile(bmp, thumbnailUri, 100, Bitmap.CompressFormat.JPEG);
+			return bmp;
 		}
-		return true;
+		return null;
 	}
 	
 	/** thumbnail size must be > 720 px **/
@@ -291,9 +314,24 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 		final BitmapFactory.Options options = new BitmapFactory.Options();
 	    options.inJustDecodeBounds = true;
 	    BitmapFactory.decodeFile(thumbUri, options);
-	    MaterialDialogAlert dialog = new MaterialDialogAlert(this);
 	    if (options.outHeight < 720 || options.outWidth < 720){
+	    	MaterialDialogAlert dialog = new MaterialDialogAlert(this);
 			dialog.setMessage(getString(R.string.the_video_thumbnail_resolution_must_be_heigher_than_720px_please_choose_another_photo));
+			dialog.addButton(dialog.createButton(getString(R.string.ok), this, IDs.thumb_error_dialog_button_ok));
+			dialog.addButton(dialog.createButton(getString(R.string.cancel), null));
+			dialog.show();
+			return false;
+	    }
+	    
+	    long filesize = 0;
+	    try{
+	    	filesize = FileUtil.getFileSize(thumbUri);
+	    }catch(Exception e){
+	    	e.printStackTrace();
+	    }
+	    if( filesize > 4000000){
+	    	MaterialDialogAlert dialog = new MaterialDialogAlert(this);
+			dialog.setMessage(getString(R.string.the_photo_resolution_too_large));
 			dialog.addButton(dialog.createButton(getString(R.string.ok), this, IDs.thumb_error_dialog_button_ok));
 			dialog.addButton(dialog.createButton(getString(R.string.cancel), null));
 			dialog.show();
@@ -392,20 +430,33 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 				return;
 			}
 		
-			if (thumbnailUri == null){
-				this.shakeView(findViewById(R.id.thumbViewContainer), true);
-				return;
+			if(mReviewReason == VideoReviewReason.VIDEO_REASON_REVISED_COVER_NOSTANDARD
+					|| mReviewReason == VideoReviewReason.VIDEO_REASON_REVISED_COVERANDDESC_NOSTANDARD){
+				//需要检测缩略图是否修改，否则提示错误
+				if (thumbnailUri == null){
+					this.shakeView(findViewById(R.id.thumbViewContainer), true);
+					return;
+				}
 			}
-			if(!TextUtils.isEmpty(albumId)&&!TextUtils.isEmpty(thumbnailUri)){
+			
+			if(!TextUtils.isEmpty(mVideoId)){
 				showProgressDialog(getResources().getString(R.string.album_photo_summitting));
-//				RequestJniAlbum.EditAlbumVideo(albumId, videoDescription.getEditText().getText().toString(), thumbnailUri, this);
-				OptimizePhotoBeforeSend();
+				if(mReviewReason == VideoReviewReason.VIDEO_REASON_REVISED_DESC_NOSTANDARD){
+					//描述不規範,仅能修改描述
+					RequestJniAlbum.EditAlbumVideo(mVideoId, videoDescription.getEditText().getText().toString(), "", this);
+				}else if(mReviewReason == VideoReviewReason.VIDEO_REASON_REVISED_COVERANDDESC_NOSTANDARD
+						||mReviewReason == VideoReviewReason.VIDEO_REASON_REVISED_COVER_NOSTANDARD){
+					//封面及描述均不規範,均可修改
+					OptimizePhotoBeforeSend();
+				}
 			}
 	}
 	
 	/**
-	 * 照片宽/高必须在800-3200之间（太小或则尺寸过于异常时）
+	 * 照片宽/高必须在720-1080之间（太小或则尺寸过于异常时）
 	 */
+	private static final int THUMB_MIN_LENGTH = 720;
+	private static final int THUMB_MAX_LENGTH = 1080;
 	private void OptimizePhotoBeforeSend(){
 		new Thread(new Runnable() {
 			
@@ -417,34 +468,58 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 					BitmapFactory.Options opts = new BitmapFactory.Options();
 					opts.inJustDecodeBounds = true;
 					BitmapFactory.decodeFile(thumbnailUri, opts);
-					if(opts.outHeight < 720 || opts.outHeight < 720){
+					if(opts.outHeight < THUMB_MIN_LENGTH || opts.outHeight < THUMB_MIN_LENGTH){
 						isCanSend = false;
 					}
 					
 					//计算缩放可能性
-					int inSampleSize = 1;
+					float scale = 1;
+					int offsetx = 0;
+					int offsety = 0;
+					int width = 0;
+					int height = 0;
 					if(isCanSend){
-						 while(opts.outWidth/inSampleSize > 1080
-								 || opts.outHeight/inSampleSize > 1080){
-							 inSampleSize *= 2;
-						 }
-						 if(opts.outWidth/inSampleSize < 720
-								 || opts.outHeight/inSampleSize < 720){
-							 isCanSend = false;
-						 }
-					}
-					
-					//按照指定比例缩放后可用
-					if(isCanSend){
-						opts.inSampleSize = inSampleSize;
-						opts.inJustDecodeBounds = false;
-						Bitmap tempBitmap = BitmapFactory.decodeFile(thumbnailUri, opts);
-						if(tempBitmap !=  null){
-							thumbnailUri = FileCacheManager.getInstance().GetTempPath() + System.currentTimeMillis() + ".jpg";
-							FileUtil.writeBitmapToFile(tempBitmap, thumbnailUri);
-							tempBitmap.recycle();
-						}else{
-							isCanSend = false;
+						float widthScale = ((float)THUMB_MAX_LENGTH)/opts.outWidth;
+						float heightScale = ((float)THUMB_MAX_LENGTH)/opts.outHeight;
+						Bitmap tempBitmap = BitmapFactory.decodeFile(thumbnailUri, null);
+						if(widthScale < 1 
+								|| heightScale < 1){
+							if(widthScale < 1 && heightScale >= 1){
+								//宽度过大
+								offsetx = (opts.outWidth - THUMB_MAX_LENGTH)/2;
+								width = THUMB_MAX_LENGTH;
+								height = tempBitmap.getHeight();
+							}else if(widthScale >= 1 && heightScale < 1){
+								//高度过大
+								offsety = 0;
+								height = THUMB_MAX_LENGTH;
+								width = tempBitmap.getWidth();
+							}else if(widthScale < 1 && heightScale < 1){
+								//宽高都过大,按照短边缩放，长边切
+								scale = widthScale > heightScale ? widthScale : heightScale;
+								if(widthScale > heightScale){
+									offsety = 0;
+									height = (int)(THUMB_MAX_LENGTH/widthScale);
+									width = tempBitmap.getWidth();
+								}else{
+									width = (int)(THUMB_MAX_LENGTH/heightScale);
+									offsetx = (opts.outWidth - width)/2;
+									height = tempBitmap.getHeight();
+								}
+							}
+							
+							//需要缩放处理
+							Matrix matrix = new Matrix();
+							matrix.postScale(scale, scale);
+							Bitmap resizeBitmap = Bitmap.createBitmap(tempBitmap, offsetx, offsety, width, height, matrix, true);
+							if(resizeBitmap !=  null){
+								thumbnailUri = FileCacheManager.getInstance().GetTempPath() + System.currentTimeMillis() + ".jpg";
+								FileUtil.writeBitmapToFile(resizeBitmap, thumbnailUri);
+								tempBitmap.recycle();
+								resizeBitmap.recycle();
+							}else{
+								isCanSend = false;
+							}
 						}
 					}
 					
@@ -458,7 +533,9 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 	}
 	
 	private void doSubmit(){
-		hideKeyboard();
+		if(videoDescription.getEditText().isFocusable()){
+			hideKeyboard();
+		}
 		videoDescription.setErrorEnabled(false);
 		
 		if (editType == EditType.ADD){
@@ -557,7 +634,7 @@ public class EditVideoActivity extends BaseActionbarActivity implements OnEditAl
 					//直接finish，不需要提示。
 					finish();
 				}else{
-					RequestJniAlbum.EditAlbumVideo(albumId, videoDescription.getEditText().getText().toString(), thumbnailUri, this);
+					RequestJniAlbum.EditAlbumVideo(mVideoId, videoDescription.getEditText().getText().toString(), thumbnailUri, this);
 				}
 			}else{
 				dismissProgressDialog();
