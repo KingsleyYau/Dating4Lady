@@ -7,6 +7,7 @@
     <item name="overflow" type="id" />
     <item name="search" type="id"/>
     <item name="expand" type="id"/>
+    <item name="chathistory" type="id"/>
     
     <!-- 列表行统一ID命名 -->
     <item name="item_position" type="id">false</item>

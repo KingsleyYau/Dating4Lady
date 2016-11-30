@@ -491,7 +491,7 @@ public class LiveChatManagerTest
 				, photoItem.srcFilePath);
 		
 		// 获取图片
-		mMgr.GetPhotoWithMessage(item.getUserItem().userId, item.msgId, PhotoSizeType.Large);
+		mMgr.GetPhotoWithMessage(item.getUserItem().userId, item, PhotoSizeType.Large);
 	}
 	
 	@Override

@@ -8,16 +8,42 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class LivechatHistoryAdapter extends BaseAdapter{
 	
 	private Context mContext;
 	private LCChatListItem[] mChatList;
+	private Boolean[] mUnreadFlags;
 	
 	public LivechatHistoryAdapter(Context context, LCChatListItem[] chatList){
 		this.mContext = context;
 		this.mChatList = chatList;
+	}
+	
+	/**
+	 * 更新未读状态
+	 * @param unreadFlags
+	 */
+	public void updateUnreadFlags(Boolean[] unreadFlags){
+		if(unreadFlags == null || unreadFlags.length != mChatList.length){
+			return;
+		}else{
+			mUnreadFlags = unreadFlags;
+			notifyDataSetChanged();
+		}
+	}
+	
+	/**
+	 * 更新未读状态
+	 * @param position
+	 */
+	public void updateUnreadFlagByPosition(int position){
+		if(position < mUnreadFlags.length){
+			mUnreadFlags[position] = false;
+			notifyDataSetChanged();
+		}
 	}
 
 	@Override
@@ -49,9 +75,19 @@ public class LivechatHistoryAdapter extends BaseAdapter{
 			holder = (ViewHolder)convertView.getTag();
 		}
 		LCChatListItem item = mChatList[position];
+		boolean unreadFlags = false;
+		if(mUnreadFlags != null &&
+				position < mUnreadFlags.length){
+			unreadFlags = mUnreadFlags[position];
+		}
 		holder.tvSortId.setText(String.valueOf(position + 1));
 		holder.tvStartTime.setText(item.startTime);
 		holder.tvDuring.setText(item.duringTime);
+		if(unreadFlags){
+			holder.unreadFlag.setVisibility(View.VISIBLE);
+		}else{
+			holder.unreadFlag.setVisibility(View.GONE);
+		}
 		return convertView;
 	}
 	
@@ -60,11 +96,13 @@ public class LivechatHistoryAdapter extends BaseAdapter{
 		public TextView tvSortId;
 		public TextView tvStartTime;
 		public TextView tvDuring;
+		public ImageView unreadFlag;
 		
 		public ViewHolder(View view){
 			tvSortId = (TextView)view.findViewById(R.id.tvSortId);
 			tvStartTime = (TextView)view.findViewById(R.id.tvStartTime);
 			tvDuring = (TextView)view.findViewById(R.id.tvDuring);
+			unreadFlag = (ImageView)view.findViewById(R.id.unreadFlag);
 			view.setTag(this);
 		}
 	}

@@ -65,6 +65,13 @@ public class LCMessageHelper {
 				msg = String.format(msgs_[8], msgItem.getUserItem().userName);
 			}
 			break;
+		case MagicIcon:
+			if (msgItem.sendType == SendType.Send) {
+				msg = msgs_[9];
+			} else {
+				msg = String.format(msgs_[10], msgItem.getUserItem().userName);
+			}
+			break;
 		case System: // 系统消息
 		case Custom: // 自定义消息
 		case Unknow:
@@ -95,6 +102,9 @@ public class LCMessageHelper {
 		case Video:
 			functionType = FunctionType.CHAT_SHORTVIDEO;
 			break;
+		case MagicIcon:
+			functionType = FunctionType.CHAT_MAGICICON;
+			break;
 
 		default:
 			break;
@@ -120,7 +130,9 @@ public class LCMessageHelper {
 		case Video:
 			message = context.getString(R.string.livechat_video_notsupported_error);
 			break;
-
+		case MagicIcon:
+			message = context.getString(R.string.livechat_magicicon_notsupported_error);
+			break;
 		default:
 			break;
 		}

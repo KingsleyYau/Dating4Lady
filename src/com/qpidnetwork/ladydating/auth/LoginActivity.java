@@ -32,7 +32,6 @@ import com.qpidnetwork.livechat.jni.LiveChatClientListener.TalkEmfNoticeType;
 import com.qpidnetwork.livechat.jni.LiveChatTalkUserListItem;
 import com.qpidnetwork.request.ConfigManagerJni;
 import com.qpidnetwork.request.OnConfigManagerCallback;
-import com.qpidnetwork.request.RequestJni;
 import com.qpidnetwork.request.item.LoginItem;
 import com.qpidnetwork.request.item.SynConfigItem;
 

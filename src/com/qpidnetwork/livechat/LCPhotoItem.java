@@ -92,7 +92,7 @@ public class LCPhotoItem implements Serializable{
 		srcFilePath = "";
 		showSrcFilePath = "";
 		thumbSrcFilePath = "";
-		charge = false;
+		charge = true;
 		downloadStatusList = new ArrayList<DownloadStatus>();
 	}
 	
@@ -110,7 +110,7 @@ public class LCPhotoItem implements Serializable{
 		this.photoId = photoId;
 		this.sendId = sendId;
 		this.photoDesc = photoDesc;
-		this.charge = charge;
+		this.charge = true;
 		
 		if (!showFuzzyFilePath.isEmpty()) {
 			File file = new File(showFuzzyFilePath);

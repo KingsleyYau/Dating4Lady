@@ -25,7 +25,8 @@ void RequestLCAddInviteTemplateTask::SetCallback(IRequestLCAddInviteTemplateCall
 	mpCallback = pCallback;
 }
 
-void RequestLCAddInviteTemplateTask::SetParam(const string& tempContent)
+void RequestLCAddInviteTemplateTask::SetParam(const string& tempContent
+												, bool isInviteAssistant)
 {
 	mHttpEntiy.Reset();
 
@@ -33,10 +34,16 @@ void RequestLCAddInviteTemplateTask::SetParam(const string& tempContent)
 		mHttpEntiy.AddContent(LC_ADDINVITETEMPLATE_CONTENT, tempContent.c_str());
 	}
 
+	char temp[16];
+	sprintf(temp, "%d", isInviteAssistant?1:0);
+	mHttpEntiy.AddContent(LC_ADDINVITETEMPLATE_AUTOINVITEFLAG, temp);
+
 	FileLog("httprequest", "RequestLCAddInviteTemplateTask::SetParam( "
-			"tempContent : %s "
+			"tempContent : %s ,"
+			"isInviteAssistant : %s"
 			")",
-			tempContent.c_str()
+			tempContent.c_str(),
+			isInviteAssistant?"true":"false"
 			);
 }
 

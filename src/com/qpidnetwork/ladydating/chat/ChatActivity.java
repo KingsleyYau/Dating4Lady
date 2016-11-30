@@ -36,6 +36,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,8 +65,10 @@ import com.qpidnetwork.ladydating.customized.view.MaterialDialogSingleChoice;
 import com.qpidnetwork.ladydating.customized.view.MaterialDropDownMenu;
 import com.qpidnetwork.ladydating.customized.view.VerifyCodeDialog;
 import com.qpidnetwork.ladydating.customized.view.VerifyCodeDialog.OnButtonOkClickListener;
+import com.qpidnetwork.ladydating.db.ChatHistoryDB;
 import com.qpidnetwork.ladydating.home.HomeActivity;
 import com.qpidnetwork.livechat.LCEmotionItem;
+import com.qpidnetwork.livechat.LCMagicIconItem;
 import com.qpidnetwork.livechat.LCMessageItem;
 import com.qpidnetwork.livechat.LCMessageItem.MessageType;
 import com.qpidnetwork.livechat.LCPhotoItem;
@@ -75,6 +78,7 @@ import com.qpidnetwork.livechat.LCUserItem.CanSendErrType;
 import com.qpidnetwork.livechat.LCVideoItem;
 import com.qpidnetwork.livechat.LiveChatManager;
 import com.qpidnetwork.livechat.LiveChatManagerEmotionListener;
+import com.qpidnetwork.livechat.LiveChatManagerMagicIconListener;
 import com.qpidnetwork.livechat.LiveChatManagerMessageListener;
 import com.qpidnetwork.livechat.LiveChatManagerOtherListener;
 import com.qpidnetwork.livechat.LiveChatManagerPhotoListener;
@@ -93,16 +97,20 @@ import com.qpidnetwork.request.item.LCPhotoListAlbumItem;
 import com.qpidnetwork.request.item.LCPhotoListPhotoItem;
 import com.qpidnetwork.request.item.LCVideoListGroupItem;
 import com.qpidnetwork.request.item.LCVideoListVideoItem;
+import com.qpidnetwork.request.item.MagicIconConfig;
 import com.qpidnetwork.tool.ImageViewLoader;
 
 public class ChatActivity extends BaseFragmentActivity implements OnClickListener, 
 						LiveChatManagerOtherListener, LiveChatManagerMessageListener,
 						LiveChatManagerEmotionListener, LiveChatManagerPhotoListener,
-						LiveChatManagerVoiceListener, OnTranslateMessageCallback, 
-						LiveChatManagerVideoListener{
+						LiveChatManagerVoiceListener, LiveChatManagerMagicIconListener,
+						OnTranslateMessageCallback, LiveChatManagerVideoListener{
 
 	public static final String SEND_EMTOTION_ACTION = "livechat.sendemotion";
+	public static final String SEND_MAGICICON_ACTION = "livechat.sendmagicicon";
 	public static final String EMOTION_ID = "emotion_id";
+	public static final String MAGICICON_ID = "magicicon_id";
+	private static final int MAX_EDITTEXT_LENGTH = 200;
 
 	public static final String CHAT_TARGET_ID = "targetId";
 	public static final String CHAT_TARGET_NAME = "targetName";
@@ -136,6 +144,7 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 	private TextView tvUnread;
 	private TextView tvName;
 	private ImageButton btnMore;
+	private ImageView ivBadge;
 	private MaterialDropDownMenu dropDown;
 
 	private EditText etMessage;
@@ -147,7 +156,6 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 	private ImageButton btnVideo;
 	private ImageButton btnSelectPhoto;
 	private ImageButton btnVoice;
-	private ImageButton btnEmotion;
 
 	/* 底部pane */
 	private FrameLayout flBottom;
@@ -178,6 +186,9 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 	//用于解决消息输入框6.0删除表情需要多次问题
 	private ArrayList<ImageSpan> mEmoticonsToRemove = new ArrayList<ImageSpan>();
 	
+	//消息历史提示
+	private ChatHistoryDB mChatHistoryDB;
+	
 	public static void launchChatActivity(Context context, String manId, String userName, String photoUrl){
 		Intent intent = new Intent(context, ChatActivity.class);
 		intent.putExtra(CHAT_TARGET_ID, manId);
@@ -195,6 +206,8 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 		
 		mLiveChatManager = LiveChatManager.getInstance();
 		mTranslateManager = TranslateManager.getInstance();
+		mChatHistoryDB = ChatHistoryDB.getInstance(this);
+		
 		initViews();
 		initData();
 		initLivechatConfig();
@@ -212,6 +225,7 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 		ivPhoto = (CircleImageView) findViewById(R.id.ivPhoto);
 		tvName = (TextView) findViewById(R.id.tvName);
 		btnMore = (ImageButton) findViewById(R.id.btnMore);
+		ivBadge = (ImageView) findViewById(R.id.ivBadge);
 
 		msgList = (MessageListView) findViewById(R.id.msgList);
 		msgList.setOnTouchListener(onMessageListTouchListener);
@@ -236,7 +250,7 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 					.dip2px(this, 48);
 			btnMore.getLayoutParams().width = UnitConversion
 					.dip2px(this, 48);
-			((LinearLayout.LayoutParams)btnMore.getLayoutParams()).rightMargin = 0;
+			((FrameLayout.LayoutParams)btnMore.getLayoutParams()).rightMargin = 0;
 			
 		}
 
@@ -245,13 +259,11 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 		btnVideo  = (ImageButton) findViewById(R.id.btnVideo);
 		btnSelectPhoto = (ImageButton) findViewById(R.id.btnSelectPhoto);
 		btnVoice = (ImageButton) findViewById(R.id.btnVoice);
-		btnEmotion = (ImageButton) findViewById(R.id.btnEmotion);
 
 		btnTakePhoto.setOnClickListener(this);
 		btnVideo.setOnClickListener(this);
 		btnSelectPhoto.setOnClickListener(this);
 		btnVoice.setOnClickListener(this);
-		btnEmotion.setOnClickListener(this);
 		btnMore.setOnClickListener(this);
 		ivPhoto.setOnClickListener(this);
 
@@ -278,6 +290,7 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 			finish();
 			return;
 		} else {
+			
 			/* 初始化正在聊天对象，方便统计未读 */
 			mContactManager = ContactManager.getInstance();
 			mContactManager.mManId = targetId;
@@ -323,6 +336,7 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 		mLiveChatManager.RegisterVoiceListener(this);
 		mLiveChatManager.RegisterOtherListener(this);
 		mLiveChatManager.RegisterVideoListener(this);
+		mLiveChatManager.RegisterMagicIconListener(this);
 		/*翻译绑定*/
 		mTranslateManager.RegisterTranslateListener(this);
 	}
@@ -407,11 +421,15 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 				if (action.equals(SEND_EMTOTION_ACTION)) {
 					String emotionId = intent.getExtras().getString(EMOTION_ID);
 					sendEmotionItem(emotionId);
+				}else if(action.equals(SEND_MAGICICON_ACTION)){
+					String magicIconId = intent.getExtras().getString(MAGICICON_ID);
+					sendMagicIcon(magicIconId);
 				}
 			}
 		};
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(SEND_EMTOTION_ACTION);
+		filter.addAction(SEND_MAGICICON_ACTION);
 		registerReceiver(mBroadcastReceiver, filter);
 	}
 
@@ -440,6 +458,13 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 		mContactManager.mManId = targetId;
 		//清除所有Livechat 通知消息
 		LiveChatNotification.newInstance(this).Cancel();
+		
+		//消息历史提示
+		if(mChatHistoryDB.getAllUnreadChatHistoryCount(targetId) > 0){
+			ivBadge.setVisibility(View.VISIBLE);
+		}else{
+			ivBadge.setVisibility(View.GONE);
+		}
 	}
 
 	@Override
@@ -462,6 +487,7 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 		mLiveChatManager.UnregisterPhotoListener(this);
 		mLiveChatManager.UnregisterVoiceListener(this);
 		mLiveChatManager.UnregisterVideoListener(this);
+		mLiveChatManager.UnregisterMagicIconListener(this);
 		
 		/*翻译解绑*/
 		mTranslateManager.UnregisterTranslateListener(this);
@@ -514,21 +540,28 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 					, getString(R.string.LiveChatF_Action_Voice)
 					, getString(R.string.LiveChatF_Label_Voice));
 			break;
-		case R.id.btnEmotion:
-			onMenuButtonClick(MenuBtnType.EMOTION_PAN);
-			
-			// 统计event
-			onAnalyticsEvent(getString(R.string.LiveChatF_Category)
-					, getString(R.string.LiveChatF_Action_AnimatedEmotions)
-					, getString(R.string.LiveChatF_Label_AnimatedEmotions));
-			break;
-		case R.id.btnMore:
-			String[] menu = new String[] { getString(R.string.livechat_chat_history),
-					getString(R.string.livechat_chat_translate_setting)};
-			if (dropDown != null) {
-				dropDown.showAsDropDown(btnMore);
-				return;
+//		case R.id.btnEmotion:
+//			onMenuButtonClick(MenuBtnType.EMOTION_PAN);
+//			
+//			// 统计event
+//			onAnalyticsEvent(getString(R.string.LiveChatF_Category)
+//					, getString(R.string.LiveChatF_Action_AnimatedEmotions)
+//					, getString(R.string.LiveChatF_Label_AnimatedEmotions));
+//			break;
+		case R.id.btnMore:{
+			int count = mChatHistoryDB.getAllUnreadChatHistoryCount(targetId);
+			String chatHistory = "";
+			if(count > 0){
+				chatHistory = String.format(getResources().getString(R.string.livechat_chat_history_unread_count_format), String.valueOf(count)) ;
+			}else{
+				chatHistory = getResources().getString(R.string.livechat_chat_history);
 			}
+			String[] menu = new String[] { chatHistory,
+					getString(R.string.livechat_chat_translate_setting)};
+//			if (dropDown != null) {
+//				dropDown.showAsDropDown(btnMore);
+//				return;
+//			}
 			dropDown = new MaterialDropDownMenu(ChatActivity.this, menu,
 					new MaterialDropDownMenu.OnClickCallback() {
 
@@ -549,7 +582,7 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 
 			dropDown.showAsDropDown(btnMore);
 
-			break;
+		}break;
 		default:
 			break;
 		}
@@ -624,12 +657,12 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 			transaction.replace(R.id.flPane, voiceRecordFragment);
 			btnVoice.setImageResource(R.drawable.ic_mic_blue_24dp);
 			break;
-		case EMOTION_PAN:
-			if (emotionFragment == null)
-				emotionFragment = new NormalEmotionFragment();
-			transaction.replace(R.id.flPane, emotionFragment);
-			btnEmotion.setImageResource(R.drawable.ic_premium_emotion_blue_24dp);
-			break;
+//		case EMOTION_PAN:
+//			if (emotionFragment == null)
+//				emotionFragment = new NormalEmotionFragment();
+//			transaction.replace(R.id.flPane, emotionFragment);
+//			btnEmotion.setImageResource(R.drawable.ic_premium_emotion_blue_24dp);
+//			break;
 		case USE_CAMERA:
 			if (mLivechatAlbumListFragment == null) 
 				mLivechatAlbumListFragment = LivechatAlbumListFragment.newInstance(targetId);
@@ -647,6 +680,8 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 	 * 基础控件监听设置
 	 */
 	private TextWatcher edtInputWatcher = new TextWatcher() {
+		private int textCount = 0;
+		private int selectionEnd = 0;
 		@Override
 		public void beforeTextChanged(CharSequence s, int start, int count,
 				int after) {
@@ -684,6 +719,11 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
                 }
             }
             mEmoticonsToRemove.clear();
+            
+            if(textCount > MAX_EDITTEXT_LENGTH){
+            	selectionEnd = etMessage.getSelectionEnd();
+            	s.delete(MAX_EDITTEXT_LENGTH, selectionEnd);
+            }
 		};
 
 		@Override
@@ -691,6 +731,7 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 				int count) {
 			// btnSend.setEnabled(etMessage.getText().length() > 0 ? true :
 			// false);
+			textCount = etMessage.getText().toString().length();
 		}
 	};
 
@@ -804,7 +845,7 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 	 * 
 	 * @return
 	 */
-	private int getKeyboardHeight() {
+	public int getKeyboardHeight() {
 		SharedPreferences preference = getSharedPreferences("virtualKeyboard",
 				MODE_PRIVATE);
 		return preference.getInt("keyboardheight", -1);
@@ -963,7 +1004,6 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 		btnSelectPhoto.setImageResource(R.drawable.ic_tag_faces_grey600_24dp);
 		
 		btnVoice.setImageResource(R.drawable.ic_mic_grey600_24dp);
-		btnEmotion.setImageResource(R.drawable.ic_premium_emotion_24dp);
 	}
 	
 	/**
@@ -982,6 +1022,12 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 	 */
 	@SuppressWarnings("deprecation")
 	public void selectEmotion(int val) {
+		
+		if(MAX_EDITTEXT_LENGTH - etMessage.getText().toString().length() < 8){
+			//小表情占用字符串长度最大为8，字符串长度不够，拦截输入
+			return;
+		}
+		
 		int imgId = 0;
 		try {
 			imgId = R.drawable.class.getDeclaredField("e" + val).getInt(null);
@@ -1119,6 +1165,14 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 			case Emotion:
 				message = getString(R.string.livechat_send_emotion_frequently);
 				break;
+			case MagicIcon:{
+				if(errType == CanSendErrType.NoInChat){
+					message = getString(R.string.livechat_can_not_send_magicicon_message_before_the_conversation_has_started);
+				}else if(errType == CanSendErrType.SendMsgFrequency){
+					message = getString(R.string.livechat_send_magicicon_frequently);
+				}
+			}break;
+			
 			case Voice:{
 				if(errType == CanSendErrType.NoInChat){
 					message = getString(R.string.livechat_can_not_send_voice_message_before_the_conversation_has_started);
@@ -1179,6 +1233,18 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 		if(checkMsgBeforeSend(MessageType.Emotion)){
 			LCMessageItem item = mLiveChatManager.SendEmotion(chatTarget.userId,
 					emotionId);
+			appendMsg(item);
+		}
+	}
+	
+	/**
+	 * 发送小高级表情
+	 * @param magicIconId
+	 */
+	public void sendMagicIcon(String magicIconId) {
+		if(checkMsgBeforeSend(MessageType.MagicIcon)){
+			LCMessageItem item = mLiveChatManager.SendMagicIcon(chatTarget.userId,
+					magicIconId);
 			appendMsg(item);
 		}
 	}
@@ -1660,5 +1726,52 @@ public class ChatActivity extends BaseFragmentActivity implements OnClickListene
 			msg.obj = videoDesc;
 			sendUiMessage(msg);
 		}
+	}
+
+
+	@Override
+	public void OnGetMagicIconConfig(boolean success, String errno,
+			String errmsg, MagicIconConfig item) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void OnSendMagicIcon(LiveChatErrType errType, String errmsg,
+			LCMessageItem item) {
+		// TODO Auto-generated method stub
+		if ((item != null) && (item.getUserItem() != null)
+				&& (item.getUserItem().userId != null)
+				&& (item.getUserItem().userId.equals(targetId))) {
+			LiveChatCallBackItem callBack = new LiveChatCallBackItem(
+					errType.ordinal(), null, errmsg, item);
+			onSendMessageUpdate(callBack);
+		}
+	}
+
+
+	@Override
+	public void OnRecvMagicIcon(LCMessageItem item) {
+		// TODO Auto-generated method stub
+		if (item.fromId.equals(chatTarget.userId)) {
+			onReceiveMsgUpdate(item);
+		}	
+	}
+
+
+	@Override
+	public void OnGetMagicIconSrcImage(boolean success,
+			LCMagicIconItem magicIconItem) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void OnGetMagicIconThumbImage(boolean success,
+			LCMagicIconItem magicIconItem) {
+		// TODO Auto-generated method stub
+		
 	}
 }

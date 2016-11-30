@@ -40,7 +40,7 @@ class RequestConfigCallback : public ConfigManagerCallback {
 		if(itr != gJavaItemMap.end()){
 			jclass jItemClass = env->GetObjectClass(itr->second);
 			string itemInitString = "(Ljava/lang/String;ILjava/lang/String;ILjava/lang/String;[Ljava/lang/String;"
-					"ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
+					"ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V";
 			jmethodID jItemInit = env->GetMethodID(jItemClass, "<init>", itemInitString.c_str());
 
 			//languages
@@ -65,7 +65,7 @@ class RequestConfigCallback : public ConfigManagerCallback {
 			jItem = env->NewObject(jItemClass, jItemInit, jSocketHost,
 					item.socketPort, jSocketVersion, item.socketFromId,
 					jTranslateUrl, jLanguages, item.apkVersionCode, jApkVersionName,
-					jApkVersionUrl, jSiteUrl, jLiveChatVoiceHost);
+					jApkVersionUrl, jSiteUrl, jLiveChatVoiceHost, item.privatePhotoMax, item.privatePhotoMin);
 			env->DeleteLocalRef(jLanguages);
 
 			env->DeleteLocalRef(jSocketHost);

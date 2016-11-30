@@ -173,6 +173,18 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	InitClassHelper(env, LIVE_CHAT_GET_PHOTO_LIST_VIDEO_CLASS, &jLCGetVideoListItem);
 	gJavaItemMap.insert(JavaItemMap::value_type(LIVE_CHAT_GET_PHOTO_LIST_VIDEO_CLASS, jLCGetVideoListItem));
 
+	jobject jLCMagicIconItem;
+	InitClassHelper(env, LIVECHAT_MAGIC_ICON_TIME_CLASS, &jLCMagicIconItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(LIVECHAT_MAGIC_ICON_TIME_CLASS, jLCMagicIconItem));
+
+	jobject jLCMagicTypeItem;
+	InitClassHelper(env, LIVECHAT_MAGIC_TYPE_TIME_CLASS, &jLCMagicTypeItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(LIVECHAT_MAGIC_TYPE_TIME_CLASS, jLCMagicTypeItem));
+
+	jobject jLCMagicConfigItem;
+	InitClassHelper(env, LIVECHAT_MAGIC_CONFIG_ITEM_CLASS, &jLCMagicConfigItem);
+	gJavaItemMap.insert(JavaItemMap::value_type(LIVECHAT_MAGIC_CONFIG_ITEM_CLASS, jLCMagicConfigItem));
+
 	/*6.其他协议*/
 	jobject jEmotionConfigItem;
 	InitClassHelper(env, OTHER_EMOTION_CONFIG_CLASS, &jEmotionConfigItem);

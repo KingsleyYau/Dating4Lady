@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.qpidnetwork.framework.util.FileUtil;
 import com.qpidnetwork.ladydating.R;
+import com.qpidnetwork.ladydating.authorization.LoginManager;
 import com.qpidnetwork.ladydating.base.BaseActionbarActivity;
 import com.qpidnetwork.ladydating.bean.RequestBaseResponse;
 import com.qpidnetwork.ladydating.common.activity.PhonePhotoBrowserActivity;
@@ -38,6 +39,7 @@ import com.qpidnetwork.request.OnEditAlbumPhotoCallback;
 import com.qpidnetwork.request.OnSaveAlbumPhotoCallback;
 import com.qpidnetwork.request.RequestJniAlbum;
 import com.qpidnetwork.request.item.AlbumPhotoItem;
+import com.qpidnetwork.request.item.SynConfigItem;
 import com.qpidnetwork.tool.ImageViewLoader;
 
 public class EditPhotoActivity extends BaseActionbarActivity implements OnEditAlbumPhotoCallback, OnSaveAlbumPhotoCallback{
@@ -191,12 +193,19 @@ public class EditPhotoActivity extends BaseActionbarActivity implements OnEditAl
 		}
 		
 		//检测图片宽高
+		int minSize = 800;
+		//添加私密照最小设置后台设置
+		SynConfigItem synItem = LoginManager.getInstance().getSynConfigItem();
+		if(synItem != null && synItem.privatePhotoMin > 0){
+			minSize = synItem.privatePhotoMin;
+		}
 		final BitmapFactory.Options options = new BitmapFactory.Options();
 	    options.inJustDecodeBounds = true;
 	    BitmapFactory.decodeFile(photoUri, options);
-	    if (options.outHeight < 800 || options.outWidth < 800){
+	    if (options.outHeight < minSize || options.outWidth < minSize){
 	    	MaterialDialogAlert dialog = new MaterialDialogAlert(this);
-			dialog.setMessage(getString(R.string.the_photo_resolution_must_be_heigher_than_800px_please_choose_another_photo));
+	    	String message = String.format(getResources().getString(R.string.the_photo_resolution_must_be_heigher_than_800px_please_choose_another_photo), String.valueOf(minSize));
+			dialog.setMessage(message);
 			dialog.addButton(dialog.createButton(getString(R.string.ok), this, IDs.photo_error_dialog_button_ok));
 			dialog.addButton(dialog.createButton(getString(R.string.cancel), null));
 			dialog.show();
@@ -297,12 +306,25 @@ public class EditPhotoActivity extends BaseActionbarActivity implements OnEditAl
 			@Override
 			public void run() {
 				boolean isCanSend = true;
+				int minSize = THUMB_MIN_LENGTH;
+				int maxSize = THUMB_MAX_LENGTH;
+				//添加私密照最小设置后台设置
+				SynConfigItem synItem = LoginManager.getInstance().getSynConfigItem();
+				if(synItem != null){
+					if(synItem.privatePhotoMin > 0){
+						minSize = synItem.privatePhotoMin;
+					}
+					if(synItem.privatePhotoMax > 0
+							&& synItem.privatePhotoMax < THUMB_MAX_LENGTH){
+						maxSize = synItem.privatePhotoMax;
+					}
+				}
 				if(!TextUtils.isEmpty(photoUri)
 						&& new File(photoUri).exists()){
 					BitmapFactory.Options opts = new BitmapFactory.Options();
 					opts.inJustDecodeBounds = true;
 					BitmapFactory.decodeFile(photoUri, opts);
-					if(opts.outHeight < THUMB_MIN_LENGTH || opts.outHeight < THUMB_MIN_LENGTH){
+					if(opts.outHeight < minSize || opts.outHeight < minSize){
 						isCanSend = false;
 					}
 					
@@ -313,30 +335,30 @@ public class EditPhotoActivity extends BaseActionbarActivity implements OnEditAl
 					int width = 0;
 					int height = 0;
 					if(isCanSend){
-						float widthScale = ((float)THUMB_MAX_LENGTH)/opts.outWidth;
-						float heightScale = ((float)THUMB_MAX_LENGTH)/opts.outHeight;
+						float widthScale = ((float)maxSize)/opts.outWidth;
+						float heightScale = ((float)maxSize)/opts.outHeight;
 						Bitmap tempBitmap = BitmapFactory.decodeFile(photoUri, null);
 						if(widthScale < 1 
 								|| heightScale < 1){
 							if(widthScale < 1 && heightScale >= 1){
 								//宽度过大
-								offsetx = (opts.outWidth - THUMB_MAX_LENGTH)/2;
-								width = THUMB_MAX_LENGTH;
+								offsetx = (opts.outWidth - maxSize)/2;
+								width = maxSize;
 								height = tempBitmap.getHeight();
 							}else if(widthScale >= 1 && heightScale < 1){
 								//高度过大
 								offsety = 0;
-								height = THUMB_MAX_LENGTH;
+								height = maxSize;
 								width = tempBitmap.getWidth();
 							}else if(widthScale < 1 && heightScale < 1){
 								//宽高都过大,按照短边缩放，长边切
 								scale = widthScale > heightScale ? widthScale : heightScale;
 								if(widthScale > heightScale){
 									offsety = 0;
-									height = (int)(THUMB_MAX_LENGTH/widthScale);
+									height = (int)(maxSize/widthScale);
 									width = tempBitmap.getWidth();
 								}else{
-									width = (int)(THUMB_MAX_LENGTH/heightScale);
+									width = (int)(maxSize/heightScale);
 									offsetx = (opts.outWidth - width)/2;
 									height = tempBitmap.getHeight();
 								}

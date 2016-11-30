@@ -91,7 +91,8 @@
 #define SYN_CONFIG_SITE_URL                 "site_url"
 #define SYN_CONFIG_LIVECHATVOICEHOST		"chat_voice_hosturl"
 #define SYN_CONFIG_VIDEOUPLOADHOST			"video_upload_url"
-
+#define SYN_CONFIG_PRIVATEPHOTOMAX			"private_photo_max"
+#define SYN_CONFIG_PRIVATEPHOTOMIN			"private_photo_min"
 
 /*6.7 提交crash dump文件*/
 //path

@@ -31,6 +31,13 @@ public class LCSendMsgRuleHandler implements Serializable
 	// 高级表情消息最大时间间隔(秒)
 	private static final int EMOTIONMSG_TIME = 60;
 	
+	// 小高级表情消息列表
+	private ArrayList<LCMessageItem> mMagicIconMsgList = new ArrayList<LCMessageItem>();
+	// 小高级表情消息最大数量
+	private static final int MAGICICONMSG_LIMIT = 1;
+	// 小高级表情消息最大时间间隔(秒)
+	private static final int MAGICICONMSG_TIME = 60;
+	
 	// 语音消息列表
 	private ArrayList<LCMessageItem> mVoiceMsgList = new ArrayList<LCMessageItem>();
 	// 语音消息最大数量
@@ -71,6 +78,9 @@ public class LCSendMsgRuleHandler implements Serializable
 		case Emotion:
 			EmotionMsgInsert(item);
 			break;
+		case MagicIcon:
+			MagicIconMsgInsert(item);
+			break;
 		case Voice:
 			VoiceMsgInsert(item);
 			break;
@@ -100,6 +110,9 @@ public class LCSendMsgRuleHandler implements Serializable
 		case Emotion:
 			result = EmotionMsgCanSend();
 			break;
+		case MagicIcon:
+			result = MagicIconMsgCanSend();
+			break;
 		case Voice:
 			result = VoiceMsgCanSend();
 			break;
@@ -122,6 +135,7 @@ public class LCSendMsgRuleHandler implements Serializable
 	{
 		TextMsgChangeChatTypeProc(chatType);
 		EmotionMsgChangeChatTypeProc(chatType);
+		MagicIconMsgChangeChatTypeProc(chatType);
 		VoiceMsgChangeChatTypeProc(chatType);
 		PhotoMsgChangeChatTypeProc(chatType);
 		VideoMsgChangeChatTypeProc(chatType);
@@ -134,6 +148,7 @@ public class LCSendMsgRuleHandler implements Serializable
 	{
 		TextMsgClear();
 		EmotionMsgClear();
+		MagicIconMsgClear();
 		VoiceMsgClear();
 		PhotoMsgClear();
 		VideoMsgClear();
@@ -294,6 +309,84 @@ public class LCSendMsgRuleHandler implements Serializable
 		synchronized(mEmotionMsgList)
 		{
 			mEmotionMsgList.clear();
+		}
+	}
+	
+	// ------------------- 小高级表情消息 -------------------
+	/**
+	 * 插入小高级表情消息处理
+	 * @param item	消息item
+	 */
+	private void MagicIconMsgInsert(LCMessageItem item)
+	{
+		if (null != item 
+			&& item.sendType == LCMessageItem.SendType.Send)
+		{
+			synchronized(mMagicIconMsgList)
+			{
+				// 添加到高级表情消息列表
+				mMagicIconMsgList.add(item);
+				// 超过1条，把最前面的去掉
+				if (mMagicIconMsgList.size() > MAGICICONMSG_LIMIT)
+				{
+					mMagicIconMsgList.remove(0);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 判断是否可立即发送高级表情消息
+	 * @return
+	 */
+	private boolean MagicIconMsgCanSend()
+	{
+		boolean result = false;
+		// 女士可以发高级表情消息作为邀请
+		synchronized(mMagicIconMsgList)
+		{
+			if (mMagicIconMsgList.size() < MAGICICONMSG_LIMIT) {
+				result = true;
+			}
+			else {
+				// 取列表最前面的消息
+				LCMessageItem item = mMagicIconMsgList.get(0);
+				if (null != item)
+				{
+					// 判断是否大于最大时间间隔
+					int createTime = LCMessageItem.GetCreateTime();
+					result = createTime > (item.createTime + MAGICICONMSG_TIME);
+				}
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * 聊天状态改变(高级表情处理)
+	 * @param chatType	聊天状态
+	 */
+	private void MagicIconMsgChangeChatTypeProc(LCUserItem.ChatType chatType)
+	{
+		if (chatType == LCUserItem.ChatType.WomanInvite
+			|| chatType == LCUserItem.ChatType.Other) 
+		{
+			synchronized(mMagicIconMsgList)
+			{
+				// 清空数据
+				mMagicIconMsgList.clear();
+			}
+		}
+	}
+	
+	/**
+	 * 清空高级表情消息规则数据
+	 */
+	private void MagicIconMsgClear()
+	{
+		synchronized(mMagicIconMsgList)
+		{
+			mMagicIconMsgList.clear();
 		}
 	}
 	

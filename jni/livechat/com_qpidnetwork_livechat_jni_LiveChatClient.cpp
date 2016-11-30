@@ -714,7 +714,37 @@ public:
 	{
 
 	}
-	virtual void OnSendMagicIcon(const string& inUserId, const string& inIconId, int inTicket, LCC_ERR_TYPE err, const string& errmsg) {}
+	virtual void OnSendMagicIcon(const string& inUserId, const string& inIconId, int inTicket, LCC_ERR_TYPE err, const string& errmsg) {
+		JNIEnv* env = NULL;
+		bool isAttachThread = false;
+		GetEnv(&env, &isAttachThread);
+
+		FileLog("LiveChatClient", "OnSendMagicIcon() callback, env:%p, isAttachThread:%d", env, isAttachThread);
+
+		jclass jCallbackCls = env->GetObjectClass(gListener);
+		string signure = "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V";
+		jmethodID jCallback = env->GetMethodID(jCallbackCls, "OnSendMagicIcon", signure.c_str());
+		if (NULL != gListener && NULL != jCallback)
+		{
+			FileLog("LiveChatClient", "OnSendMagicIcon() callback now");
+
+			int errType = LccErrTypeToInt(err);
+			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+			jstring juserId = env->NewStringUTF(inUserId.c_str());
+			jstring jmagicIconId = env->NewStringUTF(inIconId.c_str());
+
+			env->CallVoidMethod(gListener, jCallback, errType, jerrmsg, juserId, jmagicIconId, inTicket);
+
+			env->DeleteLocalRef(jmagicIconId);
+			env->DeleteLocalRef(juserId);
+			env->DeleteLocalRef(jerrmsg);
+
+			FileLog("LiveChatClient", "OnSendMagicIcon() callback ok");
+		}
+
+		ReleaseEnv(isAttachThread);
+	}
+
 	virtual void OnGetUserInfo(const string& inUserId, LCC_ERR_TYPE err, const string& errmsg, const UserInfoItem& item)
 	{
 		JNIEnv* env = NULL;
@@ -1102,6 +1132,58 @@ public:
 
 		ReleaseEnv(isAttachThread);
 	}
+
+	virtual void OnGetAutoInviteMsgSwitchStatus(LCC_ERR_TYPE err, const string& errmsg, bool isOpenStatus)
+	{
+		JNIEnv* env = NULL;
+		bool isAttachThread = false;
+		GetEnv(&env, &isAttachThread);
+
+		FileLog("LiveChatClientJni", "OnGetAutoInviteMsgSwitchStatus() callback, env:%p, isAttachThread:%d, errType:%d, errmsg:%s, AutoInviteStatus:%d", env, isAttachThread,err, errmsg.c_str(), isOpenStatus);
+
+		jclass jCallbackCls = env->GetObjectClass(gListener);
+
+		string signure = "(ILjava/lang/String;Z)V";
+		jmethodID jCallback = env->GetMethodID(jCallbackCls, "OnGetAutoInviteMsgSwitchStatus", signure.c_str());
+		if(NULL != gListener && NULL != jCallback)
+		{
+			FileLog("LiveChatClientJni", "OnGetAutoInviteMsgSwitchStatus() callback now");
+			int errType = LccErrTypeToInt(err);
+			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+			env->CallVoidMethod(gListener, jCallback, errType, jerrmsg, isOpenStatus);
+			env->DeleteLocalRef(jerrmsg);
+			FileLog("LiveChatClientJni", "OnGetAutoInviteMsgSwitchStatus() callback ok");
+		}
+		ReleaseEnv(isAttachThread);
+	}
+
+	virtual void OnSwitchAutoInviteMsg(LCC_ERR_TYPE err, const string& errmsg, bool isOpenStatus)
+	{
+		JNIEnv* env = NULL;
+		bool isAttachThread = false;
+		GetEnv(&env, &isAttachThread);
+
+		FileLog("LiveChatClientJni", "OnSwitchAutoInviteMsg() callback, env:%p, isAttachThread:%d, errType:%d, errmsg:%s,AutoInviteStatus:%d", env, isAttachThread,err, errmsg.c_str(), isOpenStatus);
+		jclass jCallbackCls = env->GetObjectClass(gListener);
+
+		string signure = "(ILjava/lang/String;Z)V";
+		jmethodID jCallback = env->GetMethodID(jCallbackCls, "OnSwitchAutoInviteMsg", signure.c_str());
+		if(NULL != gListener && NULL != jCallback)
+		{
+			FileLog("LiveChatClientJni", "OnSwitchAutoInviteMsg() callback now");
+			int errType = LccErrTypeToInt(err);
+			jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+			env->CallVoidMethod(gListener, jCallback, errType, jerrmsg, isOpenStatus);
+			env->DeleteLocalRef(jerrmsg);
+			FileLog("LiveChatClientJni", "OnSwitchAutoInviteMsg() callback ok");
+		}
+		ReleaseEnv(isAttachThread);
+	}
+
+	virtual void OnRecommendThemeToMan(const string& inUserId, const string& inThemeId,LCC_ERR_TYPE err, const string& errmsg)
+	{
+	}
+
 	// 服务器主动请求
 	virtual void OnRecvMessage(const string& toId, const string& fromId, const string& fromName, const string& inviteId, bool charge, int ticket, TALK_MSG_TYPE msgType, const string& message) {
 		JNIEnv* env = NULL;
@@ -1593,7 +1675,43 @@ public:
 
 	virtual void OnRecvAutoChargeResult(const string& manId, double money, TAUTO_CHARGE_TYPE type, bool result, const string& code, const string& msg) {}
 
-	virtual void OnRecvMagicIcon(const string& toId, const string& fromId, const string& fromName, const string& inviteId, bool charge, int ticket, TALK_MSG_TYPE msgType, const string& iconId) {}
+	virtual void OnRecvMagicIcon(const string& toId, const string& fromId, const string& fromName, const string& inviteId, bool charge, int ticket, TALK_MSG_TYPE msgType, const string& iconId) {
+		JNIEnv* env = NULL;
+		bool isAttachThread = false;
+		GetEnv(&env, &isAttachThread);
+
+		FileLog("LiveChatClient", "OnRecvMagicIcon() callback, toId:%s, fromId:%s, fromName:%s, inviteId:%s"
+					", charge:%d, ticket:%d, msgType:%d, iconId:%s, env:%p, isAttachThread:%d"
+					, toId.c_str(), fromId.c_str(), fromName.c_str(), inviteId.c_str()
+					, charge, ticket, msgType, iconId.c_str(), env, isAttachThread);
+
+		jclass jCallbackCls = env->GetObjectClass(gListener);
+		string signure = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZIILjava/lang/String;)V";
+		jmethodID jCallback = env->GetMethodID(jCallbackCls, "OnRecvMagicIcon", signure.c_str());
+		if (NULL != gListener && NULL != jCallback)
+		{
+			FileLog("LiveChatClient", "OnRecvMagicIcon() callback now");
+
+			jstring jtoId = env->NewStringUTF(toId.c_str());
+			jstring jfromId = env->NewStringUTF(fromId.c_str());
+			jstring jfromName = env->NewStringUTF(fromName.c_str());
+			jstring jinviteId = env->NewStringUTF(inviteId.c_str());
+			int iMsgType = TalkMsgTypeToInt(msgType);
+			jstring jmagicIconId = env->NewStringUTF(iconId.c_str());
+
+			env->CallVoidMethod(gListener, jCallback, jtoId, jfromId, jfromName, jinviteId, charge, ticket, iMsgType, jmagicIconId);
+
+			env->DeleteLocalRef(jtoId);
+			env->DeleteLocalRef(jfromId);
+			env->DeleteLocalRef(jfromName);
+			env->DeleteLocalRef(jinviteId);
+			env->DeleteLocalRef(jmagicIconId);
+
+			FileLog("LiveChatClient", "OnRecvMagicIcon() callback ok");
+		}
+
+		ReleaseEnv(isAttachThread);
+	}
 
 	virtual void OnGetPaidTheme(const string& inUserId, LCC_ERR_TYPE err, const string& errmsg, const ThemeInfoList& themeList){}
 
@@ -1608,6 +1726,120 @@ public:
 	virtual void OnRecvThemeMotion(const string& themeId, const string& manId, const string& womanId){}
 
 	virtual void OnRecvThemeRecommend(const string& themeId, const string& manId, const string& womanId){}
+
+	virtual void OnAutoInviteStatusUpdate(bool isOpenStatus)
+	{
+		JNIEnv* env = NULL;
+		bool isAttachThread = false;
+		GetEnv(&env, &isAttachThread);
+
+		FileLog("LiveChatClientJni", "OnAutoInviteStatusUpdate() callback, env:%p, isAttachThread:%d AutoInviteStatus:%d", env, isAttachThread,isOpenStatus);
+
+		jclass jCallbackCls = env->GetObjectClass(gListener);
+
+		string signure = "(Z)V";
+		jmethodID jCallback = env->GetMethodID(jCallbackCls, "OnAutoInviteStatusUpdate", signure.c_str());
+		if(NULL != gListener && NULL != jCallback)
+		{
+			FileLog("LiveChatClientJni", "OnAutoInviteStatusUpdate() callback now");
+			env->CallVoidMethod(gListener, jCallback, isOpenStatus);
+			FileLog("LiveChatClientJni", "OnAutoInviteStatusUpdate() callback ok");
+		}
+		ReleaseEnv(isAttachThread);
+	}
+
+
+	virtual void OnRecvAutoInviteNotify(const string& womanId,const string& manId,const string& message,const string& inviteId)
+	{
+		JNIEnv* env = NULL;
+		bool isAttachThread = false;
+		GetEnv(&env, &isAttachThread);
+
+		FileLog("LiveChatClientJni", "OnRecvAutoInviteNotify() callback, env:%p, isAttachThread:%d, womanId:%s, manId:%s,message:%s,inviteId:%s", env, isAttachThread,womanId.c_str(),manId.c_str(), message.c_str(),inviteId.c_str());
+
+		jclass jCallbackCls = env->GetObjectClass(gListener);
+
+		string signure = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
+		jmethodID jCallback = env->GetMethodID(jCallbackCls, "OnRecvAutoInviteNotify", signure.c_str());
+		if(NULL != gListener && NULL != jCallback)
+		{
+			FileLog("LiveChatClientJni", "OnRecvAutoInviteNotify() callback now");
+			jstring jwomanId  = env->NewStringUTF(womanId.c_str());
+			jstring jmanId    = env->NewStringUTF(manId.c_str());
+			jstring jmessage  = env->NewStringUTF(message.c_str());
+			jstring jinviteId = env->NewStringUTF(inviteId.c_str());
+			env->CallVoidMethod(gListener, jCallback, jwomanId, jmanId, jmessage, jinviteId);
+			env->DeleteLocalRef(jwomanId);
+			env->DeleteLocalRef(jmanId);
+			env->DeleteLocalRef(jmessage);
+			env->DeleteLocalRef(jinviteId);
+
+			FileLog("LiveChatClientJni", "OnRecvAutoInviteNotify() callback ok");
+		}
+		ReleaseEnv(isAttachThread);
+	}
+
+	virtual void OnManApplyThemeNotify(const ThemeInfoItem& item)
+	{
+		JNIEnv* env = NULL;
+		bool isAttachThread = false;
+		GetEnv(&env, &isAttachThread);
+
+		FileLog("LiveChatClientJni", "OnManApplyThemeNotify() callback, env:%p, isAttachThread:%d  jthemeId:%s, jmanId:%s, jwomanId:%s, jstartTime:%d, jendTime:%d, jnowTime:%d, jupdateTime:%d", env, isAttachThread, item.themeId.c_str(), item.manId.c_str(),item.womanId.c_str(),item.startTime,item.endTime,item.nowTime,item.updateTime);
+
+		jclass jCallbackCls = env->GetObjectClass(gListener);
+
+		string signure = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJJJ)V";
+		jmethodID jCallback = env->GetMethodID(jCallbackCls, "OnManApplyThemeNotify", signure.c_str());
+		if(NULL != gListener && NULL != jCallback)
+		{
+			FileLog("LiveChatClientJni", "OnManApplyThemeNotify() callback now");
+			jstring jthemeId  = env->NewStringUTF(item.themeId.c_str());
+			jstring jmanId    = env->NewStringUTF(item.manId.c_str());
+			jstring jwomanId  = env->NewStringUTF(item.womanId.c_str());
+			jlong jstartTime  = (jlong)item.startTime;
+			jlong jendTime  = (jlong)item.endTime;
+			jlong jnowTime  = (jlong)item.nowTime;
+			jlong jupdateTime  = (jlong)item.updateTime;
+			env->CallVoidMethod(gListener, jCallback, jthemeId, jmanId, jwomanId, jstartTime, jendTime, jnowTime, jupdateTime);
+			env->DeleteLocalRef(jthemeId);
+			env->DeleteLocalRef(jmanId);
+			env->DeleteLocalRef(jwomanId);
+			FileLog("LiveChatClientJni", "OnManApplyThemeNotify() callback ok");
+		}
+		ReleaseEnv(isAttachThread);
+	}
+
+	virtual void OnManBuyThemeNotify(const ThemeInfoItem& item)
+	{
+		JNIEnv* env = NULL;
+		bool isAttachThread = false;
+		GetEnv(&env, &isAttachThread);
+
+		FileLog("LiveChatClientJni", "OnManBuyThemeNotify() callback, env:%p, isAttachThread:%d  jthemeId:%s, jmanId:%s, jwomanId:%s, jstartTime:%d, jendTime:%d, jnowTime:%d, jupdateTime:%d", env, isAttachThread, item.themeId.c_str(), item.manId.c_str(),item.womanId.c_str(),item.startTime,item.endTime,item.nowTime,item.updateTime);
+
+		jclass jCallbackCls = env->GetObjectClass(gListener);
+
+		string signure = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJJJ)V";
+		jmethodID jCallback = env->GetMethodID(jCallbackCls, "OnManBuyThemeNotify", signure.c_str());
+		if(NULL != gListener && NULL != jCallback)
+		{
+			FileLog("LiveChatClientJni", "OnManBuyThemeNotify() callback now");
+			jstring jthemeId  = env->NewStringUTF(item.themeId.c_str());
+			jstring jmanId    = env->NewStringUTF(item.manId.c_str());
+			jstring jwomanId  = env->NewStringUTF(item.womanId.c_str());
+			jlong jstartTime  = (jlong)item.startTime;
+			jlong jendTime  = (jlong)item.endTime;
+			jlong jnowTime  = (jlong)item.nowTime;
+			jlong jupdateTime  = (jlong)item.updateTime;
+			env->CallVoidMethod(gListener, jCallback, jthemeId, jmanId, jwomanId, jstartTime, jendTime, jnowTime, jupdateTime);
+			env->DeleteLocalRef(jthemeId);
+			env->DeleteLocalRef(jmanId);
+			env->DeleteLocalRef(jwomanId);
+			FileLog("LiveChatClientJni", "OnManBuyThemeNotify() callback ok");
+		}
+		ReleaseEnv(isAttachThread);
+	}
 };
 static LiveChatClientListener g_listener;
 
@@ -1963,6 +2195,22 @@ JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_Send
 
 /*
  * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
+ * Method:    SendMagicIcon
+ * Signature: (Ljava/lang/String;Ljava/lang/String;I)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_SendMagicIcon
+  (JNIEnv *env, jclass cls, jstring userId, jstring magicIconId, jint ticket){
+	if (NULL == g_liveChatClient) {
+		return false;
+	}
+
+	string strUserId = GetJString(env, userId);
+	string strMagicIconId = GetJString(env, magicIconId);
+	return g_liveChatClient->SendMagicIcon(strUserId, strMagicIconId, ticket);
+}
+
+/*
+ * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
  * Method:    GetUserInfo
  * Signature: (Ljava/lang/String;)Z
  */
@@ -2110,4 +2358,47 @@ JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_GetL
 		return false;
 	}
 	return g_liveChatClient->GetLadyChatInfo();
+}
+
+/*
+ * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
+ * Method:    GetAutoInviteMsgSwitchStatus
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_GetAutoInviteMsgSwitchStatus(JNIEnv *env, jclass cls)
+{
+	if (NULL == g_liveChatClient) {
+		return false;
+	}
+
+	return g_liveChatClient->GetAutoInviteMsgSwitchStatus();
+}
+
+/*
+ * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
+ * Method:    SwitchAutoInviteMsg
+ * Signature: (Z)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_SwitchAutoInviteMsg(JNIEnv *env, jclass cls, jboolean isOpen)
+{
+	if (NULL == g_liveChatClient) {
+		return false;
+	}
+	return g_liveChatClient->SwitchAutoInviteMsg(isOpen);
+}
+
+/*
+ * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
+ * Method:    RecommandThemeToMan
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_RecommandThemeToMan(JNIEnv *env, jclass cls, jstring userId, jstring themeId)
+{
+	if (NULL == g_liveChatClient) {
+		return false;
+	}
+
+	string strUserId = GetJString(env, userId);
+	string strthemeId = GetJString(env, themeId);
+	return g_liveChatClient->RecommendThemeToMan(strUserId, strthemeId);
 }

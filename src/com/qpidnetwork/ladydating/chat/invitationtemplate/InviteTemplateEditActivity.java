@@ -11,6 +11,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.qpidnetwork.ladydating.R;
 import com.qpidnetwork.ladydating.base.BaseActionbarActivity;
@@ -21,8 +24,11 @@ public class InviteTemplateEditActivity extends BaseActionbarActivity implements
 	private static final int MAX_LENGTH = 160;
 	private static final int MIN_LENGTH = 20;
 	public static final String EDIT_TEMPALTE_CONTENT = "templateContent";
+	public static final String EDIT_TEMPLATE_AUTOINVITE_FLAG = "isInviteAssistant";
 	
 	private MaterialEditText editText;
+	private CheckBox cbAutoInvite;
+	private boolean isInviteAssistant = true;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +41,20 @@ public class InviteTemplateEditActivity extends BaseActionbarActivity implements
 		editText.getEditText().setFilters(new InputFilter[] {new InputFilter.LengthFilter(MAX_LENGTH)});
 		editText.setHint(getString(R.string.type_your_template_here));
 		editText.getEditText().addTextChangedListener(this);
+		
+		cbAutoInvite = (CheckBox)findViewById(R.id.cbAutoInvite);
+		cbAutoInvite.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				// TODO Auto-generated method stub
+				if(isChecked){
+					isInviteAssistant = true;
+				}else{
+					isInviteAssistant = false;
+				}
+			}
+		});
 	}
 
 	@Override
@@ -83,6 +103,7 @@ public class InviteTemplateEditActivity extends BaseActionbarActivity implements
 		
 		Intent intent = new Intent();
 		intent.putExtra(EDIT_TEMPALTE_CONTENT, text);
+		intent.putExtra(EDIT_TEMPLATE_AUTOINVITE_FLAG, isInviteAssistant);
 		setResult(RESULT_OK, intent);
 		finish();
 	}

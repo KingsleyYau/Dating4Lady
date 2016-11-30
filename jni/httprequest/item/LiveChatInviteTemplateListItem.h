@@ -27,6 +27,7 @@ public:
 	{		tempId = "";
 		tempContent = "";
 		tempStatus = TEMPSTATUS_DEFAULT;
+		autoFlag = false;
 	}
 
 	virtual ~LiveChatInviteTemplateListItem()
@@ -57,6 +58,12 @@ public:
 				tempStatus = GetTempStatusWithInt(iStatus);
 			}
 
+			if(  root[LC_INVITETEMPLATE_AUTOFLAG].isInt() )
+			{
+				int autoflagTemp = root[LC_INVITETEMPLATE_AUTOFLAG].asInt();
+				autoFlag = autoflagTemp == 1 ? true:false;
+			}
+
 			if ( !tempId.empty() )
 			{
 				result = true;
@@ -70,6 +77,7 @@ public:
 	string tempId;
 	string tempContent;
 	TEMP_STATUS tempStatus;
+	bool autoFlag;
 
 };
 

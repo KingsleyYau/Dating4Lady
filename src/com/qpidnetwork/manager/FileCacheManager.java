@@ -23,6 +23,7 @@ public class FileCacheManager {
 	static String LC_VOICE_DIR = "livechat/voice";
 	static String LC_PHTOT_DIR = "livechat/photo";
 	static String LC_VIDEO_DIR = "livechat/video";
+	static String LC_MAGICICON_DIR = "livechat/magicIcon";
 	static String LC_TAKE_PHOTO_TEM_DIR = "livechat/photo/temp";
 	static String ALBUM_VIDEO_DIR = "album/video";
 	static String LOG_DIR = "log";
@@ -491,6 +492,20 @@ public class FileCacheManager {
     	
 		temp += GetEMFPath() + fileName;
 		return temp;
+	}
+	
+	//****************************** magic icon **********************************
+	/**
+	 * 获取livechat小高情目录
+	 * @return
+	 */
+	public String GetLCMagicIconPath() {
+		/* 创建虚拟礼物路径 */
+		String path = mMainPath + "/" + LC_MAGICICON_DIR + "/";
+		File file = new File(path);
+		file.mkdirs();
+		
+		return path;
 	}
 	
 	

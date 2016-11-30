@@ -209,6 +209,15 @@ public class LiveChatClient {
 	static public native boolean SendLadyVideo(String userId, String inviteId, String videoId, String sendId, boolean charget, String videoDesc, int ticket);
 	
 	/**
+	 * 发小高级表情
+	 * @param userId	对方用户ID
+	 * @param magicIconId	小高级表情ID
+	 * @param ticket	票根
+	 * @return
+	 */
+	static public native boolean SendMagicIcon(String userId, String magicIconId, int ticket);
+	
+	/**
 	 * 获取用户信息
 	 * @param userId	对方用户ID
 	 * @return
@@ -278,4 +287,25 @@ public class LiveChatClient {
 	 * @return
 	 */
 	static public native boolean GetLadyChatInfo();
+	
+	/**
+	 * 启动/关闭发送自动邀请消息
+	 * @param isOpen
+	 * @return
+	 */
+	static public native boolean SwitchAutoInviteMsg(boolean isOpen);
+	
+	/**
+	 * 获取发送自动邀请消息状态
+	 * @return
+	 */
+	static public native boolean GetAutoInviteMsgSwitchStatus();
+	
+	/**
+	 * 女士推荐男士购买主题包
+	 * @param manId
+	 * @param subjectId
+	 * @return
+	 */
+	static public native boolean RecommandThemeToMan(String manId, String subjectId);
 }

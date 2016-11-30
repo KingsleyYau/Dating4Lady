@@ -8,6 +8,7 @@ import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -17,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 
+import com.qpidnetwork.framework.util.UnitConversion;
 import com.qpidnetwork.ladydating.R;
 import com.qpidnetwork.ladydating.chat.ChatActivity;
 
@@ -33,9 +35,11 @@ public class ExpressionGridAdapter extends BaseAdapter {
 
 	private int startItem; // 当前页起始号
 	private int itemCount; // 当前页数量
+	private int mGvHeight;//外层GridView高度
 
-	public ExpressionGridAdapter(Context context, int pageIndex, int itemCount) {
+	public ExpressionGridAdapter(Context context, int gvHeight, int pageIndex, int itemCount) {
 		this.context = context;
+		this.mGvHeight = gvHeight;
 		expressionsIcons = context.getResources().obtainTypedArray(R.array.expressions);
 		expressionsValues = context.getResources().getIntArray(R.array.expressions_value);
 		this.startItem = pageIndex * itemCount;
@@ -73,16 +77,23 @@ public class ExpressionGridAdapter extends BaseAdapter {
 			size.y = display.getHeight();
 		}
 		
-		int item_size = (int)(((float)size.x - (int)(5.0f * density)) / 6);
+		int item_size = (int)(((float)size.x - (int)(6.0f * density)) / 6);
 
 		
 		LinearLayout holder = new LinearLayout(context);
-		holder.setLayoutParams(new AbsListView.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-		holder.setBackgroundColor(context.getResources().getColor(R.color.thin_grey));
+		if(mGvHeight > 0){
+			//计算小表情item高度   (gridView高度-分割线)/2行
+			int ItemHeight = (mGvHeight - UnitConversion.dip2px(context, 1))/2;
+			holder.setLayoutParams(new AbsListView.LayoutParams(LayoutParams.MATCH_PARENT, ItemHeight));
+		}else{
+			holder.setLayoutParams(new AbsListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		}
+//		holder.setBackgroundColor(context.getResources().getColor(R.color.thin_grey));
+		holder.setGravity(Gravity.CENTER);
 		
-		ImageView iv = new ImageView(context);
-		iv.setLayoutParams(new LinearLayout.LayoutParams(item_size, item_size));
-		iv.setScaleType(ScaleType.CENTER);
+		ImageView iv = new ImageView(context);//小表情图片
+		iv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		iv.setScaleType(ScaleType.CENTER_INSIDE);
 		iv.setClickable(true);
 
 		iv.setBackgroundResource(R.drawable.touch_feedback_holo_light);

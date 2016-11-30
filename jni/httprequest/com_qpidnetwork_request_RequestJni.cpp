@@ -137,6 +137,81 @@ JNIEXPORT jstring JNICALL Java_com_qpidnetwork_request_RequestJni_GetCookies
 
 /*
  * Class:     com_qpidnetwork_request_RequestJni
+ * Method:    GetCookiesItem
+ * Signature: ()["com/qpidnetwork/request/item/CookiesItem";
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_qpidnetwork_request_RequestJni_GetCookiesItem
+  (JNIEnv *env, jclass cls)
+{
+	FileLog("httprequest","GetCookiesItem() begin");
+	jobjectArray jCookiesArray = NULL;
+	list<CookiesItem> cookies = HttpClient::GetCookiesItem();
+	jclass jItemCls = env->FindClass("com/qpidnetwork/request/item/CookiesItem");
+	if(!jItemCls)
+	{
+		FileLog("httprequest", "GetCookiesItem() JNI jclass is NULL");
+		return NULL;
+	}
+
+	jmethodID jItemMethod = env->GetMethodID(jItemCls, "<init>", "()V");
+	if(!jItemMethod)
+	{
+		FileLog("httprequest","GetCookiesItem() <init>ID is NULL end");
+		env->DeleteLocalRef(jItemCls);
+		return NULL;
+	}
+
+	jmethodID jItemInitMethod = env->GetMethodID(jItemCls,"init","(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+	if(!jItemInitMethod)
+	{
+		FileLog("httprequest","GetCookiesItem() init()ID is NULL end");
+		env->DeleteLocalRef(jItemCls);
+		return NULL;
+	}
+
+	jCookiesArray = env->NewObjectArray(cookies.size(), jItemCls, NULL);
+	FileLog("httprequest", "GetCookiesItem() JNI cookies.size:%d, jCookiesArray:%p", cookies.size(), jCookiesArray);
+
+	if (NULL != jCookiesArray)
+	{
+		int i = 0;
+		for (list<CookiesItem>::const_iterator iter = cookies.begin();
+			 iter != cookies.end();
+			 iter++, i++)
+		{
+			jstring domain = env->NewStringUTF((*iter).m_domain.c_str());
+			jstring accessOtherWeb = env->NewStringUTF((*iter).m_accessOtherWeb.c_str());
+			jstring symbol = env->NewStringUTF((*iter).m_symbol.c_str());
+			jstring isSend = env->NewStringUTF((*iter).m_isSend.c_str());
+			jstring expiresTime = env->NewStringUTF((*iter).m_expiresTime.c_str());
+			jstring cName = env->NewStringUTF((*iter).m_cName.c_str());
+			jstring value = env->NewStringUTF((*iter).m_value.c_str());
+			jobject objCookiesItem       = env->NewObject(jItemCls, jItemMethod);
+			if(!objCookiesItem)
+			{
+				FileLog("httprequest","GetCookiesItem() objCookiesItem is NULL end");
+				env->DeleteLocalRef(jItemCls);
+				env->DeleteLocalRef(jCookiesArray);
+				return NULL;
+			}
+			env->CallVoidMethod(objCookiesItem, jItemInitMethod, domain, accessOtherWeb, symbol, isSend, expiresTime, cName, value);
+			env->DeleteLocalRef(domain);
+			env->DeleteLocalRef(accessOtherWeb);
+			env->DeleteLocalRef(symbol);
+			env->DeleteLocalRef(isSend);
+			env->DeleteLocalRef(expiresTime);
+			env->DeleteLocalRef(cName);
+			env->DeleteLocalRef(value);
+			env->SetObjectArrayElement(jCookiesArray, i, objCookiesItem);
+		}
+		env->DeleteLocalRef(jItemCls);
+	}
+	FileLog("httprequest", "GetCookiesItem() JNI end");
+	return jCookiesArray;
+}
+
+/*
+ * Class:     com_qpidnetwork_request_RequestJni
  * Method:    StopRequest
  * Signature: (J)V
  */

@@ -74,7 +74,7 @@ public class PhoneVideoBrowserFragment extends BaseGridViewFragment implements O
 					};		
 				String selection = projection[1] + " > ?";
 				String[] selectionArrs = new String[]{"500"};
-				Cursor cursor = getActivity().getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,  projection, selection, selectionArrs, null );
+				Cursor cursor = getActivity().getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,  projection, selection, selectionArrs, MediaStore.Video.VideoColumns.DATE_MODIFIED + " DESC" );
 				try{
 					if (cursor.getCount() == 0) {
 						cursor.close();

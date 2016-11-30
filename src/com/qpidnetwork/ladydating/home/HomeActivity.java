@@ -31,24 +31,35 @@ import com.qpidnetwork.ladydating.base.BaseFragmentActivity;
 import com.qpidnetwork.ladydating.bean.RequestBaseResponse;
 import com.qpidnetwork.ladydating.chat.contact.ContactManager;
 import com.qpidnetwork.ladydating.chat.contact.OnUnreadCountUpdateListener;
+import com.qpidnetwork.ladydating.chat.invitationtemplate.InviteTemplateManager;
+import com.qpidnetwork.ladydating.customized.view.AutoInviteMsgSwitchDialog;
+import com.qpidnetwork.ladydating.customized.view.AutoInviteMsgSwitchDialog.OnVerifyListener;
 import com.qpidnetwork.ladydating.customized.view.MaterialDialogAlert;
 import com.qpidnetwork.ladydating.more.ApkUpdateService;
 import com.qpidnetwork.ladydating.utility.Converter;
+import com.qpidnetwork.livechat.LiveChatManager;
+import com.qpidnetwork.livechat.LiveChatManagerAutoInviteListener;
+import com.qpidnetwork.livechat.jni.LiveChatClientListener.LiveChatErrType;
 import com.qpidnetwork.manager.FileCacheManager;
 import com.qpidnetwork.manager.MultiLanguageManager;
+import com.qpidnetwork.request.OnLCCustomTemplateCallback;
 import com.qpidnetwork.request.OnRequestCallback;
 import com.qpidnetwork.request.OnVersionCheckCallback;
 import com.qpidnetwork.request.RequestJni;
 import com.qpidnetwork.request.RequestJniOther;
+import com.qpidnetwork.request.item.LiveChatInviteTemplateListItem;
 import com.qpidnetwork.request.item.SynConfigItem;
 import com.qpidnetwork.request.item.VersionCheckItem;
 import com.qpidnetwork.tool.CrashPerfence;
 import com.qpidnetwork.tool.CrashPerfence.CrashParam;
 
-public class HomeActivity extends BaseFragmentActivity implements OnUnreadCountUpdateListener, OnSlideStateChangeListener{
+public class HomeActivity extends BaseFragmentActivity implements 
+					OnUnreadCountUpdateListener, OnSlideStateChangeListener,LiveChatManagerAutoInviteListener{
 	
 	private static final int CHECK_VERSION_CALLBACK = 0;
 	private static final int UNREAD_COUNT_UPDATE = 1;
+	private static final int CHECK_AUTOINVITE_TEMPLATE_CALLBACK = 2;
+	private static final int SWITCH_AUTO_INVITE_CALLBACK = 3;
 	
 	public static final String START_LIVECHAT_LIST = "start_livechat_list";
 	public static final String NEW_INTENT_LOGOUT = "logout";
@@ -65,6 +76,9 @@ public class HomeActivity extends BaseFragmentActivity implements OnUnreadCountU
 	private long mRequestId = RequestJni.InvalidRequestId;
 	private MaterialDialogAlert mCrashDialog = null;
 	
+	//小助手相关
+	private boolean isAutoInviteProcessing = false;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -80,6 +94,7 @@ public class HomeActivity extends BaseFragmentActivity implements OnUnreadCountU
 		setActionbarColor();
 		setActionbarTitleColor();
 		initLanguageSetBroadCast();
+		LiveChatManager.getInstance().RegisterAutoInviteListener(this);
 		
 		//初始化未读数目
 		liveChatUnreadCount = ContactManager.getInstance().getAllUnreadCount();
@@ -91,7 +106,15 @@ public class HomeActivity extends BaseFragmentActivity implements OnUnreadCountU
 		StartFromNotification(getIntent());
 		
 		//检测版本更新
-		checkVersionOrCheckCrashLog();
+		boolean isUpgrade = checkVersionUpgrade();
+
+		//检测上传CrashLog
+		CheckCrashLog();
+		
+		//开启小助手提示
+		if(!isUpgrade){
+			showAutoInviteDialog();
+		}
 	}
 	
 	@Override
@@ -114,12 +137,104 @@ public class HomeActivity extends BaseFragmentActivity implements OnUnreadCountU
 		if(QpidApplication.updateAlbumsNeed){
 			homeViewController.refreshAlbumsList();
 		}
+		
+		homeLivechatViewController.updateChatHistoryStatus();
 	}
 	
 	/**
-	 * 检测版本升级，如果不需要弹出升级提示，直接检测是否Crash上传
+	 * 小助手开启提示
 	 */
-	private void checkVersionOrCheckCrashLog(){
+	public void showAutoInviteDialog(){
+		AutoInviteMsgSwitchDialog dialog = new AutoInviteMsgSwitchDialog(this);
+		dialog.setOnVerifyListener(new OnVerifyListener() {
+			
+			@Override
+			public void onVerifySuccess() {
+				// TODO Auto-generated method stub
+				CheckAutoInviteTemplate();
+			}
+		});
+		if(isActivityVisible()){
+			dialog.show();
+		}
+	}
+	
+	/**
+	 * 检测小助手模板
+	 */
+	private void CheckAutoInviteTemplate(){
+		showProgressDialog(getResources().getString(R.string.livechat_autoinvite_activating));
+		if(!isAutoInviteProcessing){
+			isAutoInviteProcessing = true;
+			InviteTemplateManager.newInstance().getCustomTemplate(new OnLCCustomTemplateCallback() {
+				
+				@Override
+				public void onCustomTemplate(boolean isSuccess, String errno,
+						String errmsg, LiveChatInviteTemplateListItem[] tempList) {
+					Message msg = Message.obtain();
+					msg.what = CHECK_AUTOINVITE_TEMPLATE_CALLBACK;
+					RequestBaseResponse response = new RequestBaseResponse(isSuccess, errno, errmsg, tempList);
+					msg.obj = response;
+					sendUiMessage(msg);
+				}
+			});
+		}
+	}
+	
+	/**
+	 * 启动失败提示
+	 */
+	private void autoInviteShowNormalError(){
+		MaterialDialogAlert dialog = new MaterialDialogAlert(this);
+		dialog.setTitle(getResources().getString(R.string.livechat_autoinvite_activate_error_title));
+		dialog.setMessage(getResources().getString(R.string.livechat_autoinvite_activate_error));
+		dialog.addButton(dialog.createButton(getResources().getString(R.string.retry), new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				CheckAutoInviteTemplate();
+			}
+		}));
+		dialog.addButton(dialog.createButton(getResources().getString(R.string.ok), null));
+		if(isActivityVisible()){
+			dialog.show();
+		}
+	}
+	
+	/**
+	 * 无邀请模板提示
+	 */
+	private void autoInviteTemplateError(){
+		MaterialDialogAlert dialog = new MaterialDialogAlert(this);
+		dialog.setTitle(getResources().getString(R.string.livechat_autoinvite_activate_error_title));
+		dialog.setMessage(getResources().getString(R.string.livechat_autoinvite_activate_template_error));
+		dialog.addButton(dialog.createButton(getResources().getString(R.string.ok), null));
+		dialog.show();
+	}
+	
+	/**
+	 * 检测是否符合小助手提示
+	 * @param tempList
+	 * @return
+	 */
+	private boolean CheckAutoInviteTemplate(LiveChatInviteTemplateListItem[] tempList){
+		boolean isValid = false;
+		if(tempList != null && tempList.length > 0){
+			for(int i=0; i < tempList.length; i++){
+				if(tempList[i].autoFlag){
+					isValid = true;
+					break;
+				}
+			}
+		}
+		return isValid;
+	}
+	
+	/**
+	 * 检测版本升级
+	 */
+	private boolean checkVersionUpgrade(){
 		boolean isNeedUpgrade = false;
 		SynConfigItem configItem = LoginManager.getInstance().getSynConfigItem();
 		if(configItem != null){
@@ -134,10 +249,7 @@ public class HomeActivity extends BaseFragmentActivity implements OnUnreadCountU
 				
 			}
 		}
-		if(!isNeedUpgrade){
-			//检测上传CrashLog
-			CheckCrashLog();
-		}
+		return isNeedUpgrade;
 	}
 	
 	/**
@@ -237,6 +349,9 @@ public class HomeActivity extends BaseFragmentActivity implements OnUnreadCountU
     		unregisterReceiver(mLanguageSetReceiver);
     	}
     	ContactManager.getInstance().UnregisterUnreadCountChangeListener(this);
+    	LiveChatManager.getInstance().UnregisterAutoInviteListener(this);
+    	
+    	homeLivechatViewController.onDestroy();
     }
     
 	/*
@@ -286,6 +401,32 @@ public class HomeActivity extends BaseFragmentActivity implements OnUnreadCountU
 		case UNREAD_COUNT_UPDATE:{
 			int unreadCount = msg.arg1;
 			pushLiveChatBadge(unreadCount);
+		}break;
+		case CHECK_AUTOINVITE_TEMPLATE_CALLBACK:{
+			RequestBaseResponse response = (RequestBaseResponse)msg.obj;
+			if(response.isSuccess){
+				if(CheckAutoInviteTemplate((LiveChatInviteTemplateListItem[])response.body)){
+					LiveChatManager.getInstance().CloseOrOpenAutoInvite(true);
+				}else{
+					isAutoInviteProcessing = false;
+					dismissProgressDialog();
+					autoInviteTemplateError();
+				}
+			}else{
+				isAutoInviteProcessing = false;
+				dismissProgressDialog();
+				autoInviteShowNormalError();
+			}
+		}break;
+		case SWITCH_AUTO_INVITE_CALLBACK:{
+			LiveChatErrType errType = LiveChatErrType.values()[msg.arg1];
+			isAutoInviteProcessing = false;
+			dismissProgressDialog();
+			if(errType == LiveChatErrType.Success){
+				showDoneToast(getResources().getString(R.string.done));
+			}else{
+				autoInviteShowNormalError();
+			}
 		}break;
 		default:
 			break;
@@ -399,14 +540,14 @@ public class HomeActivity extends BaseFragmentActivity implements OnUnreadCountU
 		}
 
 		if (bFlag) {
-			boolean bUploadCrash = false;
-			boolean bRemember = false;
+			boolean bUploadCrash = true;
+			boolean bRemember = true;
 
-			CrashParam param = CrashPerfence.GetCrashParam(this);
-			if (param != null) {
-				bUploadCrash = param.bUploadCrash;
-				bRemember = param.bRemember;
-			}
+//			CrashParam param = CrashPerfence.GetCrashParam(this);
+//			if (param != null) {
+//				bUploadCrash = param.bUploadCrash;
+//				bRemember = param.bRemember;
+//			}
 
 			// 登录成功并且不在上传中
 			if ((mRequestId == RequestJni.InvalidRequestId)) {
@@ -448,7 +589,9 @@ public class HomeActivity extends BaseFragmentActivity implements OnUnreadCountU
 
 								}));
 					}
-					mCrashDialog.show();
+					if(isActivityVisible()){
+						mCrashDialog.show();
+					}
 				}
 			}
 		}
@@ -495,6 +638,18 @@ public class HomeActivity extends BaseFragmentActivity implements OnUnreadCountU
 	public void onSlideOffsetChange(float offsetPercent) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void OnSwitchAutoInviteMsg(LiveChatErrType errType, String errmsg,
+			boolean isOpen) {
+		// TODO Auto-generated method stub
+		if(isOpen && isAutoInviteProcessing){
+			Message msg = Message.obtain();
+			msg.what = SWITCH_AUTO_INVITE_CALLBACK;
+			msg.arg1 = errType.ordinal();
+			sendUiMessage(msg);
+		}
 	}
 
 }

@@ -92,11 +92,12 @@ public class PrivatePhotoPreviewFragment extends BaseFragment implements OnClick
 		mLiveChatManager = LiveChatManager.newInstance(getActivity());
 		Bundle bundle = getArguments();
 		if ((bundle != null) && (bundle.containsKey(LIVE_CHAT_MESSAGE_ITEM))) {
-			LCMessageItem tempItem = (LCMessageItem) bundle
-					.getSerializable(LIVE_CHAT_MESSAGE_ITEM);
-			if(tempItem != null && tempItem.getUserItem() != null){
-				mMsgItem = mLiveChatManager.GetMessageWithMsgId(tempItem.getUserItem().userId, tempItem.msgId);
-			}
+//			LCMessageItem tempItem = (LCMessageItem) bundle
+//					.getSerializable(LIVE_CHAT_MESSAGE_ITEM);
+//			if(tempItem != null && tempItem.getUserItem() != null){
+//				mMsgItem = mLiveChatManager.GetMessageWithMsgId(tempItem.getUserItem().userId, tempItem.msgId);
+//			}
+			mMsgItem = (LCMessageItem) bundle.getSerializable(LIVE_CHAT_MESSAGE_ITEM);
 		}
 		if(mMsgItem != null){
 			mDownLoaderList = new ArrayList<LivechatPrivatePhotoDownloader>();

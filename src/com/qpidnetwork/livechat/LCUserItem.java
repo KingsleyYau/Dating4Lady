@@ -351,7 +351,6 @@ public class LCUserItem implements Serializable{
 	public boolean setChatTypeWithTalkMsgType(String inviteId, boolean charge, TalkMsgType msgType) 
 	{
 		boolean result = false;
-		
 		if (this.inviteId.equals(inviteId))
 		{
 			// 邀请ID没变，之前不是inchat状态才改变当前会话状态
@@ -473,7 +472,8 @@ public class LCUserItem implements Serializable{
 		if (!IsInChat()	// 由于LiveChat服务器不能及时提供在聊状态，把判断是否在聊改为只要有互相发过消息
 			&& (msgType == MessageType.Photo
 					|| msgType == MessageType.Voice
-					|| msgType == MessageType.Video))
+					|| msgType == MessageType.Video
+					|| msgType == MessageType.MagicIcon))
 		{
 			result = CanSendErrType.NoInChat; 
 		}

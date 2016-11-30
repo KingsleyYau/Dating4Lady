@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import com.qpidnetwork.ladydating.auth.PhoneInfoManager;
 import com.qpidnetwork.ladydating.authorization.IAuthorizationCallBack.OperateType;
 import com.qpidnetwork.ladydating.bean.RequestBaseResponse;
+import com.qpidnetwork.ladydating.db.ChatHistoryDB;
 import com.qpidnetwork.ladydating.googleanalytics.AnalyticsManager;
 import com.qpidnetwork.manager.PreferenceManager;
 import com.qpidnetwork.request.LoginManagerJni;
@@ -100,6 +101,8 @@ public class LoginManager implements OnLoginManagerCallback {
 			        	mPreferenceManager.saveLoginParam(param);
 			        	if(param != null && param.item != null){
 			        		mPreferenceManager.setCurrentUserId(param.item.lady_id);
+				        	//Login成功同步用户信息到数据库，多用户处理
+				        	ChatHistoryDB.getInstance(mContext).synUserId(param.item.lady_id);
 			        	}
 			        	
 			        	//上传PhoneInfo
@@ -169,7 +172,6 @@ public class LoginManager implements OnLoginManagerCallback {
 		this.accountId = email;
 		this.password = password;
 		TelephonyManager tm = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-		
 		LoginManagerJni.Login(
 				email, 
 				password, 

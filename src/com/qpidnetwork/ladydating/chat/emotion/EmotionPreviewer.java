@@ -14,7 +14,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.qpidnetwork.framework.util.Log;
 import com.qpidnetwork.ladydating.R;
 import com.qpidnetwork.ladydating.customized.view.MaterialProgressBar;
 import com.qpidnetwork.livechat.LCEmotionItem;

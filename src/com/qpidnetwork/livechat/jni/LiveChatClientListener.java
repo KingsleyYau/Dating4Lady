@@ -146,6 +146,19 @@ public abstract class LiveChatClientListener {
 	}
 	
 	/**
+	 * 发送小高级表情消息回调
+	 * @param errType	处理结果类型
+	 * @param errmsg	处理结果描述
+	 * @param userId	用户ID
+	 * @param magicIconId 小高级表情ID
+	 * @param ticket	票根
+	 */
+	public abstract void OnSendMagicIcon(LiveChatErrType errType, String errmsg, String userId, String magicIconId, int ticket);
+	public void OnSendMagicIcon(int errType, String errmsg, String userId, String magicIconId, int ticket) {
+		OnSendMagicIcon(LiveChatErrType.values()[errType], errmsg, userId, magicIconId, ticket);
+	}
+	
+	/**
 	 * 获取用户信息
 	 * @param errType	处理结果类型
 	 * @param errmsg	处理结果描述
@@ -227,6 +240,27 @@ public abstract class LiveChatClientListener {
 	}
 	
 	/**
+	 * 启动/关闭发送自动邀请消息
+	 * @param errType
+	 * @param errmsg
+	 */
+	public abstract void OnSwitchAutoInviteMsg(LiveChatErrType errType, String errmsg, boolean isOpen);
+	public void OnSwitchAutoInviteMsg(int errType, String errmsg, boolean isOpen) {
+		OnSwitchAutoInviteMsg(LiveChatErrType.values()[errType], errmsg, isOpen);
+	}
+	
+	/**
+	 * 获取发送自动邀请消息状态
+	 * @param errType
+	 * @param errmsg
+	 * @param isOpen
+	 */
+	public abstract void OnGetAutoInviteMsgSwitchStatus(LiveChatErrType errType, String errmsg, boolean isOpen);
+	public void OnGetAutoInviteMsgSwitchStatus(int errType, String errmsg, boolean isOpen) {
+		OnGetAutoInviteMsgSwitchStatus(LiveChatErrType.values()[errType], errmsg, isOpen);
+	}
+	
+	/**
 	 * 聊天消息类型
 	 */
 	public enum TalkMsgType {
@@ -298,6 +332,22 @@ public abstract class LiveChatClientListener {
 	public abstract void OnRecvWarning(String toId, String fromId, String fromName, String inviteId, boolean charget, int ticket, TalkMsgType msgType, String message);
 	public void OnRecvWarning(String toId, String fromId, String fromName, String inviteId, boolean charget, int ticket, int msgType, String message) {
 		OnRecvWarning(toId, fromId, fromName, inviteId, charget, ticket, TalkMsgType.values()[msgType], message);
+	}
+	
+	/**
+	 * 接收小高级表情消息回调
+	 * @param toId		接收者ID
+	 * @param fromId	发送者ID
+	 * @param fromName	发送者用户名
+	 * @param inviteId	邀请ID
+	 * @param charget	是否已付费
+	 * @param ticket	票根
+	 * @param msgType	聊天消息类型
+	 * @param magicIconId 小高级表情ID
+	 */
+	public abstract void OnRecvMagicIcon(String toId, String fromId, String fromName, String inviteId, boolean charget, int ticket, TalkMsgType msgType, String magicIconId);
+	public void OnRecvMagicIcon(String toId, String fromId, String fromName, String inviteId, boolean charget, int ticket, int msgType, String magicIconId) {
+		OnRecvMagicIcon(toId, fromId, fromName, inviteId, charget, ticket, TalkMsgType.values()[msgType], magicIconId);
 	}
 
 	/**
@@ -439,4 +489,43 @@ public abstract class LiveChatClientListener {
 	 * @param ticket	票根
 	 */
 	public abstract void OnRecvShowVideo(String toId, String fromId, String fromName, String inviteId, String videoId, String sendId, boolean charget, String videoDesc, int ticket);
+	
+	/**
+	 * 女士自动邀请消息通知
+	 * @param womanId
+	 * @param manId
+	 * @param message
+	 * @param inviteId
+	 */
+	public abstract void OnRecvAutoInviteNotify(String womanId, String manId, String message, String inviteId);
+	
+	/**
+	 * 女士发送自动邀请消息状态通知
+	 * @param isOpen
+	 */
+	public abstract void OnAutoInviteStatusUpdate(boolean isOpen); 
+	
+	/**
+	 * 男士购买主题包通知
+	 * @param subjectId
+	 * @param manId
+	 * @param womanId
+	 * @param startTime
+	 * @param endTime
+	 * @param now
+	 * @param updateTime
+	 */
+	public abstract void OnManBuyThemeNotify(String subjectId, String manId, String womanId, long startTime, long endTime, long now, long updateTime);
+	
+	/**
+	 * 男士购买主题包通知
+	 * @param subjectId
+	 * @param manId
+	 * @param womanId
+	 * @param startTime
+	 * @param endTime
+	 * @param now
+	 * @param updateTime
+	 */
+	public abstract void OnManApplyThemeNotify(String subjectId, String manId, String womanId, long startTime, long endTime, long now, long updateTime);
 }

@@ -39,6 +39,9 @@
 #define LIVE_CHAT_GET_PHOTO_LIST_PHOTO_CLASS	"com/qpidnetwork/request/item/LCPhotoListPhotoItem"
 #define LIVE_CHAT_GET_PHOTO_LIST_GROUP_CLASS	"com/qpidnetwork/request/item/LCVideoListGroupItem"
 #define LIVE_CHAT_GET_PHOTO_LIST_VIDEO_CLASS	"com/qpidnetwork/request/item/LCVideoListVideoItem"
+#define LIVECHAT_MAGIC_ICON_TIME_CLASS          "com/qpidnetwork/request/item/MagicIconItem"
+#define LIVECHAT_MAGIC_TYPE_TIME_CLASS          "com/qpidnetwork/request/item/MagicIconType"
+#define LIVECHAT_MAGIC_CONFIG_ITEM_CLASS        "com/qpidnetwork/request/item/MagicIconConfig"
 
 /**
  * 6.other

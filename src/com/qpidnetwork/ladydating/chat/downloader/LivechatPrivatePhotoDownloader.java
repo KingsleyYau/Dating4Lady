@@ -5,6 +5,7 @@ import java.io.File;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 
 import com.qpidnetwork.framework.util.StringUtil;
 import com.qpidnetwork.livechat.LCMessageItem;
@@ -35,7 +36,7 @@ public class LivechatPrivatePhotoDownloader implements
 		this.msgItem = bean;
 		this.photoType = photoType;
 		this.callback = callback;
-		String localPath = getLocalFilePath(bean, photoType);
+		String localPath = getLocalFilePath(bean.getPhotoItem(), photoType);
 		if(!StringUtil.isEmpty(localPath)){
 			if(this.callback != null){
 				this.callback.onPrivatePhotoDownloadSuccess(this, localPath);
@@ -43,7 +44,7 @@ public class LivechatPrivatePhotoDownloader implements
 		}else{
 			/*本地无，去下载*/
 			mLiveChatManager.RegisterPhotoListener(this);
-			boolean success = mLiveChatManager.GetPhotoWithMessage(bean.getUserItem().userId, bean.msgId, photoType);
+			boolean success = mLiveChatManager.GetPhotoWithMessage(bean.getUserItem().userId, bean, photoType);
 			if(!success){
 				mLiveChatManager.UnregisterPhotoListener(this);
 				if(this.callback != null){
@@ -62,53 +63,55 @@ public class LivechatPrivatePhotoDownloader implements
 	 * @param photoType
 	 * @return
 	 */
-	private String getLocalFilePath(LCMessageItem bean, PhotoSizeType photoType) {
+	private String getLocalFilePath(LCPhotoItem bean, PhotoSizeType photoType) {
 		String localFilePath = null;
-		if (bean.getPhotoItem().charge) {
-			/* 已付费 */
-			switch (photoType) {
-			case Original:
-				if ((!StringUtil.isEmpty(bean.getPhotoItem().srcFilePath))
-						&& (new File(bean.getPhotoItem().srcFilePath).exists())) {
-					localFilePath = bean.getPhotoItem().srcFilePath;
+		if(bean != null){
+			if (bean.charge) {
+				/* 已付费 */
+				switch (photoType) {
+				case Original:
+					if ((!StringUtil.isEmpty(bean.srcFilePath))
+							&& (new File(bean.srcFilePath).exists())) {
+						localFilePath = bean.srcFilePath;
+					}
+					break;
+				case Large:
+					if ((!StringUtil.isEmpty(bean.showSrcFilePath))
+							&& (new File(bean.showSrcFilePath).exists())) {
+						localFilePath = bean.showSrcFilePath;
+					}
+					break;
+				case Middle:
+				case Small:
+					if ((!StringUtil.isEmpty(bean.thumbSrcFilePath))
+							&& (new File(bean.thumbSrcFilePath).exists())) {
+						localFilePath = bean.thumbSrcFilePath;
+					}
+					break;
+	
+				default:
+					break;
 				}
-				break;
-			case Large:
-				if ((!StringUtil.isEmpty(bean.getPhotoItem().showSrcFilePath))
-						&& (new File(bean.getPhotoItem().showSrcFilePath).exists())) {
-					localFilePath = bean.getPhotoItem().showSrcFilePath;
+			} else {
+				/*未付费，模糊图*/
+				switch (photoType) {
+				case Large:
+					if ((!StringUtil.isEmpty(bean.showFuzzyFilePath))
+							&& (new File(bean.showFuzzyFilePath).exists())) {
+						localFilePath = bean.showFuzzyFilePath;
+					}
+					break;
+				case Middle:
+				case Small:
+					if ((!StringUtil.isEmpty(bean.thumbFuzzyFilePath))
+							&& (new File(bean.thumbFuzzyFilePath).exists())) {
+						localFilePath = bean.thumbFuzzyFilePath;
+					}
+					break;
+	
+				default:
+					break;
 				}
-				break;
-			case Middle:
-			case Small:
-				if ((!StringUtil.isEmpty(bean.getPhotoItem().thumbSrcFilePath))
-						&& (new File(bean.getPhotoItem().thumbSrcFilePath).exists())) {
-					localFilePath = bean.getPhotoItem().thumbSrcFilePath;
-				}
-				break;
-
-			default:
-				break;
-			}
-		} else {
-			/*未付费，模糊图*/
-			switch (photoType) {
-			case Large:
-				if ((!StringUtil.isEmpty(bean.getPhotoItem().showFuzzyFilePath))
-						&& (new File(bean.getPhotoItem().showFuzzyFilePath).exists())) {
-					localFilePath = bean.getPhotoItem().showFuzzyFilePath;
-				}
-				break;
-			case Middle:
-			case Small:
-				if ((!StringUtil.isEmpty(bean.getPhotoItem().thumbFuzzyFilePath))
-						&& (new File(bean.getPhotoItem().thumbFuzzyFilePath).exists())) {
-					localFilePath = bean.getPhotoItem().thumbFuzzyFilePath;
-				}
-				break;
-
-			default:
-				break;
 			}
 		}
 		return localFilePath;
@@ -117,7 +120,7 @@ public class LivechatPrivatePhotoDownloader implements
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			LiveChatErrType errType = LiveChatErrType.values()[msg.arg1];
-			LCMessageItem item = (LCMessageItem)msg.obj;
+			LCPhotoItem item = (LCPhotoItem)msg.obj;
 			mLiveChatManager.UnregisterPhotoListener(LivechatPrivatePhotoDownloader.this);
 
 			if (errType == LiveChatErrType.Success) {
@@ -156,7 +159,7 @@ public class LivechatPrivatePhotoDownloader implements
 		if(item.msgId == msgItem.msgId){
 			Message msg = Message.obtain();
 			msg.arg1 = errType.ordinal();
-			msg.obj = item;
+			msg.obj = item.getPhotoItem();
 			handler.sendMessage(msg);
 		}
 	}
@@ -186,7 +189,16 @@ public class LivechatPrivatePhotoDownloader implements
 	public void OnGetSelfPhoto(LiveChatErrType errType, String errno,
 			String errmsg, LCPhotoItem photoItem) {
 		// TODO Auto-generated method stub
-		
+		if(photoItem != null
+				&& msgItem != null
+				&& msgItem.getPhotoItem() != null
+				&& !TextUtils.isEmpty(msgItem.getPhotoItem().photoId)
+				&& msgItem.getPhotoItem().photoId.equals(photoItem.photoId)){
+			Message msg = Message.obtain();
+			msg.arg1 = errType.ordinal();
+			msg.obj = photoItem;
+			handler.sendMessage(msg);
+		}
 	}
 	
 	@Override

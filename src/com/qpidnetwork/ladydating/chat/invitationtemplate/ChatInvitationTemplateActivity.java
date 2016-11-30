@@ -37,6 +37,7 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 	
 	ChatInvitePagerAdapter pageAdapter;
 	private String mAddTemplateContent;
+	private boolean isInviteAssistant = true;
 	private InviteTemplateManager mInviteTemplateManager;
 	private InviteTemplateMode mTemplateMode = InviteTemplateMode.EDIT_MODE;//定义模板的使用场景
 	
@@ -69,9 +70,9 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 	 * Simulate fake post.
 	 * @param string
 	 */
-	private void doSubmitTemplate(String tempContent){
+	private void doSubmitTemplate(String tempContent, boolean isInviteAssistant){
 		this.showProgressDialog(getString(R.string.loading));
-		mInviteTemplateManager.addCustomTemplate(tempContent, new OnRequestCallback() {
+		mInviteTemplateManager.addCustomTemplate(tempContent, isInviteAssistant, new OnRequestCallback() {
 			
 			@Override
 			public void OnRequest(boolean isSuccess, String errno, String errmsg) {
@@ -191,6 +192,7 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 				!data.getExtras().containsKey(InviteTemplateEditActivity.EDIT_TEMPALTE_CONTENT)) 
 			return;
 		mAddTemplateContent = data.getStringExtra(InviteTemplateEditActivity.EDIT_TEMPALTE_CONTENT);
+		isInviteAssistant = data.getBooleanExtra(InviteTemplateEditActivity.EDIT_TEMPLATE_AUTOINVITE_FLAG, true);
 //		doSubmitTemplate(item.getOutputText());
 		
 	}
@@ -200,7 +202,7 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 		// TODO Auto-generated method stub
 		super.onResume();
 		if(!TextUtils.isEmpty(mAddTemplateContent)){
-			doSubmitTemplate(mAddTemplateContent);
+			doSubmitTemplate(mAddTemplateContent, isInviteAssistant);
 		}
 	}
 	
@@ -239,7 +241,7 @@ public class ChatInvitationTemplateActivity extends BaseTabbableActionbarActivit
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case android.R.id.button1:
-			doSubmitTemplate(mAddTemplateContent);
+			doSubmitTemplate(mAddTemplateContent, isInviteAssistant);
 			break;
 
 		default:

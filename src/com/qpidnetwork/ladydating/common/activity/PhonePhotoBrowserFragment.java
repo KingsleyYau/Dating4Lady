@@ -18,9 +18,11 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 import com.qpidnetwork.framework.util.FileUtil;
+import com.qpidnetwork.ladydating.authorization.LoginManager;
 import com.qpidnetwork.ladydating.base.BaseGridViewFragment;
 import com.qpidnetwork.ladydating.customized.view.HeaderableGridView;
 import com.qpidnetwork.ladydating.utility.Converter;
+import com.qpidnetwork.request.item.SynConfigItem;
 
 public class PhonePhotoBrowserFragment extends BaseGridViewFragment implements OnItemClickListener{
 	
@@ -65,7 +67,7 @@ public class PhonePhotoBrowserFragment extends BaseGridViewFragment implements O
 			public void run() {
 				ArrayList<PhonePhotoBrowserAdapter.PhotoItem> photoList = new ArrayList<PhonePhotoBrowserAdapter.PhotoItem>();
 				String[] projection = {MediaStore.Images.ImageColumns.DATA};
-				Cursor cursor = getActivity().getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,  projection, null, null, null );
+				Cursor cursor = getActivity().getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,  projection, null, null, MediaStore.Images.ImageColumns.DATE_MODIFIED + " DESC");
 				try{
 					if (cursor.getCount() == 0) {
 						cursor.close();
@@ -102,13 +104,20 @@ public class PhonePhotoBrowserFragment extends BaseGridViewFragment implements O
 	 */
 	private boolean checkPhotoSize(String photoUri){
 		boolean isValid = false;
+		int minSize = 720;
+		//添加私密照最小设置后台设置
+		SynConfigItem synItem = LoginManager.getInstance().getSynConfigItem();
+		if(synItem != null && synItem.privatePhotoMin > 0 
+				&& synItem.privatePhotoMin < minSize){
+			minSize = synItem.privatePhotoMin;
+		}
 		if(!TextUtils.isEmpty(photoUri)
 				&& new File(photoUri).exists()){
 			BitmapFactory.Options newOpts = new BitmapFactory.Options(); 
 			newOpts.inJustDecodeBounds = true; 
 			BitmapFactory.decodeFile(photoUri, newOpts);
-			if(newOpts.outWidth >= 720 
-					&& newOpts.outHeight >= 720){
+			if(newOpts.outWidth >= minSize 
+					&& newOpts.outHeight >= minSize){
 				isValid = true;
 			} 
 		}

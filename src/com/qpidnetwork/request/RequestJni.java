@@ -2,6 +2,8 @@ package com.qpidnetwork.request;
 
 import android.telephony.TelephonyManager;
 
+import com.qpidnetwork.request.item.CookiesItem;
+
 /**
  * @author Max.Chiu
  * 公共设置模块,设置的参数对所有接口请求都有效
@@ -75,6 +77,12 @@ public class RequestJni {
      * @return
      */
     static public native String GetCookies(String site);
+    
+    /**
+     * 获取所有cookiesItem
+     * @return
+     */
+    static public native CookiesItem[] GetCookiesItem();
     
     /**
      * 停止请求

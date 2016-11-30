@@ -1,5 +1,7 @@
 package com.qpidnetwork.ladydating.chat.history;
 
+import java.util.HashMap;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import com.qpidnetwork.ladydating.base.BaseActionbarActivity;
 import com.qpidnetwork.ladydating.bean.RequestBaseResponse;
 import com.qpidnetwork.ladydating.chat.ChatActivity;
 import com.qpidnetwork.ladydating.customized.view.CircleImageView;
+import com.qpidnetwork.ladydating.db.ChatHistoryDB;
 import com.qpidnetwork.manager.FileCacheManager;
 import com.qpidnetwork.request.OnLCGetChatListCallback;
 import com.qpidnetwork.request.RequestJniLivechat;
@@ -29,6 +32,7 @@ import com.qpidnetwork.tool.ImageViewLoader;
 public class LivechatChatHistoryActivity extends BaseActionbarActivity{
 
 	private static final int GET_CHAT_HISTORY_CALLBACK = 1;
+	private static final int UPDATE_UNREAD_CALLBACK = 2;
 	
 	private ListView lvHistory;
 	private TextView tvName;
@@ -39,6 +43,9 @@ public class LivechatChatHistoryActivity extends BaseActionbarActivity{
 	private String manName = "";
 	private String manPhotoUrl = "";
 	private LCChatListItem[] mChatHistoryList;
+	
+	private ChatHistoryDB mChatHistoryDB;
+	private LivechatHistoryAdapter mAdapter;
 	
 	public static void launchLivechatHistoryActivity(Context context, String man_id, String manName, String manPhotoUrl){
 		Intent intent = new Intent(context, LivechatChatHistoryActivity.class);
@@ -64,6 +71,8 @@ public class LivechatChatHistoryActivity extends BaseActionbarActivity{
 	}
 	
 	private void initData(){
+		mChatHistoryDB = ChatHistoryDB.getInstance(this);
+		
 		Bundle bundle = getIntent().getExtras();
 		if(bundle != null){
 			if(bundle.containsKey(ChatActivity.CHAT_TARGET_ID)){
@@ -85,7 +94,9 @@ public class LivechatChatHistoryActivity extends BaseActionbarActivity{
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				LivechatChatHistoryDetailActivity.launchLivechatHistoryDetailActivity(LivechatChatHistoryActivity.this, mChatHistoryList[position], manPhotoUrl);
+				mAdapter.updateUnreadFlagByPosition(position);
+//				LivechatChatHistoryDetailActivity.launchLivechatHistoryDetailActivity(LivechatChatHistoryActivity.this, mChatHistoryList[position], manPhotoUrl);
+				ChatMessageListActivity.launchChatMessageListActivity(LivechatChatHistoryActivity.this, mChatHistoryList[position], manPhotoUrl);
 			}
 		});
 		getChatHistory();
@@ -95,23 +106,57 @@ public class LivechatChatHistoryActivity extends BaseActionbarActivity{
 	protected void handleUiMessage(Message msg) {
 		// TODO Auto-generated method stub
 		super.handleUiMessage(msg);
-		RequestBaseResponse response = (RequestBaseResponse)msg.obj;
-		String errMsg = StringUtil.getErrorMsg(this, response.errno, response.errmsg);
+
 		switch (msg.what) {
-		case GET_CHAT_HISTORY_CALLBACK:
+		case GET_CHAT_HISTORY_CALLBACK:{
+			RequestBaseResponse response = (RequestBaseResponse)msg.obj;
+			String errMsg = StringUtil.getErrorMsg(this, response.errno, response.errmsg);
 			if(response.isSuccess){
 				mChatHistoryList = (LCChatListItem[])response.body;
 				if(mChatHistoryList != null){
-					lvHistory.setAdapter(new LivechatHistoryAdapter(this, mChatHistoryList));
+					mAdapter = new LivechatHistoryAdapter(this, mChatHistoryList);
+					lvHistory.setAdapter(mAdapter);
+					updateUnreadStatus(mChatHistoryList);
 				}
 			}else{
 				Toast.makeText(this, errMsg, Toast.LENGTH_LONG).show();
 			}
-			break;
+		}break;
+		
+		case UPDATE_UNREAD_CALLBACK:{
+			Boolean[] unreadFlags = (Boolean[])msg.obj;
+			mAdapter.updateUnreadFlags(unreadFlags);
+		}break;
 
 		default:
 			break;
 		}
+	}
+	
+	/**
+	 * 本地数据库同步未读状态
+	 */
+	private void updateUnreadStatus(final LCChatListItem[] chatHistoryList){
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				HashMap<String, Boolean> inviteMap = mChatHistoryDB.getAllInviteReadFlag(manId);
+				Boolean[] unreadFlags = new Boolean[chatHistoryList.length];
+				for(int i=0; i < chatHistoryList.length; i++){
+					if(inviteMap.containsKey(chatHistoryList[i].inviteId)){
+						unreadFlags[i] = inviteMap.get(chatHistoryList[i].inviteId);
+					}else{
+						unreadFlags[i] = false;
+					}
+				}
+				Message msg = Message.obtain();
+				msg.what = UPDATE_UNREAD_CALLBACK;
+				msg.obj = unreadFlags;
+				sendUiMessage(msg);
+			}
+		}).start();
+
 	}
 	
 	private void getChatHistory(){
@@ -153,6 +198,16 @@ public class LivechatChatHistoryActivity extends BaseActionbarActivity{
 		case android.R.id.home:
 			finish();
 			break;
+		case R.id.markasread:{
+			mChatHistoryDB.markAllAsReadByManId(manId);
+			if(mChatHistoryList != null){
+				Boolean[] unreadFlags = new Boolean[mChatHistoryList.length];
+				for(int i=0; i < mChatHistoryList.length; i++){
+					unreadFlags[i] = false;
+				}
+				mAdapter.updateUnreadFlags(unreadFlags);
+			}
+		}break;
 		default:
 			break;
 		}		
@@ -161,6 +216,7 @@ public class LivechatChatHistoryActivity extends BaseActionbarActivity{
 	@Override
 	protected boolean onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		// TODO Auto-generated method stub
+		inflater.inflate(R.menu.chathistory_markasread, menu);
 		return true;
 	}
 

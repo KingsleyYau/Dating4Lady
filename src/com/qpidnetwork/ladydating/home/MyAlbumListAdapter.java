@@ -72,7 +72,7 @@ public class MyAlbumListAdapter extends BaseAdapter{
 		if(position == 0){
 			holder.line1.setBackgroundColor(mContext.getResources().getColor(R.color.blue));
 			holder.line2.setBackgroundColor(mContext.getResources().getColor(R.color.blue));
-			holder.flContent.setBackground(mContext.getResources().getDrawable(R.drawable.rectangle_stroke_blue));
+			holder.flContent.setBackgroundResource(R.drawable.rectangle_stroke_blue);
 			holder.image.setImageResource(R.drawable.ic_add_grey600_48dp);
 			holder.albumTypeIcon.setVisibility(View.GONE);
 			holder.itemNumber.setText(mContext.getResources().getString(R.string.create_album));
@@ -84,7 +84,7 @@ public class MyAlbumListAdapter extends BaseAdapter{
 		}else{
 			holder.line1.setBackgroundColor(mContext.getResources().getColor(R.color.grey));
 			holder.line2.setBackgroundColor(mContext.getResources().getColor(R.color.grey));
-			holder.flContent.setBackground(mContext.getResources().getDrawable(R.drawable.rectangle_stroke_grey));
+			holder.flContent.setBackgroundResource(R.drawable.rectangle_stroke_grey);
 			holder.itemNumber.setTextColor(mContext.getResources().getColor(R.color.text_color_light));
 			holder.image.setScaleType(ScaleType.CENTER_CROP);
 			holder.albumTypeIcon.setVisibility(View.VISIBLE);

@@ -1,0 +1,32 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+   
+    <RelativeLayout 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+       	android:layout_marginLeft="36dp"
+	    android:layout_marginRight="36dp"
+	    android:layout_marginTop="16dp"
+	    android:layout_marginBottom="16dp">
+	    <TextView
+	        android:id="@+id/tvViewDetial" 
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/livechat_chat_history_view_detail"
+	        android:textSize="14sp"
+	        android:background="@drawable/circle_angle_solid_white_stroke_lightgrey_rect_bg"
+	        android:gravity="center"
+	        android:paddingTop="8dp"
+	        android:paddingBottom="8dp"/>
+    </RelativeLayout>
+     
+    <com.qpidnetwork.ladydating.chat.MessageListView
+        android:id="@+id/msgList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbarStyle="insideOverlay" >
+    </com.qpidnetwork.ladydating.chat.MessageListView>
+    
+</LinearLayout>

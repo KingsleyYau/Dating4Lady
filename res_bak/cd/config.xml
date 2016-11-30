@@ -11,10 +11,10 @@
     
 
     <!-- 可选的服务器地址 -->
-    <string name="www_web_host_demo">http://demo.charmingdate.com</string>
-    <string name="web_host_demo">http://demo-mobile.charmingdate.com</string>
-    <string name="www_web_host_normal">http://www.charmingdate.com</string>
-    <string name="web_host_normal">http://mobile.charmingdate.com</string>
+    <string name="www_web_host_demo">http://demo.charmdate.com</string>
+    <string name="web_host_demo">http://demo-mobile.charmdate.com</string>
+    <string name="www_web_host_normal">http://www.charmdate.com</string>
+    <string name="web_host_normal">http://mobile.charmdate.com</string>
     <!-- 站点跟踪配置 -->
     <string name="web_short_name">cd</string>
     <!-- 其它配置 -->

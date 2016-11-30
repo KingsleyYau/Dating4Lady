@@ -22,6 +22,8 @@ import com.qpidnetwork.ladydating.R;
 import com.qpidnetwork.ladydating.authorization.LoginManager;
 import com.qpidnetwork.ladydating.authorization.LoginParam;
 import com.qpidnetwork.ladydating.base.BaseFragment;
+import com.qpidnetwork.ladydating.customized.view.AutoInviteMsgSwitchDialog;
+import com.qpidnetwork.ladydating.customized.view.AutoInviteMsgSwitchDialog.OnVerifyListener;
 import com.qpidnetwork.ladydating.customized.view.CircleImageView;
 import com.qpidnetwork.ladydating.customized.view.MaterialDialogAlert;
 import com.qpidnetwork.ladydating.customized.view.MaterialDialogSingleChoice;
@@ -176,9 +178,18 @@ public class MoreListFragment extends BaseFragment implements
 		case R.id.more_notif_setting:
 			onNotificationSetting();
 			break;
-		case R.id.more_clean_cache:
-			onCleanCache();
-			break;
+		case R.id.more_clean_cache:{
+//			onCleanCache();
+			AutoInviteMsgSwitchDialog dialog = new AutoInviteMsgSwitchDialog(getActivity());
+			dialog.setOnVerifyListener(new OnVerifyListener() {
+				
+				@Override
+				public void onVerifySuccess() {
+					// TODO Auto-generated method stub
+				}
+			});
+			dialog.show();
+		}break;
 		case R.id.more_check_update:
 			onCheckUpdate();
 			break;

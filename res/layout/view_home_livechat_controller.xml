@@ -15,8 +15,8 @@
             <LinearLayout android:layout_height="match_parent"
                 android:layout_width="match_parent"
                 android:id="@+id/livechatlistFragmentRepleacement"
-                android:orientation="vertical"/>
-            
+                android:orientation="vertical"
+                android:cacheColorHint="@null"/>
         </LinearLayout>
         
         <com.qpidnetwork.ladydating.customized.view.MaterialAppBar

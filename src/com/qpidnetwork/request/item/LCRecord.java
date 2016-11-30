@@ -1,5 +1,6 @@
 package com.qpidnetwork.request.item;
 
+
 public class LCRecord {
 	public LCRecord() {
 		
@@ -25,6 +26,7 @@ public class LCRecord {
 	 * @param videoSendId	视频发送ID
 	 * @param videoDesc		视频描述
 	 * @param videoCharge	视频是否已付费
+	 * @param magicIconId   小高表Id
 	 */
 	public LCRecord(
 			int toflag,
@@ -44,7 +46,8 @@ public class LCRecord {
 			String videoId,
 			String videoSendId,
 			String videoDesc,
-			boolean videoCharge
+			boolean videoCharge,
+			String magicIconId
 			) {
 		
 		if( toflag < 0 || toflag >= ToFlag.values().length ) {
@@ -55,10 +58,11 @@ public class LCRecord {
 		
 		this.adddate = adddate;
 		
-		if( messageType < 0 || messageType >= MessageType.values().length ) {
+		int type = messageType + 1;
+		if( type < 0 || type >= MessageType.values().length ) {
 			this.messageType = MessageType.values()[0];
 		} else {
-			this.messageType = MessageType.values()[messageType];
+			this.messageType = MessageType.values()[type];
 		}
 		
 		// -- text --
@@ -83,6 +87,7 @@ public class LCRecord {
 		this.videoSendId = videoSendId;
 		this.videoDesc = videoDesc;
 		this.videoCharge = videoCharge;
+		this.magicIconId = magicIconId;
 	}
 	
 	public enum ToFlag {
@@ -90,13 +95,15 @@ public class LCRecord {
 		Send,
 	}
 	public enum MessageType {
+		Unknow,
 		Text,
 		Invite,
 		Warning,
 		Emotion,
 		Voice,
 		Photo,
-		Video
+		Video,
+		MagicIcon
 	}
 	
 	public ToFlag toflag;
@@ -124,4 +131,5 @@ public class LCRecord {
 	public String videoSendId;
 	public String videoDesc;
 	public boolean videoCharge;
+	public String magicIconId;
 }

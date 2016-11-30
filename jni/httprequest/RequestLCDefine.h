@@ -28,6 +28,7 @@
 #define	LC_INVITETEMPLATE_TEMPID			"temp_id"			// 模板id
 #define	LC_INVITETEMPLATE_TEMPCONTENT		"temp_content"		// 模板内容
 #define	LC_INVITETEMPLATE_STATUS			"status"			// 审核状态
+#define	LC_INVITETEMPLATE_AUTOFLAG			"autoflag"			// 是否小助手模板
 
 // 模板状态
 typedef enum {
@@ -54,6 +55,7 @@ inline TEMP_STATUS GetTempStatusWithInt(int status) {
  * 请求参数
  */
 #define	LC_ADDINVITETEMPLATE_CONTENT		"temp_content"		// 模板内容
+#define	LC_ADDINVITETEMPLATE_AUTOINVITEFLAG	"autoflag"		// 是否小助手模板
 
 /* ########################	删除自定义模板  ######################## */
 /* 接口路径  */
@@ -152,6 +154,7 @@ typedef enum {
 	LIM_VOICE,
 	LIM_PHOTO,
 	LIM_VIDEO,
+	LIM_MAGICICON
 } LIVECHAT_INVITEMSG_MSGTYPE;
 
 /* ########################	获取私密照列表  ######################## */
@@ -431,3 +434,23 @@ static const int FunctionsArray[] = {
 		CHAT_SHORTVIDEO
 };
 #endif /* REQUESTLIVECHATDEFINE_H_ */
+
+/* ######################## 5.19.查询小高级表情配置######################## */
+/* 接口路径  */
+#define LC_GETMAGICICONCONFIG_PATH 			"/livechat/setstatus.php?action=magicicon_list"
+
+/**
+ * 返回参数
+ */
+#define	LC_GET_MAGICICON_CONFIG_BASE_PATH		"path"
+#define	LC_GET_MAGICICON_CONFIG_MAXUPDATETIME	"maxupdatetime"
+#define	LC_GET_MAGICICON_CONFIG_DATA		    "data"
+#define LC_GET_MAGICICON_CONFIG_INFO            "info"
+#define	LC_GET_MAGICICON_CONFIG_TYPELIST		"typelist"
+#define	LC_GET_MAGICICON_CONFIG_LIST		    "list"
+#define	LC_GET_MAGICICON_CONFIG_ID		        "id"
+#define	LC_GET_MAGICICON_CONFIG_TITLE		    "title"
+#define	LC_GET_MAGICICON_CONFIG_PRICE		    "price"
+#define	LC_GET_MAGICICON_CONFIG_HOTFLAG		    "hotflag"
+#define	LC_GET_MAGICICON_CONFIG_TYPEID		    "typeid"
+#define	LC_GET_MAGICICON_CONFIG_UPDATETIME		"updatetime"

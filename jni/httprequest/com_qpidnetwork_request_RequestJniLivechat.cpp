@@ -25,6 +25,7 @@
 #include "RequestLCSendVideoTask.h"
 
 #include "RequestLCCheckFunctionsTask.h"
+#include "RequestLCMagicIconConfigTask.h"
 
 /******************************** 5.1 查询个人邀请模板 ***************************/
 class RequestLCInviteTemplateCallback : public IRequestLCInviteTemplateCallback{
@@ -43,7 +44,7 @@ class RequestLCInviteTemplateCallback : public IRequestLCInviteTemplateCallback{
 		if(itr != gJavaItemMap.end()){
 			FileLog("httprequest", "JNI::OnInviteTemplate( itr != gJavaItemMap.end() )");
 			jclass cls = env->GetObjectClass(itr->second);
-			jmethodID init = env->GetMethodID(cls, "<init>", "(Ljava/lang/String;Ljava/lang/String;I)V");
+			jmethodID init = env->GetMethodID(cls, "<init>", "(Ljava/lang/String;Ljava/lang/String;IZ)V");
 			if(theList.size() > 0){
 				FileLog("httprequest", "JNI::OnInviteTemplate theList size: %d", theList.size());
 				jItemArray = env->NewObjectArray(theList.size(), cls, NULL);
@@ -51,7 +52,7 @@ class RequestLCInviteTemplateCallback : public IRequestLCInviteTemplateCallback{
 				for(LiveChatInviteTemplateList :: const_iterator itemItr = theList.begin(); itemItr != theList.end(); itemItr++, iItrIndex++){
 					jstring tempId = env->NewStringUTF(itemItr->tempId.c_str());
 					jstring tempContent = env->NewStringUTF(itemItr->tempContent.c_str());
-					jobject jItem = env->NewObject(cls, init, tempId, tempContent, (jint)itemItr->tempStatus);
+					jobject jItem = env->NewObject(cls, init, tempId, tempContent, (jint)itemItr->tempStatus, itemItr->autoFlag);
 					env->SetObjectArrayElement(jItemArray, iItrIndex, jItem);
 					env->DeleteLocalRef(tempId);
 					env->DeleteLocalRef(tempContent);
@@ -249,17 +250,17 @@ RequestLCAddInviteTemplateCallback gRequestLCAddInviteTemplateCallback;
 /*
  * Class:     com_qpidnetwork_request_RequestJniLivechat
  * Method:    AddCustomTemplate
- * Signature: (Ljava/lang/String;Lcom/qpidnetwork/request/OnRequestCallback;)J
+ * Signature: (Ljava/lang/String;ZLcom/qpidnetwork/request/OnRequestCallback;)J
  */
 JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniLivechat_AddCustomTemplate
-  (JNIEnv *env, jclass cls, jstring tempContent, jobject callback){
+  (JNIEnv *env, jclass cls, jstring tempContent, jboolean isInviteAssistant, jobject callback){
 
 	string strTempContent = JString2String(env, tempContent);
 	RequestOperator* request = new RequestOperator;
 
 	RequestLCAddInviteTemplateTask* task = new RequestLCAddInviteTemplateTask;
 	task->Init(&gHttpRequestManager);
-	task->SetParam(strTempContent);
+	task->SetParam(strTempContent, isInviteAssistant);
 	task->SetCallback(&gRequestLCAddInviteTemplateCallback);
 	task->SetTaskCallback((ITaskCallback*)&gRequestFinishCallback);
 
@@ -538,6 +539,7 @@ jobjectArray GetArrayWithListRecord(JNIEnv* env, const LiveChatRecordList& recor
 						"Ljava/lang/String;"	// videoSendId
 						"Ljava/lang/String;"	// videoDesc
 						"Z"						// videoCharge
+						"Ljava/lang/String;"    // magicIconId
 						")V");
 
 				jstring textMsg = env->NewStringUTF(itr->textMsg.c_str());
@@ -552,6 +554,7 @@ jobjectArray GetArrayWithListRecord(JNIEnv* env, const LiveChatRecordList& recor
 				jstring videoId = env->NewStringUTF(itr->videoId.c_str());
 				jstring videoSendId = env->NewStringUTF(itr->videoSendId.c_str());
 				jstring videoDesc = env->NewStringUTF(itr->videoDesc.c_str());
+				jstring magicIconId = env->NewStringUTF(itr->magicIconId.c_str());
 
 				jobject item = env->NewObject(cls, init,
 						itr->toflag,
@@ -571,7 +574,8 @@ jobjectArray GetArrayWithListRecord(JNIEnv* env, const LiveChatRecordList& recor
 						videoId,
 						videoSendId,
 						videoDesc,
-						itr->videoCharge
+						itr->videoCharge,
+						magicIconId
 						);
 
 				env->SetObjectArrayElement(jItemArray, i, item);
@@ -588,6 +592,7 @@ jobjectArray GetArrayWithListRecord(JNIEnv* env, const LiveChatRecordList& recor
 				env->DeleteLocalRef(videoId);
 				env->DeleteLocalRef(videoSendId);
 				env->DeleteLocalRef(videoDesc);
+				env->DeleteLocalRef(magicIconId);
 
 				env->DeleteLocalRef(item);
 			}
@@ -1914,6 +1919,195 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniLivechat_CheckFun
 	gCallbackMap.Insert(id, callbackObj);
 
 	FileLog("httprequest", "JNI::CheckFunctions() id:%p, callbackObj:%p", task, callbackObj);
+
+	gRequestMapMutex.lock();
+	gRequestMap.insert(RequestMap::value_type((long)task, true));
+	gRequestMap.insert(RequestMap::value_type((long)request, true));
+	gRequestMapMutex.unlock();
+
+	request->SetTask(task);
+	request->SetTaskCallback((ITaskCallback*)&gRequestFinishCallback);
+	bool result = request->Start();
+
+	return result ? (long)task : HTTPREQUEST_INVALIDREQUESTID;
+}
+
+/******************************* 5.19.	查询小高级表情配置  *****************************/
+
+class RequestLCMagicIconConfigCallback : public IRequestLCMagicIconConfigCallback {
+public:
+	void OnGetMagicIconConfig(
+			bool success,
+			const string& errnum,
+			const string& errmsg,
+			const MagicIconConfig& magicIconConfig,
+			RequestLCMagicIconConfigTask* task) {
+
+		FileLog("httprequest", "JNI::OnGetMagicIconConfig( success : %s, task : %p )", success?"true":"false", task);
+
+		JNIEnv *env = NULL;
+		bool isAttachThread = false;
+		GetEnv(&env, &isAttachThread);
+
+		/* create java item */
+		jobject jMagicConfigItem = NULL;
+		if (success) {
+			/*create magic icon array */
+			jobjectArray jMagicIconArray = NULL;
+			JavaItemMap :: iterator itr = gJavaItemMap.find(LIVECHAT_MAGIC_ICON_TIME_CLASS);
+			if(itr != gJavaItemMap.end()){
+				jclass jMagicIconItemCls = env->GetObjectClass(itr->second);
+				jmethodID magicIconInit = env->GetMethodID(jMagicIconItemCls, "<init>", "("
+									"Ljava/lang/String;"
+									"Ljava/lang/String;"
+									"DI"
+									"Ljava/lang/String;"
+									"I"
+									")V");
+				jMagicIconArray = env->NewObjectArray(magicIconConfig.magicIconList.size(),jMagicIconItemCls, NULL);
+				int iMagicIconIndex;
+				MagicIconConfig::MagicIconList::const_iterator magicIconIter;
+				for(iMagicIconIndex = 0, magicIconIter = magicIconConfig.magicIconList.begin();
+						magicIconIter != magicIconConfig.magicIconList.end();
+						iMagicIconIndex++, magicIconIter++){
+					jstring jIconId = env->NewStringUTF(magicIconIter->iconId.c_str());
+					jstring jIconTitle = env->NewStringUTF(magicIconIter->iconTitle.c_str());
+					jstring jTypeId = env->NewStringUTF(magicIconIter->typeId.c_str());
+
+					jobject jMagicItem = env->NewObject(jMagicIconItemCls, magicIconInit,
+									jIconId,
+									jIconTitle,
+									magicIconIter->price,
+									magicIconIter->hotflag,
+									jTypeId,
+									magicIconIter->updatetime);
+					env->SetObjectArrayElement(jMagicIconArray, iMagicIconIndex, jMagicItem);
+					env->DeleteLocalRef(jMagicItem);
+
+					env->DeleteLocalRef(jIconId);
+					env->DeleteLocalRef(jIconTitle);
+					env->DeleteLocalRef(jTypeId);
+				}
+				env->DeleteLocalRef(jMagicIconItemCls);
+			}
+			FileLog("httprequest", "LiveChat.Native::OnGetMagicIconConfig(), jMagicIconArray:%p", jMagicIconArray);
+
+			/*creat magic type array */
+			jobjectArray jMagicTypeArray = NULL;
+			itr = gJavaItemMap.find(LIVECHAT_MAGIC_TYPE_TIME_CLASS);
+			if(itr != gJavaItemMap.end()){
+				jclass jMagicTypeItemCls = GetJClass(env, LIVECHAT_MAGIC_TYPE_TIME_CLASS);
+				jmethodID magicTypeInit = env->GetMethodID(jMagicTypeItemCls,"<init>", "("
+														"Ljava/lang/String;"
+														"Ljava/lang/String;"
+														")V");
+				jMagicTypeArray = env->NewObjectArray(magicIconConfig.typeList.size(), jMagicTypeItemCls, NULL);
+				int iMagicTypeIndex;
+				MagicIconConfig::MagicTypeList::const_iterator jMagicTypeIter;
+				for(iMagicTypeIndex = 0, jMagicTypeIter = magicIconConfig.typeList.begin();
+						jMagicTypeIter != magicIconConfig.typeList.end();
+						iMagicTypeIndex++, jMagicTypeIter++){
+					jstring jMagicTypeId = env->NewStringUTF(jMagicTypeIter->typeId.c_str());
+					jstring jMagicTypeTitle = env->NewStringUTF(jMagicTypeIter->typeTitle.c_str());
+					jobject jMagicTypeItem = env->NewObject(jMagicTypeItemCls, magicTypeInit,
+												jMagicTypeId,
+												jMagicTypeTitle);
+					env->SetObjectArrayElement(jMagicTypeArray, iMagicTypeIndex, jMagicTypeItem);
+					env->DeleteLocalRef(jMagicTypeItem);
+					env->DeleteLocalRef(jMagicTypeId);
+					env->DeleteLocalRef(jMagicTypeTitle);
+				}
+				env->DeleteLocalRef(jMagicTypeItemCls);
+			}
+			FileLog("httprequest", "LiveChat.Native::OnGetMagicIconConfig(), jMagicIconArray:%p, jMagicTypeArray: %p", jMagicIconArray, jMagicTypeArray);
+
+			/*create magic config item*/
+			itr = gJavaItemMap.find(LIVECHAT_MAGIC_CONFIG_ITEM_CLASS);
+			if(itr != gJavaItemMap.end()){
+				jclass jMagicConfigItemCls = GetJClass(env, LIVECHAT_MAGIC_CONFIG_ITEM_CLASS);
+				jmethodID magicConfigInit = env->GetMethodID(jMagicConfigItemCls, "<init>", "("
+						"Ljava/lang/String;"
+						"I"
+						"[L"
+						LIVECHAT_MAGIC_ICON_TIME_CLASS
+						";"
+						"[L"
+						LIVECHAT_MAGIC_TYPE_TIME_CLASS
+						";"
+						")V");
+				jstring jPath = env->NewStringUTF(magicIconConfig.path.c_str());
+				jMagicConfigItem = env->NewObject(jMagicConfigItemCls, magicConfigInit,
+						jPath,
+						magicIconConfig.maxupdatetime,
+						jMagicIconArray,
+						jMagicTypeArray);
+				env->DeleteLocalRef(jPath);
+				env->DeleteLocalRef(jMagicConfigItemCls);
+				if(jMagicIconArray != NULL){
+					env->DeleteLocalRef(jMagicIconArray);
+				}
+				if(jMagicTypeArray != NULL){
+					env->DeleteLocalRef(jMagicTypeArray);
+				}
+			}
+		}
+
+		/*callback*/
+		jobject callbackObj = gCallbackMap.Erase((long)task);
+
+		if(callbackObj != NULL){
+			jclass callbackCls = env->GetObjectClass(callbackObj);
+			string signature = "(ZLjava/lang/String;Ljava/lang/String;"
+					"L"
+					LIVECHAT_MAGIC_CONFIG_ITEM_CLASS
+					";"
+					")V";
+			jmethodID callbackMethod = env->GetMethodID(callbackCls, "OnGetMagicIconConfig", signature.c_str());
+
+			FileLog("httprequest", "LiveChat.Native::OnGetMagicIconConfig(), errnum:%s, errmsg:%s"
+						, errnum.c_str(), errmsg.c_str());
+
+			if(callbackMethod != NULL){
+				jstring jerrnum = env->NewStringUTF(errnum.c_str());
+				jstring jerrmsg = env->NewStringUTF(errmsg.c_str());
+				env->CallVoidMethod(callbackObj, callbackMethod, success, jerrnum, jerrmsg, jMagicConfigItem);
+				env->DeleteLocalRef(jerrnum);
+				env->DeleteLocalRef(jerrmsg);
+			}
+			env->DeleteGlobalRef(callbackObj);
+		}
+
+		if(NULL != jMagicConfigItem){
+			env->DeleteLocalRef(jMagicConfigItem);
+		}
+
+		ReleaseEnv(isAttachThread);
+
+		FileLog("httprequest", "JNI::OnGetMagicIconConfig() task:%p, finish", task);
+	}
+};
+RequestLCMagicIconConfigCallback gRequestLCMagicIconConfigCallback;
+
+/*
+ * Class:     com_qpidnetwork_request_RequestJniLivechat
+ * Method:    GetMagicIconConfig
+ * Signature: (Lcom/qpidnetwork/request/OnGetMagicIconConfigCallback;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniLivechat_GetMagicIconConfig
+  (JNIEnv *env, jclass cls, jobject callback){
+
+	RequestOperator* request = new RequestOperator;
+
+	RequestLCMagicIconConfigTask* task = new RequestLCMagicIconConfigTask;
+	task->Init(&gHttpRequestManager);
+	task->SetCallback(&gRequestLCMagicIconConfigCallback);
+	task->SetTaskCallback((ITaskCallback*)&gRequestFinishCallback);
+
+	jobject callbackObj = env->NewGlobalRef(callback);
+	long id = (long) task;
+	gCallbackMap.Insert(id, callbackObj);
+
+	FileLog("httprequest", "JNI::GetMagicIconConfig() id:%p, callbackObj:%p", task, callbackObj);
 
 	gRequestMapMutex.lock();
 	gRequestMap.insert(RequestMap::value_type((long)task, true));

@@ -63,7 +63,6 @@ public class ImageUtil {
 	public static Bitmap scaleImageFile(String srcPath, float destWidth, float destHeight) { 
 		
 		if((destWidth == 0)||(destHeight == 0)){
-			Log.i("hunter", "scaleImageFile destWidth: " + destWidth + " destHeight: " + destHeight);
 			return null;
 		}
 		
@@ -102,7 +101,6 @@ public class ImageUtil {
 	public static Bitmap scaleBitmap(Bitmap image, float destWidth, float destHeight) {
 		
 		if((destWidth == 0)||(destHeight == 0)){
-			Log.i("hunter", "scaleBitmap destWidth: " + destWidth + " destHeight: " + destHeight);
 			return null;
 		}
 	      
@@ -151,7 +149,6 @@ public class ImageUtil {
 	public static Bitmap crop(Bitmap bitmap, int srcWidth, int srcHeight, float radio){
 		
 		if((srcWidth == 0)||(srcHeight == 0)||(radio == 0)){
-			Log.i("hunter", "crop srcWidth: " + srcWidth + " srcHeight: " + srcHeight + " radio: " + radio);
 			return null;
 		}
 

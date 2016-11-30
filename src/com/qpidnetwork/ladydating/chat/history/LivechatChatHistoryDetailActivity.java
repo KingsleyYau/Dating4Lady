@@ -21,7 +21,7 @@ import com.qpidnetwork.tool.ImageViewLoader;
 
 public class LivechatChatHistoryDetailActivity extends BaseActionbarActivity{
 	
-	private static final String LIVE_CHAT_HISTORY_ITEM = "chatHistoryItem";
+	public static final String LIVE_CHAT_HISTORY_ITEM = "chatHistoryItem";
 	
 	private CircleImageView ivPhoto;
 	private TextView tvName;

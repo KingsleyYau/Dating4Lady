@@ -2,6 +2,7 @@ package com.qpidnetwork.livechat;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.annotation.SuppressLint;
@@ -15,6 +16,9 @@ import com.qpidnetwork.framework.util.StringUtil;
 import com.qpidnetwork.ladydating.QpidApplication;
 import com.qpidnetwork.ladydating.authorization.IAuthorizationCallBack;
 import com.qpidnetwork.ladydating.chat.LCMessageHelper;
+import com.qpidnetwork.ladydating.chat.history.ChatHistoryUpdateManager;
+import com.qpidnetwork.ladydating.chat.history.OnGetChatMessageListCallback;
+import com.qpidnetwork.livechat.LCMagicIconManager.LCMagicIconManagerCallback;
 import com.qpidnetwork.livechat.LCMessageItem.MessageType;
 import com.qpidnetwork.livechat.LCMessageItem.SendType;
 import com.qpidnetwork.livechat.LCMessageItem.StatusType;
@@ -29,6 +33,7 @@ import com.qpidnetwork.manager.FileCacheManager;
 import com.qpidnetwork.manager.WebsiteManager;
 import com.qpidnetwork.request.ConfigManagerJni;
 import com.qpidnetwork.request.OnConfigManagerCallback;
+import com.qpidnetwork.request.OnGetMagicIconConfigCallback;
 import com.qpidnetwork.request.OnLCCheckSendPhotoCallback;
 import com.qpidnetwork.request.OnLCCheckSendVideoCallback;
 import com.qpidnetwork.request.OnLCGetPhotoCallback;
@@ -50,6 +55,7 @@ import com.qpidnetwork.request.item.LCRecord;
 import com.qpidnetwork.request.item.LCVideoListGroupItem;
 import com.qpidnetwork.request.item.LCVideoListVideoItem;
 import com.qpidnetwork.request.item.LoginItem;
+import com.qpidnetwork.request.item.MagicIconConfig;
 import com.qpidnetwork.request.item.SynConfigItem;
 
 /**
@@ -65,6 +71,7 @@ public class LiveChatManager
 						, OnConfigManagerCallback
 						, LCPhotoManager.LCPhotoManagerListener
 						, LCVideoManager.LCVideoManagerListener
+						, LCMagicIconManagerCallback
 {
 	private Context mContext = null;
 	/**
@@ -126,6 +133,10 @@ public class LiveChatManager
 	 */
 	private LCVideoManager mVideoMgr = null;
 	/**
+	 * 小高级表情管理器
+	 */
+	private LCMagicIconManager mMagicIconMgr;
+	/**
 	 * 用户管理器
 	 */
 	private LCUserManager mUserMgr = null;
@@ -145,6 +156,10 @@ public class LiveChatManager
 	 * Livechat 相关功能对方是否支持检测
 	 */
 	private LCFunctionCheckManager mLCFunctionCheckManager;
+	/**
+	 * 联系人聊天历史更新
+	 */
+	private ChatHistoryUpdateManager mChatHistoryUpdateManager;
 	
 	/**
 	 * 回调处理器
@@ -166,6 +181,7 @@ public class LiveChatManager
 		GetSynConfigFinish,			// 获取同步配置完成
 		GetSelfInfo,				// 获取用户本人信息
 		GetEmotionConfig,			// 获取高级表情配置
+		GetMagicIconConfig,         // 获取小高级表情配置
 		GetPhotoList,				// 获取私密照列表
 		GetVideoList,				// 获取视频列表
 		AutoRelogin,				// 执行自动重登录流程
@@ -180,6 +196,7 @@ public class LiveChatManager
 //		LoginManagerLogout,			// LoginManager注销
 		UploadVoiceFile,			// 上传语音文件
 		CheckFunctionsFinish,		//相关功能对方是否支持检测完成回调
+		AutoInvite,                 //邀请小助手
 	}
 	
 	public static LiveChatManager newInstance(Context context) {
@@ -208,6 +225,7 @@ public class LiveChatManager
 		mTextMgr = new LCTextManager();
 		mEmotionMgr = new LCEmotionManager();
 		mVoiceMgr = new LCVoiceManager();
+		mMagicIconMgr = new LCMagicIconManager();
 		mPhotoMgr = new LCPhotoManager(this);
 		mVideoMgr = new LCVideoManager(this);
 		mUserMgr = new LCUserManager();
@@ -217,6 +235,7 @@ public class LiveChatManager
 		mLCFunctionCheckManager = new LCFunctionCheckManager(mUserMgr, this, mUserInfoManager);
 		mCallbackHandler = new LiveChatManagerCallbackHandler();
 		mMsgIdIndex = new AtomicInteger(MsgIdIndexBegin);
+		mChatHistoryUpdateManager = ChatHistoryUpdateManager.getInstance(mContext);
 
 		// 初始化jni打log
 		String logPath = FileCacheManager.getInstance().GetLogPath();
@@ -236,6 +255,9 @@ public class LiveChatManager
 				}break;
 				case GetEmotionConfig: {
 					GetEmotionConfig();
+				}break;
+				case GetMagicIconConfig: {
+					GetMagicIconConfig();
 				}break;
 				case GetPhotoList: {
 					GetPhotoList();
@@ -305,6 +327,11 @@ public class LiveChatManager
 						CheckTryTicketAndSend(userItem);
 					}
 				}break;
+				
+				case AutoInvite: {
+					CloseOrOpenAutoInvite(true);
+				}break;
+				
 				}
 			}
 		};
@@ -371,6 +398,26 @@ public class LiveChatManager
 	}
 	
 	/**
+	 * 注册小高级表情(MagicIcon)回调
+	 * @param listener
+	 * @return
+	 */
+	public boolean RegisterMagicIconListener(LiveChatManagerMagicIconListener listener) 
+	{
+		return mCallbackHandler.RegisterMagicIconListener(listener);
+	}
+	
+	/**
+	 * 注销小高级表情(MagicIcon)回调
+	 * @param listener
+	 * @return
+	 */
+	public boolean UnregisterMagicIconListener(LiveChatManagerMagicIconListener listener) 
+	{
+		return mCallbackHandler.UnregisterMagicIconListener(listener);
+	}
+	
+	/**
 	 * 注册私密照(Photo)回调
 	 * @param listener
 	 * @return
@@ -429,6 +476,26 @@ public class LiveChatManager
 	{
 		return mCallbackHandler.UnregisterVoiceListener(listener);
 	}
+	
+	/**
+	 * 注册小助手(AutoInvite)回调
+	 * @param listener
+	 * @return
+	 */
+	public boolean RegisterAutoInviteListener(LiveChatManagerAutoInviteListener listener) 
+	{
+		return mCallbackHandler.RegisterAutoInviteListener(listener);
+	}
+	
+	/**
+	 * 注销小助手(AutoInvite)回调
+	 * @param listener
+	 * @return
+	 */
+	public boolean UnregisterAutoInviteListener(LiveChatManagerAutoInviteListener listener) 
+	{
+		return mCallbackHandler.UnregisterAutoInviteListener(listener);
+	}
 
 	/**
 	 * 初始化
@@ -462,6 +529,9 @@ public class LiveChatManager
 			// 初始化语音管理器
 			String voicePath = FileCacheManager.getInstance().GetLCVoicePath();
 			result = result && mVoiceMgr.init(voicePath);
+			
+			// 初始化小高级表情管理器
+			mMagicIconMgr.init(mContext, webHost, this);
 			
 			// 初始化视频管理器
 			String videoPath = FileCacheManager.getInstance().GetLCVideoPath();
@@ -530,6 +600,17 @@ public class LiveChatManager
 		mVideoMgr.clearAllSendingItems();
 		// 清除视频列表
 		mVideoMgr.clearVideoList();
+		
+		// 停止获取小高级表情配置请求
+		if (RequestJni.InvalidRequestId != mMagicIconMgr.mGetMagicIconConfigReqId) {
+			mMagicIconMgr.mGetMagicIconConfigReqId = RequestJni.InvalidRequestId;
+		}
+		Log.d("livechat", "ResetParam() clear magicIcon StopAllDownloadImage");
+		mMagicIconMgr.StopAllDownloadImage();
+		Log.d("livechat", "ResetParam() clear magicIcon StopAllDownloadThumbImage");
+		mMagicIconMgr.StopAllDownloadThumbImage();
+		Log.d("livechat", "ResetParam() clear magicIcon removeAllSendingItems");
+		mMagicIconMgr.removeAllSendingItems();
 		
 		Log.d("LiveChatManager", "ResetParam() clear other begin");
 		// 停止所有发送文本消息
@@ -634,6 +715,12 @@ public class LiveChatManager
 		// 设置不自动重登录
 		mIsAutoRelogin = false;
 		boolean result =  LiveChatClient.Logout();
+		
+		//重置消息历史标志位
+		mChatHistoryUpdateManager.ResetStatus();
+		
+		//手动注销重置小助手状态
+		isAutoInviteOpen = false;
 		
 		Log.d("LiveChatManager", "LiveChatManager::Logout() end, result:%b", result);
 		
@@ -827,6 +914,11 @@ public class LiveChatManager
 						// 设置服务器当前数据库时间
 						LCMessageItem.SetDbTime(dbTime);
 						
+						//更新清除本地数据库无效邀请
+						if(isSuccess && dbTime > 0){
+							mChatHistoryUpdateManager.clearInvalidRecord(dbTime);
+						}
+						
 						// 插入聊天记录
 						LCUserItem userItem = mUserMgr.getUserItemWithInviteId(inviteId);
 						if (isSuccess && null != userItem && null != recordList) 
@@ -846,9 +938,12 @@ public class LiveChatManager
 										mEmotionMgr, 
 										mVoiceMgr, 
 										mPhotoMgr,
-										mVideoMgr)) 
+										mVideoMgr,
+										mMagicIconMgr)) 
 								{
-									userItem.insertSortMsgList(item);
+									if(item.msgType != MessageType.Unknow){
+										userItem.insertSortMsgList(item);
+									}
 								}
 							}
 							// 合并图片聊天记录
@@ -873,6 +968,61 @@ public class LiveChatManager
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * 获取指定邀请Id的消息历史列表
+	 * @param inviteId
+	 */
+	public void GetUserHistoryMessageByInviteId(final String manId, final String inviteId, final OnGetChatMessageListCallback callback){
+		RequestJniLivechat.QueryChatRecord(inviteId, new OnQueryChatRecordCallback() {
+			
+			@Override
+			public void OnQueryChatRecord(boolean isSuccess, String errno,
+					String errmsg, int dbTime, LCRecord[] recordList, String inviteId) {
+				
+				//更新清除本地数据库无效邀请
+				if(isSuccess && dbTime > 0){
+					mChatHistoryUpdateManager.clearInvalidRecord(dbTime);
+				}
+				
+				ArrayList<LCMessageItem> msgList = new ArrayList<LCMessageItem>();
+				LCUserItem userItem = mUserMgr.getUserItem(manId);
+				if (isSuccess && null != userItem && null != recordList) 
+				{
+					// 插入历史记录
+					for (int i = 0; i < recordList.length; i++) 
+					{
+						LCMessageItem item = new LCMessageItem();
+						if (item.InitWithRecord(
+								mMsgIdIndex.getAndIncrement(), 
+								mSelfInfo.mUserId, 
+								manId,
+								inviteId,
+								recordList[i], 
+								mEmotionMgr, 
+								mVoiceMgr, 
+								mPhotoMgr,
+								mVideoMgr,
+								mMagicIconMgr)) 
+						{
+							item.setUserItem(userItem);
+							//防止未识别消息类型
+							if(item.msgType != MessageType.Unknow){
+								msgList.add(item);
+							}
+							// 合并图片聊天记录
+							mPhotoMgr.combineMessageItem(msgList);
+							// 合并视频聊天记录
+							mVideoMgr.combineMessageItem(msgList);
+							
+							Collections.sort(msgList, LCMessageItem.getComparator());
+						}
+					}
+				}
+				callback.OnGetChatMessageList(isSuccess, errno, errmsg, msgList);
+			}
+		});
 	}
 	
 	/**
@@ -1155,6 +1305,10 @@ public class LiveChatManager
 			break;
 		case Video:
 			SendVideoProc(item);
+			break;
+		case MagicIcon:
+			SendMagicIconProc(item);
+			break;
 		default:
 			Log.e("LiveChatManager", "LiveChatManager::SendMessageList() msgType error, msgType:%s", item.msgType.name());
 			break;
@@ -1697,13 +1851,12 @@ public class LiveChatManager
 	 * @param sizeType	下载的照片尺寸	
 	 * @return
 	 */
-	public boolean GetPhotoWithMessage(String userId, int msgId, PhotoSizeType sizeType)
+	public boolean GetPhotoWithMessage(String userId, LCMessageItem item, PhotoSizeType sizeType)
 	{
 		boolean result = false;
 		LCUserItem userItem = mUserMgr.getUserItem(userId);
 		if (null != userItem) 
 		{
-			LCMessageItem item = userItem.getMsgItemWithId(msgId);
 			LCPhotoItem photoItem = item.getPhotoItem();
 			if (null != item
 				&& item.msgType == MessageType.Photo
@@ -2465,6 +2618,11 @@ public class LiveChatManager
 			msgGetEmotionConfig.what = LiveChatRequestOptType.GetEmotionConfig.ordinal();
 			mHandler.sendMessage(msgGetEmotionConfig);
 			
+			// 获取小高级表情配置
+			Message msgGetMagicIconConfig = Message.obtain();
+			msgGetMagicIconConfig.what = LiveChatRequestOptType.GetMagicIconConfig.ordinal();
+			mHandler.sendMessage(msgGetMagicIconConfig);
+			
 			// 获取女士私密照列表
 			Message msgGetPhotoList = Message.obtain();
 			msgGetPhotoList.what = LiveChatRequestOptType.GetPhotoList.ordinal();
@@ -2474,6 +2632,14 @@ public class LiveChatManager
 			Message msgGetVideoList = Message.obtain();
 			msgGetVideoList.what = LiveChatRequestOptType.GetVideoList.ordinal();
 			mHandler.sendMessage(msgGetVideoList);
+			
+			//邀请小助手
+			if(isAutoInviteOpen){
+				Message msgAutoInvite = Message.obtain();
+				msgAutoInvite.what = LiveChatRequestOptType.AutoInvite.ordinal();
+				mHandler.sendMessage(msgAutoInvite);
+			}
+			
 		}
 		else if (IsAutoRelogin(errType)) {
 			Log.d("LiveChatManager", "OnLogin() AutoRelogin() begin");
@@ -2872,6 +3038,7 @@ public class LiveChatManager
 			// 添加用户
 			mUserMgr.getUserItem(userIds[i]);
 			
+			
 			// 添加到联系人列表
 			mContactMgr.AddContact(userIds[i]);
 		}
@@ -2880,6 +3047,11 @@ public class LiveChatManager
 		
 		// 获取用户信息
 		GetUsersInfo(userIds);
+		
+		if(errType == LiveChatErrType.Success
+				&& userIds != null){
+			mChatHistoryUpdateManager.startUpdateContactHistory(mSelfInfo.mUserId, userIds);
+		}
 	}
 
 	/**
@@ -3023,6 +3195,11 @@ public class LiveChatManager
 				contactChange = true;
 			}
 			
+			//更新本地聊天历史数据库
+			if(!inviteId.equals(userItem.inviteId)){
+				mChatHistoryUpdateManager.addLocalChatToHistory(userItem, inviteId);
+			}
+			
 			// 生成MessageItem
 			LCMessageItem item = new LCMessageItem();
 			item.init(mMsgIdIndex.getAndIncrement()
@@ -3081,6 +3258,11 @@ public class LiveChatManager
 		// 添加联系人
 		contactChange = contactChange || mContactMgr.AddContactWithUserItem(userItem);
 		
+		//更新本地聊天历史数据库
+		if(!inviteId.equals(userItem.inviteId)){
+			mChatHistoryUpdateManager.addLocalChatToHistory(userItem, inviteId);
+		}
+		
 		// 生成MessageItem
 		LCMessageItem item = new LCMessageItem();
 		item.init(mMsgIdIndex.getAndIncrement()
@@ -3134,6 +3316,11 @@ public class LiveChatManager
 		
 		// 添加联系人
 		contactChange = contactChange || mContactMgr.AddContactWithUserItem(userItem);
+		
+		//更新本地聊天历史数据库
+		if(!inviteId.equals(userItem.inviteId)){
+			mChatHistoryUpdateManager.addLocalChatToHistory(userItem, inviteId);
+		}
 		
 		// 生成MessageItem
 		LCMessageItem item = new LCMessageItem();
@@ -3197,6 +3384,11 @@ public class LiveChatManager
 		
 		// 添加联系人
 		contactChange = contactChange || mContactMgr.AddContactWithUserItem(userItem);
+		
+		//更新本地聊天历史数据库
+		if(!inviteId.equals(userItem.inviteId)){
+			mChatHistoryUpdateManager.addLocalChatToHistory(userItem, inviteId);
+		}
 		
 		// 生成MessageItem
 		LCMessageItem item = new LCMessageItem();
@@ -3414,6 +3606,11 @@ public class LiveChatManager
 		
 		// 添加联系人
 		contactChange = contactChange || mContactMgr.AddContactWithUserItem(userItem);
+		
+		//更新本地聊天历史数据库
+		if(!inviteId.equals(userItem.inviteId)){
+			mChatHistoryUpdateManager.addLocalChatToHistory(userItem, inviteId);
+		}
 		
 		// 生成MessageItem
 		LCMessageItem item = new LCMessageItem();
@@ -3685,6 +3882,9 @@ public class LiveChatManager
 		case Voice:
 			mCallbackHandler.OnSendVoice(errType, "", errMsg, msgItem);
 			break;
+		case MagicIcon:
+			mCallbackHandler.OnSendMagicIcon(errType, errMsg, msgItem);
+			break;
 		default:
 			break;
 		}
@@ -3731,4 +3931,402 @@ public class LiveChatManager
 		msg.obj = userId;
 		mHandler.sendMessage(msg);
 	}
+
+	@Override
+	public void OnManBuyThemeNotify(String subjectId, String manId,
+			String womanId, long startTime, long endTime, long now,
+			long updateTime) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void OnManApplyThemeNotify(String subjectId, String manId,
+			String womanId, long startTime, long endTime, long now,
+			long updateTime) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/******************************小助手开发******************************************/
+	
+	private boolean isAutoInviteOpen = false;
+	
+	@Override
+	public void OnSwitchAutoInviteMsg(LiveChatErrType errType, String errmsg, boolean isOpen) {
+		if(errType == LiveChatErrType.Success){
+			isAutoInviteOpen = isOpen;
+		}
+		mCallbackHandler.OnSwitchAutoInviteMsg(errType, errmsg, isOpen);
+	}
+
+	@Override
+	public void OnGetAutoInviteMsgSwitchStatus(LiveChatErrType errType,
+			String errmsg, boolean isOpen) {
+		// TODO Auto-generated method stub
+		if(errType == LiveChatErrType.Success){
+			isAutoInviteOpen = isOpen;
+		}
+	}
+
+	@Override
+	public void OnRecvAutoInviteNotify(String womanId, String manId,
+			String message, String inviteId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void OnAutoInviteStatusUpdate(boolean isOpen) {
+		if(isAutoInviteOpen){
+			isAutoInviteOpen = isOpen;
+			CloseOrOpenAutoInvite(true);
+		}
+	}
+	
+	/**
+	 * 打开或关闭自动邀请
+	 * @param isOpen
+	 */
+	public void CloseOrOpenAutoInvite(boolean isOpen){
+		LiveChatClient.SwitchAutoInviteMsg(isOpen);
+	}
+	
+	/**
+	 * 同步服务器状态
+	 */
+	public void GetAutoInviteMsgSwitchStatus(){
+		LiveChatClient.GetAutoInviteMsgSwitchStatus();
+	}
+	
+	/**
+	 * 获取小助手状态
+	 * @return
+	 */
+	public boolean GetAutoInviteStatus(){
+		return isAutoInviteOpen;
+	}
+	
+	// ---------------- 小高表相关操作（Magic Icon） ----------------
+	
+	/**
+	 * 获取小高级表情配置
+	 */
+	public synchronized boolean GetMagicIconConfig(){
+		if (mMagicIconMgr.mGetMagicIconConfigReqId != RequestJni.InvalidRequestId) {
+			return true;
+		}
+		
+		mMagicIconMgr.mGetMagicIconConfigReqId = RequestJniLivechat.GetMagicIconConfig(new OnGetMagicIconConfigCallback() {
+			
+			@Override
+			public void OnGetMagicIconConfig(boolean isSuccess, String errno,
+					String errmsg, MagicIconConfig config) {
+				Log.d("LiveChatManager", "GetMagicIconConfig() OnGetMagicIconConfig begin isSuccess: " + isSuccess);
+				boolean success = isSuccess;
+				MagicIconConfig configItem = config;
+				if (isSuccess) {
+					// 请求成功
+					if (mMagicIconMgr.IsVerNewTheConfigItem(config.maxupdatetime)) {
+						// 配置版本更新
+						success = mMagicIconMgr.UpdateConfigItem(config);
+					}
+					else {
+						// 使用旧配置
+						configItem = mMagicIconMgr.GetConfigItem();
+					}
+				}
+				Log.d("LiveChatManager", "GetMagicIconConfig() OnGetMagicIconConfig callback");
+				mCallbackHandler.OnGetMagicIconConfig(success, errno, errmsg, configItem);
+				mMagicIconMgr.mGetMagicIconConfigReqId = RequestJni.InvalidRequestId;
+				Log.d("LiveChatManager", "GetMagicIconConfig() OnGetMagicIconConfig end");				
+			}
+		});
+		return mMagicIconMgr.mGetMagicIconConfigReqId != RequestJni.InvalidRequestId;
+	}
+	
+	/**
+	 * 获取配置item（PS：本次获取可能是旧的，当收到OnGetMagicIconConfig()回调时，需要重新调用本函数获取）
+	 * @return
+	 */
+	public MagicIconConfig GetMagicIconConfigItem() {
+		return mMagicIconMgr.GetConfigItem();
+	}
+	
+	/**
+	 * 获取小高级表情item
+	 * @param magicIconId	小高级表情ID
+	 * @return
+	 */
+	public LCMagicIconItem GetMagicIconInfo(String magicIconId)
+	{
+		return mMagicIconMgr.getMagicIcon(magicIconId);
+	}
+	
+	/**
+	 * 发送小高级表情
+	 * @param userId	对方的用户ID
+	 * @param magicIconId	小高级表情ID
+	 * @param ticket	票根
+	 * @return
+	 */
+	public LCMessageItem SendMagicIcon(String userId, String magicIconId)
+	{
+		// 判断是否处理发送操作
+		if (!IsHandleSendOpt()) {
+			Log.e("livechat", "LiveChatManager::SendMagicIcon() IsHandleSendOpt()==false");
+			return null;
+		}
+		
+		// 获取用户item
+		LCUserItem userItem = mUserMgr.getUserItem(userId);
+		if (null == userItem) {
+			Log.e("livechat", String.format("%s::%s() getUserItem fail, userId:%s", "LiveChatManager", "SendMagicIcon", userId));
+			return null;
+		}
+		
+		LCMessageItem item = null;
+		if (!magicIconId.isEmpty()) {
+			// 生成MessageItem
+			item = new LCMessageItem();
+			item.init(mMsgIdIndex.getAndIncrement()
+					, SendType.Send
+					, mSelfInfo.mUserId
+					, userId
+					, userItem.inviteId
+					, StatusType.Processing);
+			// 获取EmotionItem
+			LCMagicIconItem magicIconItem = mMagicIconMgr.getMagicIcon(magicIconId);
+			// 把EmotionItem添加到MessageItem
+			item.setMagicIconItem(magicIconItem);
+			// 添加到历史记录
+			userItem.insertSortMsgList(item);
+			
+			// 添加到待发送列表
+			userItem.addSendingMsg(item);
+			//获取对方支持功能列表
+			mLCFunctionCheckManager.CheckFunctionSupported(userId);
+
+//			if (IsSendMessageNow(userItem)) 
+//			{
+//				// 发送消息
+//				SendEmotionProc(item);
+//			}
+//			else if (IsWaitForLoginToSendMessage(userItem)) 
+//			{
+//				// 登录未成功，添加到待发送列表
+//				userItem.addToSendMsgList(item);
+//			}
+//			else 
+//			{
+//				// 正在使用试聊券，消息添加到待发列表
+//				userItem.addToSendMsgList(item);
+//				// 执行尝试使用试聊券流程
+//				CheckCouponProc(userItem);
+//			}
+		}
+		else {
+			Log.e("livechat", String.format("%s::%s() param error, userId:%s, magicIconId:%s", "LiveChatManager", "SendMagicIcon", userId, magicIconId));
+		}
+		return item;
+	}
+	
+	/**
+	 * 发送小高级表情消息回调
+	 * @param errType	处理结果类型
+	 * @param errmsg	处理结果描述
+	 * @param userId	用户ID
+	 * @param magicIconId 小高级表情ID
+	 * @param ticket	票根
+	 */
+	@Override
+	public void OnSendMagicIcon(
+			LiveChatErrType errType
+			, String errmsg
+			, String userId
+			, String magicIconId
+			, int ticket) 
+	{
+		LCMessageItem item = mMagicIconMgr.getAndRemoveSendingItem(ticket);
+		
+		if (null != item) {
+			item.statusType = (errType==LiveChatErrType.Success ? StatusType.Finish : StatusType.Fail);
+			mCallbackHandler.OnSendMagicIcon(errType, errmsg, item);
+		}
+		else {
+			Log.e("livechat", String.format("%s::%s() get sending item fail, ticket:%d", "LiveChatManager", "OnSendEmotion", ticket));
+		}
+		
+		if (null != item && null != item.getUserItem()) 
+		{
+			if (errType != LiveChatErrType.Success) {
+				// 生成警告消息
+				if (null != item && null != item.getUserItem()) {
+					BuildAndInsertWarningWithErrType(item.getUserItem(), errType);
+				}
+				
+				// 修改聊天状态
+				if (errType == LiveChatErrType.TargetNotExist
+					|| errType == LiveChatErrType.MagicIconError)
+				{
+					if (item.getUserItem().setChatType(ChatType.Other)) {
+						mCallbackHandler.OnContactListChange();
+					}
+				}
+			}
+			else {
+				// 发送成功，更新聊天状态
+				if (item.getUserItem().UpdateInChatStatus()) {
+					mCallbackHandler.OnContactListChange();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 接收高级表情消息回调
+	 * @param toId		接收者ID
+	 * @param fromId	发送者ID
+	 * @param fromName	发送者用户名
+	 * @param inviteId	邀请ID
+	 * @param charget	是否已付费
+	 * @param ticket	票根
+	 * @param msgType	聊天消息类型
+	 * @param emotionId	高级表情ID
+	 */
+	@Override
+	public void OnRecvMagicIcon(
+			String toId
+			, String fromId
+			, String fromName
+			, String inviteId
+			, boolean charge
+			, int ticket
+			, TalkMsgType msgType
+			, String magicIconId)
+	{
+		// 返回票根给服务器
+		LiveChatClient.UploadTicket(fromId, ticket);
+		
+		// 更新用户状态
+		LCUserItem userItem = mUserMgr.getUserItem(fromId);
+		if (null == userItem) {
+			Log.e("LiveChatManager", String.format("%s::%s() getUserItem fail, fromId:%s", "LiveChatManager", "OnRecvEmotion", fromId));
+			return;
+		}
+		userItem.userName = fromName;
+		boolean contactChange = userItem.setChatTypeWithTalkMsgType(inviteId, charge, msgType);
+		contactChange = contactChange || SetUserOnlineStatus(userItem, UserStatusType.USTATUS_ONLINE);
+		
+		// 添加联系人
+		contactChange = contactChange || mContactMgr.AddContactWithUserItem(userItem);
+		
+		//更新本地聊天历史数据库
+		if(!inviteId.equals(userItem.inviteId)){
+			mChatHistoryUpdateManager.addLocalChatToHistory(userItem, inviteId);
+		}
+		
+		// 生成MessageItem
+		LCMessageItem item = new LCMessageItem();
+		item.init(mMsgIdIndex.getAndIncrement()
+				, SendType.Recv
+				, fromId
+				, toId
+				, userItem.inviteId
+				, StatusType.Finish);
+//		// 获取MagicIconItem
+		LCMagicIconItem magicIconItem = mMagicIconMgr.getMagicIcon(magicIconId);
+		// 把MagicIconItem添加到MessageItem
+		item.setMagicIconItem(magicIconItem);
+		
+		// 添加到用户聊天记录中
+		userItem.insertSortMsgList(item);
+		// 联系人状态改变 callback
+		if (contactChange) {
+			mCallbackHandler.OnContactListChange();
+		}
+		// callback
+		mCallbackHandler.OnRecvMagicIcon(item);
+	}
+	
+	/**
+	 * 发送高级表情处理
+	 * @param item
+	 */
+	private void SendMagicIconProc(LCMessageItem item)
+	{
+		if (LiveChatClient.SendMagicIcon(item.toId, item.getMagicIconItem().getMagicIconId(), item.msgId)) {
+			mMagicIconMgr.addSendingItem(item);
+		}
+		else {
+			item.statusType = StatusType.Fail;
+			mCallbackHandler.OnSendMagicIcon(LiveChatErrType.Fail, "", item);
+		}
+	}
+	
+	/**
+	 * 手动下载/更新小高级表情图片文件
+	 * @param magicIconId	小高级表情ID
+	 * @return
+	 */
+	public boolean GetMagicIconSrcImage(String magicIconId) {
+		LCMagicIconItem magicIconItem = mMagicIconMgr.getMagicIcon(magicIconId);
+		
+		boolean result = false;
+		// 判断文件是否存在，若不存在则下载
+		if (!magicIconItem.getSourcePath().isEmpty()) {
+			File file  = new File(magicIconItem.getSourcePath());
+			if (file.exists() && file.isFile()) {
+				mCallbackHandler.OnGetMagicIconSrcImage(true, magicIconItem);
+				result = true;
+			}
+		}
+		
+		// 文件不存在，需要下载
+		if (!result) {
+			result = mMagicIconMgr.StartDownloadImage(magicIconItem);
+		}
+		return result;
+	}
+	
+	/**
+	 * 手动下载/更新小高级表情拇子图文件
+	 * @param magicIconId	小高级表情ID
+	 * @return
+	 */
+	public boolean GetMagicIconThumbImage(String magicIconId) {
+		
+		LCMagicIconItem magicIconItem = mMagicIconMgr.getMagicIcon(magicIconId);
+		
+		boolean result = false;
+		// 判断文件是否存在，若不存在则下载
+		if (!magicIconItem.getThumbPath().isEmpty()) {
+			File file  = new File(magicIconItem.getThumbPath());
+			if (file.exists() && file.isFile()) {
+				mCallbackHandler.OnGetMagicIconThumbImage(true, magicIconItem);
+				result = true;
+			}
+		}
+		
+		// 文件不存在，需要下载
+		if (!result) {
+			result = mMagicIconMgr.StartDownloadThumbImage(magicIconItem);
+		}
+		return result;
+	}
+	
+	//---- magic icon download relative -------
+	@Override
+	public void OnDownloadMagicIconImage(boolean result,
+			LCMagicIconItem magicIconItem) {
+		mCallbackHandler.OnGetMagicIconSrcImage(result, magicIconItem);
+	}
+
+	@Override
+	public void OnDownloadMagicIconThumbImage(boolean result,
+			LCMagicIconItem magicIconItem) {
+		mCallbackHandler.OnGetMagicIconThumbImage(result, magicIconItem);		
+	}
+	
+	// ---------------- 小高表相关操作（Magic Icon） end----------------
 }

@@ -18,6 +18,8 @@ public class SynConfigItem implements Serializable{
 		apkVersionUrl = "";
 		siteUrl = "";
 		liveChatVoiceHost = "";
+		privatePhotoMax = 0;
+		privatePhotoMin = 0;
 	}
 	
 	public SynConfigItem(
@@ -31,7 +33,9 @@ public class SynConfigItem implements Serializable{
 			String apkVersionName,
 			String apkVersionUrl,
 			String siteUrl,
-			String liveChatVoiceHost
+			String liveChatVoiceHost,
+			int privatePhotoMax,
+			int privatePhotoMin
 			){
 		this.socketHost = socketHost;
 		this.socketPort = socketPort;
@@ -44,6 +48,8 @@ public class SynConfigItem implements Serializable{
 		this.apkVersionUrl = apkVersionUrl;
 		this.siteUrl = siteUrl;
 		this.liveChatVoiceHost = liveChatVoiceHost;
+		this.privatePhotoMax = privatePhotoMax;
+		this.privatePhotoMin = privatePhotoMin;
 	}
 	
 	public String socketHost;
@@ -57,4 +63,6 @@ public class SynConfigItem implements Serializable{
 	public String apkVersionUrl;
 	public String siteUrl;
 	public String liveChatVoiceHost;
+	public int privatePhotoMax;
+	public int privatePhotoMin;
 }

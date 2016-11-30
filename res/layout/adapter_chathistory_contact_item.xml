@@ -1,0 +1,52 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/flBody"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="72dp" 
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+    <com.qpidnetwork.ladydating.customized.view.CircleImageView
+        android:id="@+id/avatar"
+        style="@style/Avatar.Man.40dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true" 
+        android:layout_marginLeft="16dp"/>
+    <LinearLayout 
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="16dp">
+        <TextView
+	        android:id="@+id/tvUserName"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="bottom"
+	        android:ellipsize="end"
+	        android:includeFontPadding="false"
+	        android:singleLine="true"
+	        android:textSize="16sp" 
+	        android:text="Leehom"
+	        android:textColor="@color/text_color_dark"/>
+        <TextView
+	        android:id="@+id/tvStartTime"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="bottom"
+	        android:ellipsize="end"
+	        android:includeFontPadding="false"
+	        android:singleLine="true"
+	        android:textColor="@color/text_color_light"
+	        android:textSize="14sp" 
+	        android:text="Jan 26, 2015"/>
+    </LinearLayout>
+    
+    <ImageView
+	    android:id="@+id/unreadFlag"
+	    android:layout_width="12dp"
+	    android:layout_height="12dp"
+	    android:layout_marginLeft="16dp"
+	    android:layout_marginRight="16dp"
+	    android:background="@drawable/oval_view_red" />
+    
+</LinearLayout>

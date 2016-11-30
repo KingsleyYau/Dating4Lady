@@ -16,6 +16,7 @@ import com.qpidnetwork.request.item.LCPhotoListAlbumItem;
 import com.qpidnetwork.request.item.LCPhotoListPhotoItem;
 import com.qpidnetwork.request.item.LCVideoListGroupItem;
 import com.qpidnetwork.request.item.LCVideoListVideoItem;
+import com.qpidnetwork.request.item.MagicIconConfig;
 
 /**
  * LiveChatManager回调处理类
@@ -28,6 +29,7 @@ public class LiveChatManagerCallbackHandler implements LiveChatManagerOtherListe
 													 , LiveChatManagerPhotoListener
 													 , LiveChatManagerVideoListener
 													 , LiveChatManagerVoiceListener
+													 , LiveChatManagerAutoInviteListener
 {
 	/**
 	 * 回调OtherListener的object列表
@@ -42,6 +44,10 @@ public class LiveChatManagerCallbackHandler implements LiveChatManagerOtherListe
 	 */
 	private ArrayList<LiveChatManagerEmotionListener> mEmotionListeners;
 	/**
+	 * 回调MagicIconListener的object列表
+	 */
+	private ArrayList<LiveChatManagerMagicIconListener> mMagicIconListeners;
+	/**
 	 * 回调PhotoListener的object列表
 	 */
 	private ArrayList<LiveChatManagerPhotoListener> mPhotoListeners;
@@ -53,15 +59,21 @@ public class LiveChatManagerCallbackHandler implements LiveChatManagerOtherListe
 	 * 回调VoiceListener的object列表
 	 */
 	private ArrayList<LiveChatManagerVoiceListener> mVoiceListeners;
+	/**
+	 * 回调AutoInviteListener的object列表
+	 */
+	private ArrayList<LiveChatManagerAutoInviteListener> mAutoInviteListeners;
 	
 	
 	public LiveChatManagerCallbackHandler() {
 		mOtherListeners = new ArrayList<LiveChatManagerOtherListener>();
 		mMessageListeners = new ArrayList<LiveChatManagerMessageListener>();
 		mEmotionListeners = new ArrayList<LiveChatManagerEmotionListener>();
+		mMagicIconListeners = new ArrayList<LiveChatManagerMagicIconListener>();
 		mPhotoListeners = new ArrayList<LiveChatManagerPhotoListener>();
 		mVideoListeners = new ArrayList<LiveChatManagerVideoListener>();
 		mVoiceListeners = new ArrayList<LiveChatManagerVoiceListener>();
+		mAutoInviteListeners = new ArrayList<LiveChatManagerAutoInviteListener>();
 	}
 	
 	// ----------------------- 注册/注销回调 -----------------------
@@ -228,6 +240,60 @@ public class LiveChatManagerCallbackHandler implements LiveChatManagerOtherListe
 	}
 	
 	/**
+	 * 注册小高级表情(MagicIcon)回调
+	 * @param listener
+	 * @return
+	 */
+	public boolean RegisterMagicIconListener(LiveChatManagerMagicIconListener listener) 
+	{
+		boolean result = false;
+		synchronized(mMagicIconListeners) 
+		{
+			if (null != listener) {
+				boolean isExist = false;
+				
+				for (Iterator<LiveChatManagerMagicIconListener> iter = mMagicIconListeners.iterator(); iter.hasNext(); ) {
+					LiveChatManagerMagicIconListener theListener = iter.next();
+					if (theListener == listener) {
+						isExist = true;
+						break;
+					}
+				}
+				
+				if (!isExist) {
+					result = mMagicIconListeners.add(listener);
+				}
+				else {
+					Log.d("livechat", String.format("%s::%s() fail, listener:%s is exist", "LiveChatManagerCallbackHandler", "RegisterMagicIconListener", listener.getClass().getSimpleName()));
+				}
+			}
+			else {
+				Log.e("livechat", String.format("%s::%s() fail, listener is null", "LiveChatManagerCallbackHandler", "RegisterListener"));
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * 注销小高级表情(MagicIcon)回调
+	 * @param listener
+	 * @return
+	 */
+	public boolean UnregisterMagicIconListener(LiveChatManagerMagicIconListener listener) 
+	{
+		boolean result = false;
+		synchronized(mMagicIconListeners)
+		{
+			result = mMagicIconListeners.remove(listener);
+		}
+
+		if (!result) {
+			Log.e("livechat", String.format("%s::%s() fail, listener:%s", "LiveChatManagerCallbackHandler", "UnregisterMagicIconListener", listener.getClass().getSimpleName()));
+		}
+		return result;
+	}
+	
+	/**
 	 * 注册私密照(Photo)回调
 	 * @param listener
 	 * @return
@@ -385,6 +451,60 @@ public class LiveChatManagerCallbackHandler implements LiveChatManagerOtherListe
 
 		if (!result) {
 			Log.e("livechat", String.format("%s::%s() fail, listener:%s", "LiveChatManagerCallbackHandler", "UnregisterVoiceListener", listener.getClass().getSimpleName()));
+		}
+		return result;
+	}
+	
+	/**
+	 * 注册小助手(AutoInvite)回调
+	 * @param listener
+	 * @return
+	 */
+	public boolean RegisterAutoInviteListener(LiveChatManagerAutoInviteListener listener) 
+	{
+		boolean result = false;
+		synchronized(mAutoInviteListeners) 
+		{
+			if (null != listener) {
+				boolean isExist = false;
+				
+				for (Iterator<LiveChatManagerAutoInviteListener> iter = mAutoInviteListeners.iterator(); iter.hasNext(); ) {
+					LiveChatManagerAutoInviteListener theListener = iter.next();
+					if (theListener == listener) {
+						isExist = true;
+						break;
+					}
+				}
+				
+				if (!isExist) {
+					result = mAutoInviteListeners.add(listener);
+				}
+				else {
+					Log.d("livechat", String.format("%s::%s() fail, listener:%s is exist", "LiveChatManagerCallbackHandler", "RegisterAutoInviteListener", listener.getClass().getSimpleName()));
+				}
+			}
+			else {
+				Log.e("livechat", String.format("%s::%s() fail, listener is null", "LiveChatManagerCallbackHandler", "RegisterAutoInviteListener"));
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * 注销小助手(AutoInvite)回调
+	 * @param listener
+	 * @return
+	 */
+	public boolean UnregisterAutoInviteListener(LiveChatManagerAutoInviteListener listener) 
+	{
+		boolean result = false;
+		synchronized(mAutoInviteListeners)
+		{
+			result = mAutoInviteListeners.remove(listener);
+		}
+
+		if (!result) {
+			Log.e("livechat", String.format("%s::%s() fail, listener:%s", "LiveChatManagerCallbackHandler", "UnregisterAutoInviteListener", listener.getClass().getSimpleName()));
 		}
 		return result;
 	}
@@ -1129,6 +1249,103 @@ public class LiveChatManagerCallbackHandler implements LiveChatManagerOtherListe
 			for (Iterator<LiveChatManagerVideoListener> iter = mVideoListeners.iterator(); iter.hasNext(); ) {
 				LiveChatManagerVideoListener listener = iter.next();
 				listener.OnRecvShowVideo(userItem, videoId, videoDesc);
+			}
+		}
+	}
+
+	/************************************ Auto Invite Callback *********************************************/
+	@Override
+	public void OnSwitchAutoInviteMsg(LiveChatErrType errType, String errmsg,
+			boolean isOpen) {
+		// TODO Auto-generated method stub
+		synchronized(mAutoInviteListeners) 
+		{
+			for (Iterator<LiveChatManagerAutoInviteListener> iter = mAutoInviteListeners.iterator(); iter.hasNext(); ) {
+				LiveChatManagerAutoInviteListener listener = iter.next();
+				listener.OnSwitchAutoInviteMsg(errType, errmsg, isOpen);
+			}
+		}
+	}
+	
+	// ---------------- 小高表回调函数（Magic Icon） ----------------
+	/**
+	 * 获取小高级表情配置回调
+	 * @param success	是否成功
+	 * @param errType	处理结果错误代码
+	 * @param errmsg	处理结果描述
+	 */
+	public void OnGetMagicIconConfig(boolean success, String errno, String errmsg, MagicIconConfig item)
+	{
+		synchronized(mMagicIconListeners) 
+		{
+			for (Iterator<LiveChatManagerMagicIconListener> iter = mMagicIconListeners.iterator(); iter.hasNext(); ) {
+				LiveChatManagerMagicIconListener listener = iter.next();
+				listener.OnGetMagicIconConfig(success,errno, errmsg, item);
+			}
+		}
+	}
+	
+	/**
+	 * 发送小高级表情回调
+	 * @param errType	处理结果错误代码
+	 * @param errmsg	处理结果描述
+	 * @param item		消息item
+	 * @return
+	 */
+	public void OnSendMagicIcon(LiveChatErrType errType, String errmsg, LCMessageItem item)
+	{
+		synchronized(mMagicIconListeners) 
+		{
+			for (Iterator<LiveChatManagerMagicIconListener> iter = mMagicIconListeners.iterator(); iter.hasNext(); ) {
+				LiveChatManagerMagicIconListener listener = iter.next();
+				listener.OnSendMagicIcon(errType, errmsg, item);
+			}
+		}
+	}
+	
+	/**
+	 * 接收小高级表情消息回调
+	 * @param item		消息item
+	 */
+	public void OnRecvMagicIcon(LCMessageItem item)
+	{
+		synchronized(mMagicIconListeners) 
+		{
+			for (Iterator<LiveChatManagerMagicIconListener> iter = mMagicIconListeners.iterator(); iter.hasNext(); ) {
+				LiveChatManagerMagicIconListener listener = iter.next();
+				listener.OnRecvMagicIcon(item);
+			}
+		}
+	}
+	
+	/**
+	 * 下载小高级表情图片原图成功回调
+	 * @param success
+	 * @param magicIconItem
+	 */
+	public void OnGetMagicIconSrcImage(boolean success, LCMagicIconItem magicIconItem)
+	{
+		synchronized(mMagicIconListeners) 
+		{
+			for (Iterator<LiveChatManagerMagicIconListener> iter = mMagicIconListeners.iterator(); iter.hasNext(); ) {
+				LiveChatManagerMagicIconListener listener = iter.next();
+				listener.OnGetMagicIconSrcImage(success, magicIconItem);
+			}
+		}
+	}
+	
+	/**
+	 * 下载小高级表情拇子图成功回调
+	 * @param success
+	 * @param magicIconItem
+	 */
+	public void OnGetMagicIconThumbImage(boolean success, LCMagicIconItem magicIconItem)
+	{
+		synchronized(mMagicIconListeners) 
+		{
+			for (Iterator<LiveChatManagerMagicIconListener> iter = mMagicIconListeners.iterator(); iter.hasNext(); ) {
+				LiveChatManagerMagicIconListener listener = iter.next();
+				listener.OnGetMagicIconThumbImage(success, magicIconItem);
 			}
 		}
 	}

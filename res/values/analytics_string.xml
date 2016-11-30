@@ -8,9 +8,11 @@
 	<string name="com.qpidnetwork.ladydating.home.HomeActivity_0_0_2">Home.RecentVistors</string>
 	<string name="com.qpidnetwork.ladydating.home.HomeActivity_0_0__1">Home.SearchResult</string>
 	<string name="com.qpidnetwork.ladydating.home.HomeActivity_0_1">Home.FavoritesList</string>
-	<string name="com.qpidnetwork.ladydating.home.HomeActivity_0_2">Home.MoreList</string>
+	<string name="com.qpidnetwork.ladydating.home.HomeActivity_0_2">Home.AlbumList</string>
+	<string name="com.qpidnetwork.ladydating.home.HomeActivity_0_3">Home.MoreList</string>
 	<string name="com.qpidnetwork.ladydating.home.HomeActivity_1">Home.ChatList</string>
 	<string name="com.qpidnetwork.ladydating.man.ManProfileActivity">ManProfile</string>
+	<string name="com.qpidnetwork.ladydating.man.ManPhotoPreviewActivity">ManProfile.ManPhotoPreview</string>
 	<string name="com.qpidnetwork.ladydating.home.ContactSearchActivity">LiveChat.SearchChat</string>
 
 	<string name="com.qpidnetwork.ladydating.chat.invite.OutgoingChatInvitationActivity">ChatList.OutgoingInvitation</string>
@@ -22,11 +24,19 @@
 	<string name="com.qpidnetwork.ladydating.chat.picture.LivechatPrivatePhotoPreviewActivity">LiveChat.ViewPrivatePhoto</string>
 	<string name="com.qpidnetwork.ladydating.chat.history.LivechatChatHistoryActivity">LiveChat.HistoryList</string>
 	<string name="com.qpidnetwork.ladydating.chat.history.LivechatChatHistoryDetailActivity">LiveChat.HistoryDetail</string>
+	<string name="com.qpidnetwork.ladydating.chat.history.ChatContactListActivity">LiveChat.History.ChatContactList</string>
+	<string name="com.qpidnetwork.ladydating.chat.history.ChatMessageListActivity">LiveChat.History.ChatMessageList</string>
 
 	<string name="com.qpidnetwork.ladydating.more.LadyProfileDetailActivity">More.ViewMyProfile</string>
 	<string name="com.qpidnetwork.ladydating.more.NormalPhotoPreviewActivity">More.ViewMyPhoto</string>
 	<string name="com.qpidnetwork.ladydating.more.ChangePasswordActivity">More.ChangePassword</string>
 	<string name="com.qpidnetwork.ladydating.more.ContactAgentActivity">More.ContactAgent</string>
+	
+	<string name="com.qpidnetwork.ladydating.album.AlbumDetailActivity">Album.AlbumDetail</string>
+	<string name="com.qpidnetwork.ladydating.album.AlbumEditActivity">Album.AlbumEdit</string>
+	<string name="com.qpidnetwork.ladydating.album.AlbumPreviewActivity">Album.AlbumPreview</string>
+	<string name="com.qpidnetwork.ladydating.album.EditPhotoActivity">Album.EditPhoto</string>
+	<string name="com.qpidnetwork.ladydating.album.EditVideoActivity">Album.EditVideo</string>
 	
 	<!-- Event Define -->
 	<string name="LiveChatF_Category">LiveChat</string>

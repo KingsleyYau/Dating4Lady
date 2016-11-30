@@ -23,10 +23,11 @@ public class RequestJniLivechat {
 	/**
 	 * 5.3.新建邀请模板
 	 * @param tempContent
+	 * @param isInviteAssistant
 	 * @param callback
 	 * @return
 	 */
-	public static native long AddCustomTemplate(String tempContent, OnRequestCallback callback);
+	public static native long AddCustomTemplate(String tempContent, boolean isInviteAssistant, OnRequestCallback callback);
 	
 	/**
 	 * 5.4.删除用于自定义模板接口
@@ -355,4 +356,12 @@ public class RequestJniLivechat {
 	}
 	
 	static protected native long CheckFunctions( int[] functionIds, int deviceType, String versionCode, String user_sid, String user_id, OnCheckFunctionsCallback callback);
+
+	/**
+	 * 5.19 查询小高级表情配置
+	 * @param callback
+	 * @return
+	 */
+	static public native long GetMagicIconConfig(OnGetMagicIconConfigCallback callback);
+	
 }

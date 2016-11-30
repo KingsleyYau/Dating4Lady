@@ -117,8 +117,8 @@ public class InviteTemplateManager implements IAuthorizationCallBack{
 	 * 增加个人模板
 	 * @param tempContent
 	 */
-	public void addCustomTemplate(String tempContent, final OnRequestCallback callback){
-		RequestJniLivechat.AddCustomTemplate(tempContent, new OnRequestCallback() {
+	public void addCustomTemplate(String tempContent, boolean isInviteAssistant, final OnRequestCallback callback){
+		RequestJniLivechat.AddCustomTemplate(tempContent, isInviteAssistant, new OnRequestCallback() {
 			
 			@Override
 			public void OnRequest(boolean isSuccess, String errno, String errmsg) {

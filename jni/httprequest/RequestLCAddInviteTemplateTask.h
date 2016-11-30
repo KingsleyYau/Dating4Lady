@@ -29,7 +29,7 @@ public:
 	virtual ~RequestLCAddInviteTemplateTask();
 
 	// set request param
-	void SetParam(const string& tempContent);
+	void SetParam(const string& tempContent, bool isInviteAssistant);
 
 	// Implement RequestBaseTask
 	bool HandleCallback(const string& url, bool requestRet, const char* buf, int size);

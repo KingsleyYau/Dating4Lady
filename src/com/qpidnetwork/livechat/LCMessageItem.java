@@ -28,6 +28,7 @@ public class LCMessageItem implements Serializable{
 		Warning,	// 警告消息
 		Emotion,	// 高级表情
 		Voice,		// 语音
+		MagicIcon,  //小高级表情
 		Photo,		// 私密照
 		Video,		// 微视频
 		System,		// 系统消息
@@ -116,6 +117,10 @@ public class LCMessageItem implements Serializable{
 	 * 语音item
 	 */
 	private LCVoiceItem voiceItem;
+	/**
+	 * 小高级表情item
+	 */
+	private LCMagicIconItem magicIconItem;
 	/**
 	 * 图片item
 	 */
@@ -237,6 +242,7 @@ public class LCMessageItem implements Serializable{
 			, LCVoiceManager voiceMgr
 			, LCPhotoManager photoMgr
 			, LCVideoManager videoMgr
+			, LCMagicIconManager magicIconMgr
 			) 
 	{
 		boolean result = false;
@@ -281,6 +287,14 @@ public class LCMessageItem implements Serializable{
 			{
 				LCEmotionItem emotionItem = emotionMgr.getEmotion(record.emotionId);
 				setEmotionItem(emotionItem);
+				result = true;
+			}
+		}break;
+		case MagicIcon: {
+			if (null != record.magicIconId)
+			{
+				LCMagicIconItem magicIconItem = magicIconMgr.getMagicIcon(record.magicIconId);
+				setMagicIconItem(magicIconItem);
 				result = true;
 			}
 		}break;
@@ -421,6 +435,18 @@ public class LCMessageItem implements Serializable{
 		return emotionItem;
 	}
 	
+	public void setMagicIconItem(LCMagicIconItem magicIconItem) {
+		if (msgType == MessageType.Unknow
+				&& magicIconItem != null) 
+		{
+			this.magicIconItem = magicIconItem;
+			msgType = MessageType.MagicIcon;
+		}
+	} 
+	public LCMagicIconItem getMagicIconItem() {
+		return magicIconItem;
+	}
+	
 	public void setSystemItem(LCSystemItem theSystemItem) {
 		if (msgType == MessageType.Unknow
 				&& theSystemItem != null) 
@@ -456,6 +482,7 @@ public class LCMessageItem implements Serializable{
 		textItem = null;
 		warningItem = null;
 		emotionItem = null;
+		magicIconItem = null;
 		voiceItem = null;
 		photoItem = null;
 		videoItem = null;

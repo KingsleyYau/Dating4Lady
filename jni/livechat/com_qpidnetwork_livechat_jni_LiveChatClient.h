@@ -129,6 +129,14 @@ JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_Send
 
 /*
  * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
+ * Method:    SendMagicIcon
+ * Signature: (Ljava/lang/String;Ljava/lang/String;I)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_SendMagicIcon
+  (JNIEnv *, jclass, jstring, jstring, jint);
+
+/*
+ * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
  * Method:    GetUserInfo
  * Signature: (Ljava/lang/String;)Z
  */
@@ -198,6 +206,27 @@ JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_GetF
  */
 JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_GetLadyChatInfo
   (JNIEnv *, jclass);
+
+/*
+ * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
+ * Method:    GetAutoInviteMsgSwitchStatus
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_GetAutoInviteMsgSwitchStatus(JNIEnv *, jclass);
+
+/*
+ * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
+ * Method:    SwitchAutoInviteMsg
+ * Signature: (Z)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_SwitchAutoInviteMsg(JNIEnv *, jclass, jboolean);
+
+/*
+ * Class:     com_qpidnetwork_livechat_jni_LiveChatClient
+ * Method:    RecommandThemeToMan
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_qpidnetwork_livechat_jni_LiveChatClient_RecommandThemeToMan(JNIEnv *, jclass, jstring, jstring);
 
 #ifdef __cplusplus
 }

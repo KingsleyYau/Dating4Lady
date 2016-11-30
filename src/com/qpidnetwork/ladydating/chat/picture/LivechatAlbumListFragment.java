@@ -167,6 +167,10 @@ public class LivechatAlbumListFragment extends BaseFragment implements LiveChatM
 		progress.setVisibility(View.GONE);
 		imgRefresh.setVisibility(View.VISIBLE);
 		RequestBaseResponse response = (RequestBaseResponse)msg.obj;
+		if(getActivity() == null){
+			//fragment detattached 
+			return;
+		}
 		String errMsg = response.errmsg;
 		if(getActivity() != null){
 			errMsg = StringUtil.getErrorMsg(getActivity(), response.errno, response.errmsg);

@@ -14,7 +14,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.qpidnetwork.framework.util.Log;
 import com.qpidnetwork.ladydating.QpidApplication;
 import com.qpidnetwork.ladydating.R;
 import com.qpidnetwork.ladydating.authorization.IAuthorizationCallBack;
@@ -23,6 +22,7 @@ import com.qpidnetwork.ladydating.bean.RequestBaseResponse;
 import com.qpidnetwork.ladydating.customized.view.MaterialRaisedButton;
 import com.qpidnetwork.manager.WebsiteManager;
 import com.qpidnetwork.request.RequestJni;
+import com.qpidnetwork.request.item.CookiesItem;
 import com.qpidnetwork.request.item.LoginItem;
 
 public abstract class BaseWebViewActivity extends BaseActionbarActivity implements IAuthorizationCallBack{
@@ -215,11 +215,20 @@ public abstract class BaseWebViewActivity extends BaseActionbarActivity implemen
 		CookieSyncManager.createInstance(this);
 		CookieManager cookieManager = CookieManager.getInstance();
 		cookieManager.setAcceptCookie(true);
-//		cookieManager.removeSessionCookie();
+		cookieManager.removeSessionCookie();
 		
-		String phpSession = RequestJni.GetCookies(domain.substring(domain.indexOf("http://") + 7, domain.length()));
-		Log.i("BaseWebViewActivity", "The cookie is : " + phpSession);
-		cookieManager.setCookie(domain, phpSession); // 
+		CookiesItem[] cookieList = RequestJni.GetCookiesItem();
+		if(cookieList != null && cookieList.length > 0){
+			for(CookiesItem item : cookieList){
+				if(item != null){
+					String sessionString = item.cName + "=" + item.value;
+					cookieManager.setCookie(item.domain, sessionString);	
+				}
+			}
+		}
+//		String phpSession = RequestJni.GetCookies(domain.substring(domain.indexOf("http://") + 7, domain.length()));
+//		Log.i("BaseWebViewActivity", "The cookie is : " + phpSession);
+//		cookieManager.setCookie(domain, phpSession); // 
 		CookieSyncManager.getInstance().sync();
 		
 		mWebview.clearCache(true);

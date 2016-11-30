@@ -120,7 +120,7 @@ public class PrivatePhotoDownloader implements LiveChatManagerPhotoListener {
 		mLiveChatManager
 				.RegisterPhotoListener(PrivatePhotoDownloader.this);
 		boolean success = mLiveChatManager
-				.GetPhotoWithMessage(msgBean.getUserItem().userId, msgBean.msgId,
+				.GetPhotoWithMessage(msgBean.getUserItem().userId, msgBean,
 						PhotoSizeType.Large);
 		if (!success) {
 			if (pbDownload != null) {

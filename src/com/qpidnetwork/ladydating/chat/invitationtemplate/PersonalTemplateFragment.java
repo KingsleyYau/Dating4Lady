@@ -148,9 +148,11 @@ public class PersonalTemplateFragment extends BaseListViewFragment implements
 	public void handleUiMessage(Message msg) {
 		RequestBaseResponse response = (RequestBaseResponse)msg.obj;
 		String errMsg = response.errmsg;
-		if(getActivity() != null){
-			errMsg = StringUtil.getErrorMsg(getActivity(), response.errno, response.errmsg);
+		if(getActivity() == null){
+			//fragment已经not attached
+			return;
 		}
+		errMsg = StringUtil.getErrorMsg(getActivity(), response.errno, response.errmsg);
 		switch (msg.what) {
 		case GET_CUSTOM_TEMPLATES_CALLBACK:{
 			getProgressBar().setVisibility(View.GONE);

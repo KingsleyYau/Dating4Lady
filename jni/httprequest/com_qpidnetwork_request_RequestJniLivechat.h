@@ -26,10 +26,10 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniLivechat_GetSyste
 /*
  * Class:     com_qpidnetwork_request_RequestJniLivechat
  * Method:    AddCustomTemplate
- * Signature: (Ljava/lang/String;Lcom/qpidnetwork/request/OnRequestCallback;)J
+ * Signature: (Ljava/lang/String;ZLcom/qpidnetwork/request/OnRequestCallback;)J
  */
 JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniLivechat_AddCustomTemplate
-  (JNIEnv *, jclass, jstring, jobject);
+  (JNIEnv *, jclass, jstring, jboolean, jobject);
 
 /*
  * Class:     com_qpidnetwork_request_RequestJniLivechat
@@ -150,6 +150,14 @@ JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniLivechat_SendVide
  */
 JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniLivechat_CheckFunctions
   (JNIEnv *, jclass, jintArray, jint, jstring, jstring, jstring, jobject);
+
+/*
+ * Class:     com_qpidnetwork_request_RequestJniLivechat
+ * Method:    GetMagicIconConfig
+ * Signature: (Lcom/qpidnetwork/request/OnGetMagicIconConfigCallback;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_qpidnetwork_request_RequestJniLivechat_GetMagicIconConfig
+  (JNIEnv *, jclass, jobject);
 
 #ifdef __cplusplus
 }

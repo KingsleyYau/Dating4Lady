@@ -29,6 +29,7 @@ import com.qpidnetwork.ladydating.chat.downloader.EmotionPlayImageDownloader;
 import com.qpidnetwork.ladydating.chat.downloader.EmotionPlayImageDownloader.OnEmotionPlayImageDownloadListener;
 import com.qpidnetwork.ladydating.chat.downloader.LivechatVideoThumbPhotoDownloader;
 import com.qpidnetwork.ladydating.chat.downloader.LivechatVoiceDownloader;
+import com.qpidnetwork.ladydating.chat.downloader.MagicIconImageDownloader;
 import com.qpidnetwork.ladydating.chat.downloader.PrivatePhotoDownloader;
 import com.qpidnetwork.ladydating.chat.emotion.EmotionPlayer;
 import com.qpidnetwork.ladydating.chat.picture.LivechatPrivatePhotoPreviewActivity;
@@ -141,6 +142,9 @@ public class MessageListView extends ScrollLayout implements
 				break;
 			case Video:
 				break;
+			case MagicIcon:
+				row = getMagicIconViewIn(bean, position);
+				break;
 			case Warning:
 				row = getWarningView(bean);
 				break;
@@ -170,6 +174,9 @@ public class MessageListView extends ScrollLayout implements
 				break;
 			case Video:
 				row = getVideoViewOut(bean, position);
+				break;
+			case MagicIcon:
+				row = getMagicIconViewOut(bean, position);
 				break;
 			case System:
 				row = getSystemMessageView(bean);
@@ -342,6 +349,26 @@ public class MessageListView extends ScrollLayout implements
 				btnError, bean);
 		return row;
 	}
+	
+	/**
+	 * 获取收到小高表View
+	 * 
+	 * @param bean
+	 * @return
+	 */
+	private View getMagicIconViewIn(LCMessageItem bean, int position) {
+		View row = mLayoutInflater.inflate(R.layout.item_in_magicicon, null);
+
+		MaterialProgressBar pbDownload = (MaterialProgressBar) row
+				.findViewById(R.id.pbDownload);
+		ImageView ivMagicIconPhoto = (ImageView) row
+				.findViewById(R.id.ivMagicIcon);
+		ImageButton btnError = (ImageButton) row.findViewById(R.id.btnError);
+		btnError.setTag(position);
+		new MagicIconImageDownloader(mContext).displayMagicIconPhoto(
+				ivMagicIconPhoto, pbDownload, bean, btnError);
+		return row;
+	}
 
 	/**
 	 * 初始化发送文本 来信息view
@@ -490,6 +517,32 @@ public class MessageListView extends ScrollLayout implements
 				bean);
 		return row;
 	}
+	
+	/**
+	 * 初始化发送MagicIcon view
+	 * 
+	 * @param bean
+	 * @return
+	 */
+	private View getMagicIconViewOut(LCMessageItem bean, int position) {
+		View row = mLayoutInflater.inflate(R.layout.item_out_magicicon, null);
+		MaterialProgressBar pbDownload = (MaterialProgressBar) row
+				.findViewById(R.id.pbDownload);
+		ImageView ivMagicIconPhoto = (ImageView) row
+				.findViewById(R.id.ivMagicIcon);
+		new MagicIconImageDownloader(mContext).displayMagicIconPhoto(
+				ivMagicIconPhoto, null, bean, null);
+		if (bean.statusType == StatusType.Processing) {
+			pbDownload.setVisibility(View.VISIBLE);
+		} else if (bean.statusType == StatusType.Fail) {
+			pbDownload.setVisibility(View.GONE);
+			row.findViewById(R.id.btnError).setTag(bean);
+			row.findViewById(R.id.btnError).setVisibility(View.VISIBLE);
+			row.findViewById(R.id.btnError).setOnClickListener(
+					onSendMessageError);
+		}
+		return row;
+	}
 
 	@Override
 	public void onClick(View v) {
@@ -538,7 +591,7 @@ public class MessageListView extends ScrollLayout implements
 		int postion = getPosition(v);
 		if (beanList.size() > postion) {
 			LCMessageItem item = beanList.get(postion);
-			VideoPlayActivity.launchVideoPlayActivity(mContext, item.msgId, item.getUserItem().userId);
+			VideoPlayActivity.launchVideoPlayActivity(mContext, item);
 		}
 	}
 	
@@ -705,6 +758,10 @@ public class MessageListView extends ScrollLayout implements
 					item.getVoiceItem().filePath, ".aac",
 					item.getVoiceItem().timeLength);
 			break;
+		case MagicIcon:
+			newItem = mLiveChatManager.SendMagicIcon(item.toId, 
+					item.getMagicIconItem().getMagicIconId());
+			break;
 		default:
 			break;
 		}
@@ -853,6 +910,7 @@ public class MessageListView extends ScrollLayout implements
 			}
 			beanList.clear();
 		}
+		getContainer().removeAllViews();
 		mPositionMap.clear();
 	}
 

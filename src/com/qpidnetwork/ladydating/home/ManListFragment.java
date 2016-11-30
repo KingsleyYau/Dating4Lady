@@ -338,6 +338,7 @@ public class ManListFragment extends BaseListViewFragment implements
 			if (mCategoryType == CategoryType.SEARCH) {
 				getProgressBar().setVisibility(View.GONE);
 				if (response.isSuccess) {
+					pageBean.setDataCount(msg.arg1);
 					ArrayList<ManInfoBean> manList = (ArrayList<ManInfoBean>) response.body;
 					Log.i(TAG, "pageIndex: " + pageBean.getPageIndex());
 					if (pageBean.getPageIndex() > 1) {
@@ -572,7 +573,6 @@ public class ManListFragment extends BaseListViewFragment implements
 							int totalCount) {
 						ArrayList<ManInfoBean> manList = new ArrayList<ManInfoBean>();
 						if (isSuccess) {
-							pageBean.setDataCount(totalCount);
 							if ((itemList != null) && (itemList.length > 0)) {
 								for (int i = 0; i < itemList.length; i++) {
 									ManInfoBean item = ManInfoBean
@@ -583,9 +583,13 @@ public class ManListFragment extends BaseListViewFragment implements
 								}
 							}
 						}
+						Message msg = Message.obtain();
+						msg.what = SEARCH_MANLIST_CALLBACK;
+						msg.arg1 = totalCount;
 						RequestBaseResponse response = new RequestBaseResponse(
 								isSuccess, errno, errmsg, manList);
-						sendUiMessage(SEARCH_MANLIST_CALLBACK, response);
+						msg.obj = response;
+						sendUiMessage(msg);
 					}
 				});
 	}

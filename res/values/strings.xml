@@ -70,7 +70,7 @@
     <string name="length_of_the_video_should_be_between_8_15_seconds_please_choose_another_video">Length of the video should be between 8 &#8211; 15 seconds, please choose another video.</string>
     <string name="the_video_resolution_must_be_heigher_than_720px_please_choose_another_video">The video resolution must be higher than 720 pixels, please choose another video.</string>
     <string name="the_video_thumbnail_resolution_must_be_heigher_than_720px_please_choose_another_photo">The video thumbnail resolution must be higher than 720 pixels, please choose another photo.</string>
-    <string name="the_photo_resolution_must_be_heigher_than_800px_please_choose_another_photo">The photo resolution must be higher than 800 pixels, please choose another photo.</string>
+    <string name="the_photo_resolution_must_be_heigher_than_800px_please_choose_another_photo">The photo resolution must be higher than %s pixels, please choose another photo.</string>
     <string name="the_photo_resolution_too_large">The photo resolution is too large, please choose another photo.</string>
     <string name="the_photo_type_must_be_jpg">The photo format must be JPG.</string>
     <string name="your_video_description_has_not_been_changed_yet">Your video description has not been changed yet.</string>
@@ -265,8 +265,31 @@
     <string name="livechat_voice_notsupported_error">The recipient\'s device does not support voice messages.</string>
     <string name="livechat_photo_notsupported_error">The recipient\'s device does not support photo exchanges.</string>
     <string name="livechat_video_notsupported_error">The recipient\'s device does not support short video exchanges.</string>
+    <string name="livechat_magicicon_notsupported_error">The recipient\'s device does not support short animating sticker exchanges.</string>
     
     <string name="livechat_record_voice_too_short">message is too short!</string>
+    <!-- new -->
+    <string name="livechat_magicIcon_home_price_desc">Animating stickers (0.1 credit each time sent)</string>
+    <string name="livechat_magicIcon_price_desc">Animating stickers (%s credits each time sent)</string>
+    <string name="livechat_can_not_send_magicicon_message_before_the_conversation_has_started">Can not send magicicon messages before the conversation is started.</string>
+    <string name="livechat_send_magicicon_frequently">Please do not send magicicon message frequently.</string>
+    <string name="livechat_download_magicicon_fail">Animating stickers loading failed.</string>
+    
+    <!-- auto invite -->
+    <string name="deactive">DEACTIVE</string>
+    <string name="livechat_autoinvite_menu_on">Invite Assistant(on)</string>
+    <string name="livechat_autoinvite_menu_off">Active Invite Assistant</string>
+    <string name="livechat_autoinvite_invite_assistant_using">Use for Invite Assistant</string>
+    <string name="livechat_autoinvite_deactive_title">Invite Assistant</string>
+    <string name="livechat_autoinvite_deactive_desc">Your invite assistant is currently active.</string>
+    <string name="livechat_autoinvite_activating">Activating&#8230;</string>
+    <string name="livechat_autoinvite_activate_error_title">Couldnot activate invite assistant</string>
+    <string name="livechat_autoinvite_activate_error">Failed to process your request.</string>
+    <string name="livechat_autoinvite_activate_template_error"> You do not have sufficient invite templates to activate the assistant, please contact your agency, or login to our computer site to add more invite templates.</string>
+    <!-- livechat history -->
+    <string name="livechat_chat_history_markasread">Make all as read</string>
+    <string name="livechat_chat_history_view_detail">View chat details</string>
+    <string name="livechat_chat_history_unread_count_format">Chat History (%s)</string>
     
     <string-array name="livechat_msg_in_type">
         <item name="received_system_message">You have a system message</item>
@@ -278,6 +301,8 @@
         <item name="receive_a_voice_message">%s sent a voice message</item>
         <item name="send_a_video">You sent a video</item>
         <item name="receive_a_video">%s sent a video</item>
+        <item name="send_a_magicicon">You sent a Animating sticker</item>
+        <item name="receive_a_magicicon">%s sent a Animating sticker</item>
     </string-array>
     
     <!-- more -->

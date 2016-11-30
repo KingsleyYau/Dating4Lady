@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.qpidnetwork.ladydating"
-    android:versionCode="205"
-    android:versionName="2.0.5a" >
+    android:versionCode="208"
+    android:versionName="2.0.8a" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -178,6 +178,14 @@
         </activity>
         <activity 
             android:name="com.qpidnetwork.ladydating.chat.history.LivechatChatHistoryActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity 
+            android:name="com.qpidnetwork.ladydating.chat.history.ChatContactListActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity 
+            android:name="com.qpidnetwork.ladydating.chat.history.ChatMessageListActivity"
             android:screenOrientation="portrait">
         </activity>
         <activity 

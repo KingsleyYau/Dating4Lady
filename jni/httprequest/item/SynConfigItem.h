@@ -30,6 +30,8 @@ public:
 		siteUrl = "";
 		liveChatVoiceHost = "";
 		videoUploadHost = "";
+		privatePhotoMax = 0;
+		privatePhotoMin = 0;
 	};
 
 	SynConfigItem(const SynConfigItem& item) {
@@ -44,6 +46,8 @@ public:
 		siteUrl = item.siteUrl;
 		liveChatVoiceHost = item.liveChatVoiceHost;
 		videoUploadHost = item.videoUploadHost;
+		privatePhotoMax = item.privatePhotoMax;
+		privatePhotoMin = item.privatePhotoMin;
 	}
 
 	~SynConfigItem(){};
@@ -60,6 +64,8 @@ public:
 		siteUrl = item.siteUrl;
 		liveChatVoiceHost = item.liveChatVoiceHost;
 		videoUploadHost = item.videoUploadHost;
+		privatePhotoMax = item.privatePhotoMax;
+		privatePhotoMin = item.privatePhotoMin;
 		return *this;
 	}
 
@@ -105,6 +111,12 @@ public:
 			if(data[SYN_CONFIG_VIDEOUPLOADHOST].isString()){
 				videoUploadHost = data[SYN_CONFIG_VIDEOUPLOADHOST].asString();
 			}
+			if(data[SYN_CONFIG_PRIVATEPHOTOMAX].isInt()){
+				privatePhotoMax = data[SYN_CONFIG_PRIVATEPHOTOMAX].asInt();
+			}
+			if(data[SYN_CONFIG_PRIVATEPHOTOMIN].isInt()){
+				privatePhotoMin = data[SYN_CONFIG_PRIVATEPHOTOMIN].asInt();
+			}
 
 			if(!socketHost.empty()){
 				result = true;
@@ -125,6 +137,8 @@ public:
 	string siteUrl;
 	string liveChatVoiceHost;
 	string videoUploadHost;
+	int privatePhotoMax;
+	int privatePhotoMin;
 };
 
 #endif/*SYNCONFIGITEM_H*/

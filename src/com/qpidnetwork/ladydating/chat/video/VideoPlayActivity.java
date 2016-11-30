@@ -29,7 +29,6 @@ import com.qpidnetwork.framework.util.Log;
 import com.qpidnetwork.framework.util.SystemUtil;
 import com.qpidnetwork.ladydating.R;
 import com.qpidnetwork.ladydating.base.BaseFragmentActivity;
-import com.qpidnetwork.ladydating.chat.ChatActivity;
 import com.qpidnetwork.ladydating.chat.downloader.LivechatVideoThumbPhotoDownloader;
 import com.qpidnetwork.livechat.LCMessageItem;
 import com.qpidnetwork.livechat.LCUserItem;
@@ -45,7 +44,7 @@ import com.qpidnetwork.request.item.LCVideoListVideoItem;
 public class VideoPlayActivity extends BaseFragmentActivity implements OnClickListener, Callback, OnSeekCompleteListener, 
 			OnCompletionListener, OnErrorListener, OnPreparedListener, OnVideoSizeChangedListener, LiveChatManagerVideoListener{
 	
-	private static final String LIVECHAT_MESSAGE_ID = "msgId";
+	private static final String LIVECHAT_MESSAGE_ITEM = "msgItem";
 	
 	private static final int DOWNLOAD_VIDEO_THUMB_CALLBACK = 1;
 	private static final int DOWNLOAD_VIDEO_CALLBACK = 2;
@@ -76,10 +75,9 @@ public class VideoPlayActivity extends BaseFragmentActivity implements OnClickLi
 	private String targetId = "";
 	private LCMessageItem mMsgItem;
 	
-	public static void launchVideoPlayActivity(Context context, int msgId, String targetId){
+	public static void launchVideoPlayActivity(Context context, LCMessageItem item){
 		Intent intent = new Intent(context, VideoPlayActivity.class);
-		intent.putExtra(LIVECHAT_MESSAGE_ID, msgId);
-		intent.putExtra(ChatActivity.CHAT_TARGET_ID, targetId);
+		intent.putExtra(LIVECHAT_MESSAGE_ITEM, item);
 		context.startActivity(intent);
 	}
 	
@@ -137,16 +135,19 @@ public class VideoPlayActivity extends BaseFragmentActivity implements OnClickLi
 		
 		Bundle bundle = getIntent().getExtras();
 		if(bundle != null){
-			if(bundle.containsKey(LIVECHAT_MESSAGE_ID)){
-				msgId = bundle.getInt(LIVECHAT_MESSAGE_ID);
-			}
-			if(bundle.containsKey(ChatActivity.CHAT_TARGET_ID)){
-				targetId = bundle.getString(ChatActivity.CHAT_TARGET_ID);
+//			if(bundle.containsKey(LIVECHAT_MESSAGE_ID)){
+//				msgId = bundle.getInt(LIVECHAT_MESSAGE_ID);
+//			}
+//			if(bundle.containsKey(ChatActivity.CHAT_TARGET_ID)){
+//				targetId = bundle.getString(ChatActivity.CHAT_TARGET_ID);
+//			}
+			if(bundle.containsKey(LIVECHAT_MESSAGE_ITEM)){
+				mMsgItem = (LCMessageItem)bundle.getSerializable(LIVECHAT_MESSAGE_ITEM);
 			}
 		}
-		if((msgId >= 0) && (!TextUtils.isEmpty(targetId))){
-			mMsgItem = mLiveChatManager.GetMessageWithMsgId(targetId, msgId);
-		}
+//		if((msgId >= 0) && (!TextUtils.isEmpty(targetId))){
+//			mMsgItem = mLiveChatManager.GetMessageWithMsgId(targetId, msgId);
+//		}
 		if(mMsgItem == null){
 			finish();
 			return;

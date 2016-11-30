@@ -1,6 +1,5 @@
 package com.qpidnetwork.ladydating.home;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -112,7 +111,6 @@ public class LiveChatListAdapter extends BaseAdapter{
 			holder.age.setText(String.valueOf(contactItem.age));
 			holder.country.setText(StringUtil.getCountryNameByCode(context, contactItem.country));
 		}
-		
 		
 		holder.masterView.setBackgroundColor(!readFlag? context.getResources().getColor(R.color.touch_feedback_holo_light) : Color.TRANSPARENT);
 		holder.firstName.setText(contactItem.userName);

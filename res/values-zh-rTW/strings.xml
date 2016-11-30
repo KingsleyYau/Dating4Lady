@@ -71,7 +71,7 @@
     <string name="length_of_the_video_should_be_between_8_15_seconds_please_choose_another_video">視訊長度應為8至15秒，請選擇其它視訊。</string>
     <string name="the_video_resolution_must_be_heigher_than_720px_please_choose_another_video">視訊寬高必須大於720像素，請選擇另一個視訊。</string>
     <string name="the_video_thumbnail_resolution_must_be_heigher_than_720px_please_choose_another_photo">視訊預覽圖必須大於720像素，請選擇另一張照片。</string>
-    <string name="the_photo_resolution_must_be_heigher_than_800px_please_choose_another_photo">照片寬高大小必須大於800像素，請選擇另一張照片。</string>
+    <string name="the_photo_resolution_must_be_heigher_than_800px_please_choose_another_photo">照片寬高大小必須大於%s像素，請選擇另一張照片。</string>
     <string name="the_photo_resolution_too_large">照片太大，請選擇另一張照片.</string>
     <string name="the_photo_type_must_be_jpg">照片格式必須為JPG.</string>
     <string name="your_video_description_has_not_been_changed_yet">您沒有對視訊描述做任何變更。</string>
@@ -216,7 +216,30 @@
     <string name="livechat_voice_notsupported_error">對方不支持語音聊天.</string>
     <string name="livechat_photo_notsupported_error">對方不支持圖片聊天.</string>
     <string name="livechat_video_notsupported_error">對方不支持小視頻聊天.</string>
+    <string name="livechat_magicicon_notsupported_error">對方不支持小高級表情聊天.</string>
     <string name="livechat_record_voice_too_short">錄音時間過短!</string>
+    
+    <string name="livechat_magicIcon_home_price_desc">小高級表情 (0.1 信用點/次)</string>
+    <string name="livechat_magicIcon_price_desc">小高級表情 (%s 信用點/次))</string>
+    <string name="livechat_can_not_send_magicicon_message_before_the_conversation_has_started">請勿在會話開始前發送小高級表情。</string>
+    <string name="livechat_send_magicicon_frequently">請勿頻繁地發送小高級表情給同一個男士會員。</string>
+    <string name="livechat_download_magicicon_fail">小高級表情下載失敗。</string>
+    
+    <!-- auto invite -->
+    <string name="deactive">關閉</string>
+    <string name="livechat_autoinvite_menu_on">邀請助手(激活)</string>
+    <string name="livechat_autoinvite_menu_off">激活邀請助手</string>
+    <string name="livechat_autoinvite_invite_assistant_using">小助手使用</string>
+    <string name="livechat_autoinvite_deactive_title">邀請助手</string>
+    <string name="livechat_autoinvite_deactive_desc">邀請助手已激活.</string>
+    <string name="livechat_autoinvite_activating">激活中&#8230;</string>
+    <string name="livechat_autoinvite_activate_error_title">激活邀請助手失敗。</string>
+    <string name="livechat_autoinvite_activate_error">請求異常。</string>
+    <string name="livechat_autoinvite_activate_template_error">缺少小助手邀請模板，請聯繫機構或登錄網站編輯邀請模板.</string>
+    <!-- livechat history -->
+    <string name="livechat_chat_history_markasread">標記所有為已讀</string>
+    <string name="livechat_chat_history_view_detail">查看聊天詳情</string>
+    <string name="livechat_chat_history_unread_count_format">聊天記錄 (%s)</string>
     
     <string-array name="livechat_msg_in_type">
         <item name="received_system_message">您收到一條系統消息。</item>
@@ -228,6 +251,8 @@
         <item name="receive_a_voice_message">%s給您發送了一條語音信息。</item>
         <item name="send_a_video">您發送了一個視訊檔。</item>
         <item name="receive_a_video">%s給你發送了一個視訊檔。</item>
+        <item name="send_a_magicicon">您發送了一個小高級表情</item>
+        <item name="receive_a_magicicon">%s 給您發送了一個小高級表情</item>
     </string-array>
     
     <!-- Album -->

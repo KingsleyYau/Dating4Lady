@@ -76,7 +76,8 @@ public:
 					messageType = LIM_VIDEO;
 				}break;
 				case LIPM_MAGIC_ICON:{
-
+					magicIconId = message;
+					messageType = LIM_MAGICICON;
 				}break;
 				default:{
 					messageType = LIM_UNKNOW;
@@ -110,6 +111,7 @@ public:
 		videoSendId = "";
 		videoDesc = "";
 		videoCharge = false;
+		magicIconId = "";
 	}
 
 	virtual ~LiveChatRecordListItem()
@@ -240,6 +242,7 @@ public:
 	 * @param videoSendId	视频发送ID
 	 * @param videoDesc		视频描述
 	 * @param videoCharge	视频是否已付费
+	 * @param magicIconId   小高表Id
 	 */
 	int toflag;
 	long addtime;
@@ -259,6 +262,7 @@ public:
 	string videoSendId;
 	string videoDesc;
 	bool videoCharge;
+	string magicIconId;
 };
 
 typedef list<LiveChatRecordListItem> LiveChatRecordList;
